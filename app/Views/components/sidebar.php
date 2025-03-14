@@ -14,14 +14,14 @@
     <div class="offcanvas-body">
         <a href="/" class="nav-link sidebar-link py-2">Dashboard</a>
         <a href="/list-checksheet" class="nav-link sidebar-link py-2">Checksheet</a>
-        <a href="/master-checksheet" class="nav-link sidebar-link py-2">Checksheet</a>
+        <a href="/master-checksheet/inde" class="nav-link sidebar-link py-2">Master Checksheet</a>
     </div>
 </div>
 
 <nav class="col-md-3 col-lg-2 d-none d-md-block bg-dark text-white min-vh-100 p-3">
     <a href="/" class="nav-link sidebar-link py-2">Dashboard</a>
     <a href="/list-checksheet" class="nav-link sidebar-link py-2">Checksheet</a>
-    <a href="/master-checksheet" class="nav-link sidebar-link py-2">Master Checksheet</a>
+    <a href="/master-checksheet/index" class="nav-link sidebar-link py-2">Master Checksheet</a>
 </nav>
 
 <style>

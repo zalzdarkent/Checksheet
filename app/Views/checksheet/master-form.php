@@ -88,11 +88,13 @@
             document.getElementById("selectedMesin").appendChild(badge);
         }
         document.getElementById("mesinInput").value = "";
+        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
     }
 
     function removeMesin(mesin, badge) {
         selectedMesin = selectedMesin.filter(item => item !== mesin);
         badge.remove();
+        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
     }
 
     function addForm() {

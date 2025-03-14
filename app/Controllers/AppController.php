@@ -65,9 +65,9 @@ class AppController extends BaseController
 
         // Ambil data yang sudah divalidasi
         $mesin = $request['mesin'];
-        $bulanRaw = $request['bulan']; // Format awal: YYYY-MM
-        $departemen = $request['departemen']; // Format awal: YYYY-MM
-        $seksi = $request['seksi']; // Format awal: YYYY-MM
+        $bulanRaw = $request['bulan'];
+        $departemen = $request['departemen'];
+        $seksi = $request['seksi'];
 
         // Ubah format bulan (YYYY-MM) menjadi (Nama Bulan YYYY)
         $dateObj = \DateTime::createFromFormat('Y-m', $bulanRaw);

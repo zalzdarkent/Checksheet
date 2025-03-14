@@ -10,6 +10,8 @@ class MasterController extends BaseController
 {
     public function index()
     {
+        $model = new Master();
+        $data['items'] = $model->findAll();
         $data['title'] = 'Master Checksheet ';
         return view('checksheet/master', $data);
     }
@@ -17,6 +19,7 @@ class MasterController extends BaseController
     {
         $checksheetModel = new Master();
 
+        // dd($this->request->getPost('mesin'));
         // Validasi input
         $validation = \Config\Services::validation();
         $validation->setRules([
@@ -26,12 +29,12 @@ class MasterController extends BaseController
             'standar'      => 'required',
         ]);
 
-        if (!$this->validate($validation->getRules())) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
+        // if (!$this->validate($validation->getRules())) {
+        //     return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        // }
 
         // Ambil data dari request
-        $mesin = $this->request->getPost('mesin'); // Ambil sebagai string JSON
+        $mesin = json_decode($this->request->getPost('mesin'), true); // Ubah JSON ke array
         $itemCheck = $this->request->getPost('item_check'); // Array
         $inspeksi = $this->request->getPost('inspeksi'); // Array
         $standar = $this->request->getPost('standar'); // Array
@@ -39,7 +42,7 @@ class MasterController extends BaseController
         $dataToInsert = [];
         foreach ($itemCheck as $key => $item) {
             $dataToInsert[] = [
-                'mesin'        => json_encode($mesin), // Simpan sebagai JSON
+                'mesin'        => json_encode($mesin), // Ambil mesin sesuai indeksnya
                 'item_check'   => $item,
                 'inspeksi'     => $inspeksi[$key],
                 'standar'      => $standar[$key],
@@ -47,9 +50,64 @@ class MasterController extends BaseController
             ];
         }
         // berikan dd data yang akan di kirim
-        dd($dataToInsert);
+        // dd($dataToInsert);
 
         $checksheetModel->insertBatch($dataToInsert);
-        return redirect()->to('/master-checksheet')->with('success', 'Data berhasil disimpan.');
+        return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil disimpan.');
+    }
+
+    public function edit($id)
+    {
+        $model = new Master();
+        $data['item'] = $model->find($id);
+
+        if (!$data['item']) {
+            return redirect()->to('/master')->with('error', 'Data tidak ditemukan.');
+        }
+
+        $data['title'] = 'Edit Data';
+        return view('checksheet/master-edit', $data);
+    }
+
+    public function update($id)
+    {
+        $model = new Master();
+        $request = $this->request->getPost();
+
+        // Validasi input
+        $validationRules = [
+            'mesin' => 'required',
+            'item_check' => 'required',
+            'inspeksi' => 'required',
+            'standar' => 'required',
+        ];
+
+        if (!$this->validate($validationRules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Data yang akan diperbarui
+        $data = [
+            'mesin' => json_encode($request['mesin']), // Simpan dalam format JSON
+            'item_check' => $request['item_check'],
+            'inspeksi' => $request['inspeksi'],
+            'standar' => $request['standar'],
+        ];
+
+        $model->update($id, $data);
+        return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diperbarui.');
+    }
+
+    public function delete($id)
+    {
+        $model = new Master(); // Gunakan model yang sesuai
+        $data = $model->find($id);
+
+        if ($data) {
+            $model->delete($id);
+            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil dihapus.');
+        } else {
+            return redirect()->to('/master-checksheet/index')->with('error', 'Data tidak ditemukan.');
+        }
     }
 }

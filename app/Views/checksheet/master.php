@@ -12,6 +12,17 @@
     </div>
 
     <div class="table-responsive">
+        <?php if (session()->getFlashdata('success')) : ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php elseif (session()->getFlashdata('error')) : ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= session()->getFlashdata('danger') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
@@ -24,36 +35,32 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>
-                        <span class="badge bg-success">A</span>
-                        <span class="badge bg-danger">B</span>
-                    </td>
-                    <td>Selang Gas</td>
-                    <td>Inspeksi A</td>
-                    <td>Standar A</td>
-                    <td>
-                        <a href="#" class="btn btn-info btn-sm">Detail</a>
-                        <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="#" class="btn btn-danger btn-sm">Hapus</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>
-                        <span class="badge bg-success">A</span>
-                        <span class="badge bg-danger">B</span>
-                    </td>
-                    <td>Air Sylinder</td>
-                    <td>Inspkesi B</td>
-                    <td>Standar B</td>
-                    <td>
-                        <a href="#" class="btn btn-info btn-sm">Detail</a>
-                        <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="#" class="btn btn-danger btn-sm">Hapus</a>
-                    </td>
-                </tr>
+                <?php if (empty($items)) : ?>
+                    <tr>
+                        <td colspan="6" class="text-center">Tidak ada data ditemukan.</td>
+                    </tr>
+                <?php else : ?>
+                    <?php foreach ($items as $key => $item) : ?>
+                        <tr>
+                            <td><?= $key + 1; ?></td>
+                            <td>
+                                <?php
+                                $mesinList = json_decode($item['mesin']);
+                                foreach ($mesinList as $mesin) :
+                                ?>
+                                    <span class="badge bg-success"><?= $mesin; ?></span>
+                                <?php endforeach; ?>
+                            </td>
+                            <td><?= $item['item_check']; ?></td>
+                            <td><?= $item['inspeksi']; ?></td>
+                            <td><?= $item['standar']; ?></td>
+                            <td>
+                                <a href="<?= base_url('master/edit/' . $item['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="<?= base_url('master/delete/' . $item['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>

@@ -13,7 +13,10 @@ class Checksheet extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'mesin', 'bulan', 'departemen', 'seksi'
+        'mesin',
+        'bulan',
+        'departemen',
+        'seksi',
     ];
     // protected $useTimestamps = true;
     // protected $createdField  = 'created_at';
