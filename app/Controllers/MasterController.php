@@ -88,11 +88,11 @@ class MasterController extends BaseController
 
         // Data yang akan diperbarui
         $data = [
-            'mesin' => json_encode($request['mesin']), // Simpan dalam format JSON
+            'mesin' => is_string($request['mesin']) ? $request['mesin'] : json_encode($request['mesin']), // Cek dulu
             'item_check' => $request['item_check'],
             'inspeksi' => $request['inspeksi'],
             'standar' => $request['standar'],
-        ];
+        ];        
 
         $model->update($id, $data);
         return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diperbarui.');

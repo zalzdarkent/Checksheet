@@ -45,11 +45,17 @@
                             <td><?= $key + 1; ?></td>
                             <td>
                                 <?php
-                                $mesinList = json_decode($item['mesin']);
-                                foreach ($mesinList as $mesin) :
+                                $mesinList = json_decode($item['mesin'], true); // true agar hasilnya array asosiatif
+                                if (is_array($mesinList)) :
+                                    foreach ($mesinList as $mesin) :
                                 ?>
-                                    <span class="badge bg-success"><?= $mesin; ?></span>
-                                <?php endforeach; ?>
+                                        <span class="badge bg-success"><?= htmlspecialchars($mesin); ?></span>
+                                    <?php
+                                    endforeach;
+                                else :
+                                    ?>
+                                    <span class="text-muted">Tidak ada mesin</span>
+                                <?php endif; ?>
                             </td>
                             <td><?= $item['item_check']; ?></td>
                             <td><?= $item['inspeksi']; ?></td>
