@@ -62,7 +62,7 @@ class AppController extends BaseController
         $request = $this->request->getPost();
 
         // Cek data yang diterima
-        dd($request);
+        // dd($request);
 
         list($masterId, $mesinIndex) = explode('|', $request['master_id']);
 

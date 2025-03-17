@@ -115,34 +115,37 @@ class MasterController extends BaseController
         $db->transBegin();
 
         try {
-            // Validasi data dari form
+            // Ambil data lama dari database
+            $existingData = $this->masterModel->find($id);
+
+            // Validasi data yang dikirim dari form
             $inputData = $this->request->getPost();
 
             if (!$this->validate([
-                'judul' => 'required',
-                'mesin' => 'required',
-                'item_check' => 'required',
-                'inspeksi' => 'required',
-                'standar' => 'required',
+                'judul'   => 'permit_empty',
+                'mesin'   => 'permit_empty',
+                'item_check' => 'permit_empty',
+                'inspeksi' => 'permit_empty',
+                'standar'  => 'permit_empty',
             ])) {
                 return redirect()->back()->withInput()->with('errors', $validation->getErrors());
             }
 
-            // Update tb_master
+            // Siapkan data yang akan diupdate (hanya yang dikirim dari form)
             $masterData = [
-                'judul_checksheet' => $inputData['judul'],
-                'mesin' => json_encode($inputData['mesin']),
+                'judul_checksheet' => $inputData['judul'] ?? $existingData['judul_checksheet'], // Jika tidak dikirim, pakai data lama
+                'mesin' => isset($inputData['mesin'])
+                    ? (is_array($inputData['mesin']) ? json_encode($inputData['mesin']) : $inputData['mesin'])
+                    : $existingData['mesin'], // Hindari JSON nested
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
             // Update tb_master
             $this->masterModel->update($id, $masterData);
-            // debugging the request
-            // dd($masterData);
 
-            // Update tb_detail_master
+            // Update tb_detail_master hanya jika ada perubahan
             if (isset($inputData['item_check']) && count($inputData['item_check']) > 0) {
-                // Hapus detail master yang lama
+                // Hapus detail lama hanya jika ada data baru
                 $this->detailMasterModel->where('master_id', $id)->delete();
 
                 // Masukkan data detail master baru
@@ -150,23 +153,19 @@ class MasterController extends BaseController
                 foreach ($inputData['item_check'] as $index => $itemCheck) {
                     $detailData[] = [
                         'item_check' => $itemCheck,
-                        'inspeksi' => $inputData['inspeksi'][$index],
-                        'standar' => $inputData['standar'][$index],
-                        'master_id' => $id,
+                        'inspeksi'   => $inputData['inspeksi'][$index] ?? null,
+                        'standar'    => $inputData['standar'][$index] ?? null,
+                        'master_id'  => $id,
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s')
                     ];
                 }
 
-                // Simpan detail master baru
                 $this->detailMasterModel->insertBatch($detailData);
-                // debugging the request
-                // dd($detailData);
             }
 
             $db->transCommit();
-            // Redirect ke halaman tertentu setelah update
-            return redirect()->to('/master/index')->with('success', 'Data berhasil diperbarui');
+            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diperbarui');
         } catch (\Exception $e) {
             $db->transRollback();
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
