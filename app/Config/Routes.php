@@ -39,7 +39,7 @@ $routes->get('/checksheet/edit/(:num)', 'AppController::edit/$1');
 $routes->post('/checksheet/update/(:num)', 'AppController::update/$1');
 
 // master checksheet
-$routes->get('/master-checksheet/tambah', 'AppController::masterForm');
+$routes->get('/master-checksheet/tambah', [MasterController::class, 'create']);
 $routes->get('/master-checksheet/index', [MasterController::class, 'index']);
 $routes->post('/master-checksheet/store', [MasterController::class, 'store']);
 $routes->get('/master/edit/(:num)', 'MasterController::edit/$1');

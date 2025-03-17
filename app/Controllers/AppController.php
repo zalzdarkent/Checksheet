@@ -40,12 +40,6 @@ class AppController extends BaseController
         return view('checksheet/form', $data);
     }
 
-    public function masterForm()
-    {
-        $data['title'] = 'Form Master ';
-        return view('checksheet/master-form', $data);
-    }
-
     public function store()
     {
         $model = new Checksheet();

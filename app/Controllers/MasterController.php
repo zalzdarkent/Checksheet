@@ -15,6 +15,11 @@ class MasterController extends BaseController
         $data['title'] = 'Master Checksheet ';
         return view('checksheet/master', $data);
     }
+    public function create()
+    {
+        $data['title'] = 'Form Master ';
+        return view('checksheet/master-form', $data);
+    }
     public function store()
     {
         $checksheetModel = new Master();
