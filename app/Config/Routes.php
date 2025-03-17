@@ -30,7 +30,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', [AppController::class, 'dashboard']);
 
 // list checksheet
-$routes->get('/table-checksheet/(:num)', 'AppController::detail/$1');
+$routes->get('/table-checksheet/(:num)/(:num)', 'AppController::detail/$1/$2');
 $routes->get('/list-checksheet', 'AppController::checksheet');
 $routes->get('/checksheet/tambah', 'AppController::checksheetCreate');
 $routes->post('/checksheet-store', 'AppController::store');

@@ -4,22 +4,39 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\Checksheet;
+use App\Models\Master;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class AppController extends BaseController
 {
     protected $checksheetModel;
+    protected $db;
 
     public function __construct()
     {
         $this->checksheetModel = new Checksheet();
+        $this->db = \Config\Database::connect();
     }
     public function checksheet()
     {
-        $checksheets = new Checksheet();
-        $data['checksheets'] = $checksheets->findAll();
-        $data['title'] = 'List Checksheet ';
-        return view('checksheet/index', $data);
+        $checksheets = $this->db->table('tb_checksheet')
+            ->select('tb_checksheet.*, tb_master.mesin')
+            ->join('tb_master', 'tb_checksheet.master_id = tb_master.id', 'left')
+            ->get()
+            ->getResultArray();
+
+        foreach ($checksheets as &$checksheet) {
+            $mesinList = json_decode($checksheet['mesin'], true); // Decode JSON ke array
+            $index = (int) $checksheet['mesin_index']; // Ambil index yang disimpan
+            $checksheet['mesin_name'] = $mesinList[$index] ?? 'Unknown'; // Ambil nama mesin dari array
+        }
+
+        $masters = $this->db->table('tb_master')->get()->getResultArray(); // Ambil master mesin
+
+        return view('checksheet/index', [
+            'checksheets' => $checksheets,
+            'masters' => $masters,
+        ]);
     }
 
     public function tableChecksheet()
@@ -42,53 +59,67 @@ class AppController extends BaseController
 
     public function store()
     {
-        $model = new Checksheet();
         $request = $this->request->getPost();
 
-        // Aturan validasi
-        $validationRules = [
-            'mesin' => 'required',
-            'bulan' => 'required|regex_match[/^\d{4}-(0[1-9]|1[0-2])$/]', // Format YYYY-MM
-            'departemen' => 'required',
-            'seksi' => 'required',
-        ];
+        // Cek data yang diterima
+        dd($request);
 
-        if (!$this->validate($validationRules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        list($masterId, $mesinIndex) = explode('|', $request['master_id']);
+
+        // Cek apakah explode berhasil
+        // dd([
+        //     'master_id'  => $masterId,
+        //     'mesin_index' => $index
+        // ]);
+        // Debug sebelum insert
+        // dd($insertData);
+        $masterId = (int) $masterId;
+        $mesinIndex = (int) $mesinIndex;
+
+        try {
+            // Gunakan raw query untuk insert
+            $this->db->query("INSERT INTO tb_checksheet (master_id, mesin_index, bulan, departemen, seksi) 
+                              VALUES (?, ?, ?, ?, ?)", [
+                $masterId,
+                $mesinIndex,
+                $request['bulan'],
+                $request['departemen'],
+                $request['seksi']
+            ]);
+
+            return redirect()->to('/list-checksheet')->with('success', 'Data berhasil disimpan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
-
-        // Ambil data yang sudah divalidasi
-        $mesin = $request['mesin'];
-        $bulanRaw = $request['bulan'];
-        $departemen = $request['departemen'];
-        $seksi = $request['seksi'];
-
-        // Ubah format bulan (YYYY-MM) menjadi (Nama Bulan YYYY)
-        $dateObj = \DateTime::createFromFormat('Y-m', $bulanRaw);
-        $bulan = strftime('%B %Y', $dateObj->getTimestamp()); // Contoh: Februari 2025
-
-        // Simpan ke database
-        $model->insert([
-            'mesin' => $mesin,
-            'bulan' => $bulan,
-            'departemen' => $departemen, // Data dari API nantinya
-            'seksi' => $seksi // Data dari API nantinya
-        ]);
-
-        return redirect()->to('/list-checksheet')->with('success', 'Data berhasil disimpan');
     }
 
-    public function detail($id)
+    public function detail($id, $mesin_index = null)
     {
-        $checksheet = $this->checksheetModel->find($id);
+        $db = \Config\Database::connect();
+
+        // Query untuk mendapatkan data checksheet
+        $queryChecksheet = $db->table('tb_checksheet')
+            ->select('*')
+            ->where('id', $id)
+            ->get();
+        $checksheet = $queryChecksheet->getRowArray(); // Ambil hanya satu baris karena ini checksheet utama
 
         if (!$checksheet) {
             return redirect()->to('/table-checksheet')->with('error', 'Data tidak ditemukan');
         }
 
+        // Query untuk mendapatkan semua data dari tb_master berdasarkan master_id dari checksheet
+        $queryMaster = $db->table('tb_master')
+            ->select('*')
+            ->where('id', $checksheet['master_id']) // Ambil semua data yang sesuai dengan master_id
+            ->get();
+        $masterData = $queryMaster->getResultArray(); // Ambil semua data dalam bentuk array
+
         $data = [
             'title' => 'Detail Checksheet',
-            'checksheet' => $checksheet
+            'checksheet' => $checksheet, // Data utama checksheet (hanya satu baris)
+            'masterData' => $masterData, // Semua data dari tb_master
+            'mesin_index' => $mesin_index ?? $checksheet['mesin_index']
         ];
 
         return view('checksheet/tabel', $data);

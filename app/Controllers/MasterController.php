@@ -3,11 +3,20 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\DetailMaster;
 use App\Models\Master;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class MasterController extends BaseController
 {
+    protected $masterModel;
+    protected $detailMasterModel;
+
+    public function __construct()
+    {
+        $this->masterModel = new Master();
+        $this->detailMasterModel = new DetailMaster();
+    }
     public function index()
     {
         $model = new Master();
@@ -22,53 +31,78 @@ class MasterController extends BaseController
     }
     public function store()
     {
-        $checksheetModel = new Master();
+        $masterModel = new Master(); // Model untuk tb_master
+        $detailMasterModel = new DetailMaster(); // Model untuk tb_detail_master
 
-        // dd($this->request->getPost('mesin'));
         // Validasi input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'mesin'        => 'required',
-            'item_check'   => 'required',
-            'inspeksi'     => 'required',
-            'standar'      => 'required',
+            'judul_checksheet' => 'required',
+            'mesin'            => 'required',
+            'item_check'       => 'required',
+            'inspeksi'         => 'required',
+            'standar'          => 'required',
         ]);
 
-        // if (!$this->validate($validation->getRules())) {
-        //     return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        // }
+        if (!$this->validate($validation->getRules())) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
 
         // Ambil data dari request
+        $judulChecksheet = $this->request->getPost('judul_checksheet');
         $mesin = json_decode($this->request->getPost('mesin'), true); // Ubah JSON ke array
         $itemCheck = $this->request->getPost('item_check'); // Array
         $inspeksi = $this->request->getPost('inspeksi'); // Array
         $standar = $this->request->getPost('standar'); // Array
 
+        // Simpan ke tb_master (hanya 1 kali)
+        $masterData = [
+            'judul_checksheet' => $judulChecksheet,
+            'mesin'            => json_encode($mesin), // Simpan dalam bentuk JSON
+            'created_at'       => date('Y-m-d H:i:s'),
+        ];
+
+        $masterModel->insert($masterData);
+        $masterId = $masterModel->insertID(); // Ambil ID master yang baru disimpan
+
+        // Simpan ke tb_detail_master (hanya simpan item_check, inspeksi, standar)
         $dataToInsert = [];
         foreach ($itemCheck as $key => $item) {
             $dataToInsert[] = [
-                'mesin'        => json_encode($mesin), // Ambil mesin sesuai indeksnya
-                'item_check'   => $item,
-                'inspeksi'     => $inspeksi[$key],
-                'standar'      => $standar[$key],
-                'created_at'   => date('Y-m-d H:i:s'),
+                'master_id'   => $masterId, // Hubungkan dengan master
+                'item_check'  => $item,
+                'inspeksi'    => $inspeksi[$key],
+                'standar'     => $standar[$key],
+                'created_at'  => date('Y-m-d H:i:s'),
             ];
         }
-        // berikan dd data yang akan di kirim
-        // dd($dataToInsert);
 
-        $checksheetModel->insertBatch($dataToInsert);
+        // dd($dataToInsert); // Debugging untuk cek data sebelum insert
+
+        $detailMasterModel->insertBatch($dataToInsert);
+
         return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil disimpan.');
     }
 
     public function edit($id)
     {
         $model = new Master();
+        $detailModel = new DetailMaster(); // Model untuk tabel kedua
+
+        // Ambil data dari tabel master
         $data['item'] = $model->find($id);
 
         if (!$data['item']) {
             return redirect()->to('/master')->with('error', 'Data tidak ditemukan.');
         }
+
+        // Ambil data dari tabel detail berdasarkan master_id
+        $details = $detailModel->where('master_id', $id)->findAll();
+
+        // Ubah hasil query ke array untuk digunakan di view
+        $data['itemChecks'] = array_column($details, 'item_check');
+        $data['inspeksiList'] = array_column($details, 'inspeksi');
+        $data['standarList'] = array_column($details, 'standar');
 
         $data['title'] = 'Edit Data';
         return view('checksheet/master-edit', $data);
@@ -76,31 +110,67 @@ class MasterController extends BaseController
 
     public function update($id)
     {
-        $model = new Master();
-        $request = $this->request->getPost();
+        $validation = \Config\Services::validation();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-        // Validasi input
-        $validationRules = [
-            'mesin' => 'required',
-            'item_check' => 'required',
-            'inspeksi' => 'required',
-            'standar' => 'required',
-        ];
+        try {
+            // Validasi data dari form
+            $inputData = $this->request->getPost();
 
-        if (!$this->validate($validationRules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            if (!$this->validate([
+                'judul' => 'required',
+                'mesin' => 'required',
+                'item_check' => 'required',
+                'inspeksi' => 'required',
+                'standar' => 'required',
+            ])) {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+
+            // Update tb_master
+            $masterData = [
+                'judul_checksheet' => $inputData['judul'],
+                'mesin' => json_encode($inputData['mesin']),
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            // Update tb_master
+            $this->masterModel->update($id, $masterData);
+            // debugging the request
+            // dd($masterData);
+
+            // Update tb_detail_master
+            if (isset($inputData['item_check']) && count($inputData['item_check']) > 0) {
+                // Hapus detail master yang lama
+                $this->detailMasterModel->where('master_id', $id)->delete();
+
+                // Masukkan data detail master baru
+                $detailData = [];
+                foreach ($inputData['item_check'] as $index => $itemCheck) {
+                    $detailData[] = [
+                        'item_check' => $itemCheck,
+                        'inspeksi' => $inputData['inspeksi'][$index],
+                        'standar' => $inputData['standar'][$index],
+                        'master_id' => $id,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                }
+
+                // Simpan detail master baru
+                $this->detailMasterModel->insertBatch($detailData);
+                // debugging the request
+                // dd($detailData);
+            }
+
+            $db->transCommit();
+            // Redirect ke halaman tertentu setelah update
+            return redirect()->to('/master/index')->with('success', 'Data berhasil diperbarui');
+        } catch (\Exception $e) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Data yang akan diperbarui
-        $data = [
-            'mesin' => is_string($request['mesin']) ? $request['mesin'] : json_encode($request['mesin']), // Cek dulu
-            'item_check' => $request['item_check'],
-            'inspeksi' => $request['inspeksi'],
-            'standar' => $request['standar'],
-        ];        
-
-        $model->update($id, $data);
-        return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diperbarui.');
     }
 
     public function delete($id)

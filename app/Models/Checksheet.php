@@ -13,11 +13,18 @@ class Checksheet extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'mesin',
         'bulan',
         'departemen',
         'seksi',
+        'master_id'
     ];
+    protected $createdField     = 'created_at';
+    public function getChecksheetWithMaster()
+    {
+        return $this->select('tb_checksheet.*, tb_master.mesin as master_mesin, tb_master.item_check')
+            ->join('tb_master', 'tb_master.id = tb_checksheet.master_id')
+            ->findAll();
+    }
     // protected $useTimestamps = true;
     // protected $createdField  = 'created_at';
     // protected $updatedField  = 'updated_at';

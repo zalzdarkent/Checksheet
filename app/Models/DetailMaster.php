@@ -4,26 +4,24 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Master extends Model
+class DetailMaster extends Model
 {
-    protected $table            = 'tb_master';
+    protected $table            = 'tb_detail_master';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'mesin',
-        'judul_checksheet',
+        'item_check',
+        'inspeksi',
+        'standar',
+        'master_id',
         'created_at'
     ];
-    protected $useTimestamps = false;
-    public function getMasterWithDetails($id)
+    public function getDetailsByMasterId($master_id)
     {
-        return $this->select('tb_master.*, tb_detail_master.item_check, tb_detail_master.inspeksi, tb_detail_master.standar')
-            ->join('tb_detail_master', 'tb_detail_master.master_id = tb_master.id')
-            ->where('tb_master.id', $id)
-            ->findAll();
+        return $this->where('master_id', $master_id)->findAll();
     }
 
 

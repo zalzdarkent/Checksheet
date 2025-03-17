@@ -25,7 +25,7 @@ function OkNg($jumlahKolom)
 ?>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
-    <h2 class="text-center">Checksheet <?= esc($checksheet['mesin']) ?></h2>
+    <h2 class="text-center">Checksheet</h2>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>
@@ -34,7 +34,7 @@ function OkNg($jumlahKolom)
                     <td class="p-1">: <?= esc($checksheet['departemen']) ?></td>
                     <td class="p-1"></td>
                     <th class="p-1">Mesin</th>
-                    <td class="p-1">: <?= esc($checksheet['mesin']) ?></td>
+                    <td class="p-1">: </td>
                     <td class="p-1"></td>
                 </tr>
                 <tr>
@@ -55,51 +55,6 @@ function OkNg($jumlahKolom)
                 </tr>
             </tbody>
         </table>
-
-        <!-- Form (awalnya disembunyikan) -->
-        <form id="dataForm" class="d-none">
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label">Departemen</label>
-                    <select id="departemen" class="form-select">
-                        <option value="" disabled selected>Pilih</option>
-                        <option value="Produksi">Produksi</option>
-                        <option value="Maintenance">Maintenance</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Mesin</label>
-                    <input type="text" class="form-control" id="mesin">
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <label class="form-label">Seksi</label>
-                    <input type="text" class="form-control" id="seksi">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">No Form</label>
-                    <input type="text" class="form-control" id="noForm">
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-6">
-                    <label class="form-label">Line</label>
-                    <input type="text" class="form-control" id="line">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Bulan</label>
-                    <select id="bulan" class="form-select">
-                        <option value="" disabled selected>Pilih</option>
-                        <option value="Januari">Januari</option>
-                        <option value="Februari">Februari</option>
-                    </select>
-                </div>
-            </div>
-            <div class="mt-3">
-                <button type="button" class="btn btn-success">Simpan</button>
-            </div>
-        </form>
     </div>
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h4 class="mb-0">Table Daily Check</h4>
@@ -120,40 +75,23 @@ function OkNg($jumlahKolom)
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Baut Locator dan Stopper</td>
-                    <td>Check Visual</td>
-                    <td>Kekencangan Baut</td>
-                    <?php OkNg($jumlahKolom); ?>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Selang Air Cylinder</td>
-                    <td>Cek Kebocoran</td>
-                    <td>Tidak ada kebocoran</td>
-                    <?php OkNg($jumlahKolom); ?>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Sensor</td>
-                    <td>Cek Fungsi</td>
-                    <td>Sensor berfungsi</td>
-                    <?php OkNg($jumlahKolom); ?>
-                </tr>
+                <?php $no = 1; ?>
+                <?php foreach ($masterData as $row) : ?>
+                    <tr>
+                        <td><?= $no++; ?></td>
+                        <td><?= esc($row['item_check']); ?></td>
+                        <td><?= esc($row['inspeksi']); ?></td>
+                        <td><?= esc($row['standar']); ?></td>
+                        <?php OkNg($jumlahKolom); ?>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="4"><label class="fw-bold">Diisi oleh (NPK):</label></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
-                    <td class="text-center"><input type="text" class="form-control"></td>
+                    <?php for ($i = 0; $i < $jumlahKolom; $i++) : ?>
+                        <td class="text-center"><input type="text" class="form-control"></td>
+                    <?php endfor; ?>
                 </tr>
             </tfoot>
         </table>

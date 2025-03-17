@@ -8,6 +8,14 @@
 
     <a href="javascript:history.back()" class="btn btn-secondary mb-3">Kembali</a>
 
+    <!-- Card untuk Input Judul Checksheet -->
+    <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
+        <div class="card-body">
+            <label class="form-label">Judul Checksheet</label>
+            <input type="text" class="form-control" name="judul" id="judul_checksheet" value="<?= htmlspecialchars($item['judul_checksheet'] ?? '') ?>">
+        </div>
+    </div>
+
     <!-- Card untuk Input Mesin -->
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
@@ -35,24 +43,11 @@
             <form id="dynamicForm" action="<?= base_url('/master/update/' . $item['id']); ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="_method" value="POST">
+                <input type="hidden" name="judul" id="judul_checksheet_hidden" value="<?= htmlspecialchars($item['judul_checksheet'] ?? '') ?>">
                 <input type="hidden" name="mesin" id="mesinData" value='<?= json_encode($selectedMesin) ?>'>
 
                 <div id="formContainer">
                     <?php
-                    $itemChecks = is_array($item['item_check']) ? $item['item_check'] : explode(',', $item['item_check']);
-                    $inspeksiList = is_array($item['inspeksi']) ? $item['inspeksi'] : explode(',', $item['inspeksi']);
-                    $standarList = is_array($item['standar']) ? $item['standar'] : explode(',', $item['standar']);
-
-                    if (!is_array($itemChecks)) {
-                        $itemChecks = [];
-                    }
-                    if (!is_array($inspeksiList)) {
-                        $inspeksiList = [];
-                    }
-                    if (!is_array($standarList)) {
-                        $standarList = [];
-                    }
-
                     foreach ($itemChecks as $index => $check) :
                     ?>
                         <div class="row mb-3 form-group">
@@ -81,7 +76,13 @@
     </div>
 </main>
 
+
 <script>
+    document.getElementById("judul_checksheet").addEventListener("input", function() {
+        document.getElementById("judul_checksheet_hidden").value = this.value;
+    });
+
+
     let selectedMesin = <?= json_encode($selectedMesin) ?>;
 
     function handleKeyDown(event) {
@@ -126,6 +127,19 @@
         let formContainer = document.getElementById("formContainer");
         let newForm = document.createElement("div");
         newForm.classList.add("row", "mb-3", "form-group");
+        document.getElementById("dynamicForm").addEventListener("submit", function() {
+            let form = this;
+
+            // Ambil semua input yang ada di dalam form (termasuk yang ditambahkan secara dinamis)
+            let inputs = form.querySelectorAll("input[name='item_check[]'], input[name='inspeksi[]'], input[name='standar[]']");
+
+            // Pastikan tidak ada input kosong yang tidak sengaja masuk ke database
+            inputs.forEach(input => {
+                if (input.value.trim() === "") {
+                    input.remove();
+                }
+            });
+        });
 
         newForm.innerHTML = `
             <div class="col-md-4">

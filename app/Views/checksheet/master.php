@@ -28,9 +28,7 @@
                 <tr>
                     <th>No</th>
                     <th>Mesin</th>
-                    <th>Item Check</th>
-                    <th>Item inspeksi</th>
-                    <th>Standar</th>
+                    <th>Judul Checksheet</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -57,9 +55,7 @@
                                     <span class="text-muted">Tidak ada mesin</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $item['item_check']; ?></td>
-                            <td><?= $item['inspeksi']; ?></td>
-                            <td><?= $item['standar']; ?></td>
+                            <td><?= $item['judul_checksheet']; ?></td>
                             <td>
                                 <a href="<?= base_url('master/edit/' . $item['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
                                 <a href="<?= base_url('master/delete/' . $item['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>

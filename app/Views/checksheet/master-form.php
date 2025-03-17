@@ -12,6 +12,14 @@
 
     <a href="javascript:history.back()" class="btn btn-secondary mb-3">Kembali</a>
 
+    <!-- Card untuk Input Judul Checksheet -->
+    <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
+        <div class="card-body">
+            <label class="form-label">Judul Checksheet</label>
+            <input type="text" id="judul_checksheet" name="judul_checksheet" class="form-control" placeholder="Masukkan judul checksheet..." required>
+        </div>
+    </div>
+
     <!-- Card untuk Input Mesin -->
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
@@ -29,6 +37,7 @@
             <form id="dynamicForm" action="/master-checksheet/store" method="post">
                 <?= csrf_field() ?>
                 <div id="formContainer">
+                    <input type="hidden" name="judul_checksheet" id="judul_checksheet_hidden">
                     <input type="hidden" name="mesin" id="mesinData">
                     <div class="row mb-3 form-group">
                         <div class="col-md-4">
@@ -56,6 +65,11 @@
 </main>
 
 <script>
+    document.getElementById("judul_checksheet").addEventListener("input", function() {
+        document.getElementById("judul_checksheet_hidden").value = this.value;
+    });
+
+
     let mesinList = []; // List mesin yang bisa dipilih
     let selectedMesin = [];
 
