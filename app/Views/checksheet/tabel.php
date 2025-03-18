@@ -5,27 +5,8 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-
-<?php
-$jumlahKolom = 31; // Jumlah kolom yang diinginkan
-
-function OkNg($jumlahKolom)
-{
-    for ($i = 0; $i < $jumlahKolom; $i++) {
-        echo <<<HTML
-        <td class="text-center">
-            <div class="d-flex justify-content-center gap-2">
-                <button class="btn btn-outline-success btn-sm">OK</button>
-                <button class="btn btn-outline-danger btn-sm">NG</button>
-            </div>
-        </td>
-        HTML;
-    }
-}
-?>
-
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
-    <h2 class="text-center">Checksheet</h2>
+    <h2 class="text-center">Checksheet <?= esc($checksheet['mesin']) ?></h2>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>
@@ -34,7 +15,7 @@ function OkNg($jumlahKolom)
                     <td class="p-1">: <?= esc($checksheet['departemen']) ?></td>
                     <td class="p-1"></td>
                     <th class="p-1">Mesin</th>
-                    <td class="p-1">: </td>
+                    <td class="p-1">: <?= esc($checksheet['mesin']) ?></td>
                     <td class="p-1"></td>
                 </tr>
                 <tr>
@@ -50,7 +31,7 @@ function OkNg($jumlahKolom)
                     <td class="p-1">:</td>
                     <td class="p-1"></td>
                     <th class="p-1">Bulan</th>
-                    <td class="p-1">: <?= esc($checksheet['bulan']) ?></td>
+                    <td class="p-1">: <?= strftime('%B %Y', strtotime($checksheet['bulan'])) ?></td>
                     <td class="p-1"></td>
                 </tr>
             </tbody>
@@ -59,48 +40,143 @@ function OkNg($jumlahKolom)
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h4 class="mb-0">Table Daily Check</h4>
     </div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle text-center">
-            <thead>
-                <tr>
-                    <th class="custom-header">No</th>
-                    <th class="custom-header">Item Check</th>
-                    <th class="custom-header">Item Inspeksi</th>
-                    <th class="custom-header">Standar</th>
-                    <?php
-                    for ($i = 1; $i <= $jumlahKolom; $i++) {
-                        echo "<th class='custom-header text-center align-middle'>$i</th>";
-                    }
-                    ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $no = 1; ?>
-                <?php foreach ($masterData as $row) : ?>
+    <form id="checksheet-form" method="POST" action="<?= site_url('/checksheet/saveStatus'); ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
+        <div class="table-responsive">
+            <?php if (session()->getFlashdata('success')) : ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?= session()->getFlashdata('success') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php elseif (session()->getFlashdata('error')) : ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?= session()->getFlashdata('danger') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            <table class="table table-bordered table-striped align-middle text-center">
+                <thead>
                     <tr>
-                        <td><?= $no++; ?></td>
-                        <td><?= esc($row['item_check']); ?></td>
-                        <td><?= esc($row['inspeksi']); ?></td>
-                        <td><?= esc($row['standar']); ?></td>
-                        <?php OkNg($jumlahKolom); ?>
+                        <th class="custom-header">No</th>
+                        <th class="custom-header">Item Check</th>
+                        <th class="custom-header">Item Inspeksi</th>
+                        <th class="custom-header">Standar</th>
+                        <?php
+                        $jumlahKolom = date('t', strtotime($checksheet['bulan']));
+                        for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
+                            <th class="custom-header text-center align-middle"><?= $i ?></th>
+                            <input type="hidden" name="tanggal[<?= $i ?>]" value="<?= $i ?>">
+                        <?php endfor; ?>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4"><label class="fw-bold">Diisi oleh (NPK):</label></td>
-                    <?php for ($i = 0; $i < $jumlahKolom; $i++) : ?>
-                        <td class="text-center"><input type="text" class="form-control"></td>
-                    <?php endfor; ?>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    <div class="container mt-4 pb-5">
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary">Simpan</button>
-            <button class="btn btn-success">Kirim</button>
+                </thead>
+                <tbody>
+                    <?php $no = 1; ?>
+                    <?php foreach ($detailMasters as $index => $row) : ?>
+                        <tr>
+                            <td><?= $no++; ?></td>
+                            <td>
+                                <?= esc($row['item_check']); ?>
+                                <input type="hidden" name="item_check[<?= $index ?>]" value="<?= esc($row['item_check']); ?>">
+                            </td>
+                            <td>
+                                <?= esc($row['inspeksi']); ?>
+                                <input type="hidden" name="inspeksi[<?= $index ?>]" value="<?= esc($row['inspeksi']); ?>">
+                            </td>
+                            <td>
+                                <?= esc($row['standar']); ?>
+                                <input type="hidden" name="standar[<?= $index ?>]" value="<?= esc($row['standar']); ?>">
+                            </td>
+                            <?php
+                            $jumlahKolom = date('t', strtotime($checksheet['bulan']));
+                            for ($i = 1; $i <= $jumlahKolom; $i++) :
+                                $status = $statusArray[$row['item_check']][$i] ?? null; // Cek status per item_check dan tanggal
+                            ?>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="">
+
+                                        <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
+                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
+
+                                        <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
+                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                    </div>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4"><label class="fw-bold">Diisi oleh (NPK):</label></td>
+                        <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
+                            <td class="text-center">
+                                <input type="text" class="form-control" name="npk[<?= $i ?>]">
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
-    </div>
+        <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
+        <button type="submit" name="action" value="save" class="btn btn-primary mt-3">Simpan</button>
+        <button type="submit" name="action" value="submit" class="btn btn-success mt-3">Kirim</button>
+    </form>
 </main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", function() {
+                const index = this.dataset.index;
+                const col = this.dataset.col;
+                const value = this.dataset.value;
+
+                // Set nilai OK/NG di input hidden
+                const inputStatus = document.querySelector(`#status_${index}_${col}`);
+                inputStatus.value = value;
+
+                // Update tampilan button
+                const parentDiv = this.parentElement;
+                parentDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+
+                // Wajib isi NPK jika OK/NG sudah dipilih
+                const npkInput = document.querySelector(`input[name='npk[${col}]']`);
+                npkInput.setAttribute("required", "required");
+            });
+        });
+
+        document.querySelector("#checksheet-form").addEventListener("submit", function(e) {
+            let valid = true;
+
+            // Cek jika ada kolom OK/NG yang sudah terisi tetapi NPK kosong
+            document.querySelectorAll("input[name^='npk']").forEach(input => {
+                const col = input.name.match(/\d+/)[0]; // Ambil nomor kolom
+                let isChecked = false;
+
+                document.querySelectorAll(`input[name^='status'][name*='[${col}]']`).forEach(statusInput => {
+                    if (statusInput.value !== "") {
+                        isChecked = true;
+                    }
+                });
+
+                if (isChecked && input.value.trim() === "") {
+                    valid = false;
+                    input.classList.add("is-invalid");
+                } else {
+                    input.classList.remove("is-invalid");
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
+                alert("Harap isi NPK untuk kolom yang telah diisi OK/NG!");
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?>

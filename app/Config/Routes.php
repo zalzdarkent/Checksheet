@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AppController;
+use App\Controllers\DetailChecksheetController;
 use App\Controllers\MasterController;
 use App\Controllers\UserController;
 use CodeIgniter\Router\RouteCollection;
@@ -30,13 +31,14 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', [AppController::class, 'dashboard']);
 
 // list checksheet
-$routes->get('/table-checksheet/(:num)/(:num)', 'AppController::detail/$1/$2');
+$routes->get('/table-checksheet/(:num)', 'AppController::detail/$1');
 $routes->get('/list-checksheet', 'AppController::checksheet');
 $routes->get('/checksheet/tambah', 'AppController::checksheetCreate');
 $routes->post('/checksheet-store', 'AppController::store');
 $routes->delete('/checksheet/delete/(:num)', 'AppController::destroy/$1');
 $routes->get('/checksheet/edit/(:num)', 'AppController::edit/$1');
 $routes->post('/checksheet/update/(:num)', 'AppController::update/$1');
+$routes->post('/checksheet/saveStatus', [DetailChecksheetController::class, 'saveStatus']);
 
 // master checksheet
 $routes->get('/master-checksheet/tambah', [MasterController::class, 'create']);

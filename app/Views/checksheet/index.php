@@ -34,7 +34,7 @@
                     <?php foreach ($checksheets as $index => $row) : ?>
                         <tr>
                             <td><?= $index + 1 ?></td>
-                            <td><?= esc($row['mesin_name']) ?></td>
+                            <td><?= esc($row['mesin']) ?></td>
                             <td><?= date('m-Y', strtotime($row['bulan'])) ?></td>
                             <td>
                                 <?php
@@ -55,7 +55,7 @@
                                 <span class="badge <?= $warna ?>"><?= esc($row['seksi']) ?></span>
                             </td>
                             <td>
-                                <a href="/table-checksheet/<?= $row['id'] ?>/<?= $row['mesin_index'] ?>" class="btn btn-info btn-sm">Detail</a>
+                                <a href="/table-checksheet/<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
                                 <a href="/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="/checksheet/delete/<?= $row['id'] ?>" method="post" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus?');">
                                     <?= csrf_field() ?>
@@ -88,7 +88,7 @@
                     <?= csrf_field() ?>
                     <div class="mb-3">
                         <label for="mesin" class="form-label">Mesin</label>
-                        <select class="form-select" id="master_id" name="master_id">
+                        <select class="form-select" id="mesin" name="mesin">
                             <option value="" selected>Pilih Mesin</option>
                             <?php foreach ($masters as $master): ?>
                                 <?php $mesinList = json_decode($master['mesin'], true); ?>

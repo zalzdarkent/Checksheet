@@ -20,18 +20,16 @@ class AppController extends BaseController
     public function checksheet()
     {
         $checksheets = $this->db->table('tb_checksheet')
-            ->select('tb_checksheet.*, tb_master.mesin')
+            ->select('tb_checksheet.*, tb_master.mesin as master_mesin, tb_master.id as master_id')
             ->join('tb_master', 'tb_checksheet.master_id = tb_master.id', 'left')
             ->get()
             ->getResultArray();
 
         foreach ($checksheets as &$checksheet) {
-            $mesinList = json_decode($checksheet['mesin'], true); // Decode JSON ke array
-            $index = (int) $checksheet['mesin_index']; // Ambil index yang disimpan
-            $checksheet['mesin_name'] = $mesinList[$index] ?? 'Unknown'; // Ambil nama mesin dari array
+            $checksheet['mesin'] = $checksheet['mesin'] ?? 'Unknown'; // Langsung ambil dari tb_checksheet
         }
 
-        $masters = $this->db->table('tb_master')->get()->getResultArray(); // Ambil master mesin
+        $masters = $this->db->table('tb_master')->get()->getResultArray(); // Ambil data tb_master
 
         return view('checksheet/index', [
             'checksheets' => $checksheets,
@@ -59,67 +57,92 @@ class AppController extends BaseController
 
     public function store()
     {
-        $request = $this->request->getPost();
+        $validation = \Config\Services::validation();
 
-        // Cek data yang diterima
-        // dd($request);
+        // Aturan validasi
+        $rules = [
+            'bulan'      => 'required',
+            'departemen' => 'required',
+            'seksi'      => 'required',
+            'mesin'      => 'required',
+        ];
 
-        list($masterId, $mesinIndex) = explode('|', $request['master_id']);
-
-        // Cek apakah explode berhasil
-        // dd([
-        //     'master_id'  => $masterId,
-        //     'mesin_index' => $index
-        // ]);
-        // Debug sebelum insert
-        // dd($insertData);
-        $masterId = (int) $masterId;
-        $mesinIndex = (int) $mesinIndex;
-
-        try {
-            // Gunakan raw query untuk insert
-            $this->db->query("INSERT INTO tb_checksheet (master_id, mesin_index, bulan, departemen, seksi) 
-                              VALUES (?, ?, ?, ?, ?)", [
-                $masterId,
-                $mesinIndex,
-                $request['bulan'],
-                $request['departemen'],
-                $request['seksi']
-            ]);
-
-            return redirect()->to('/list-checksheet')->with('success', 'Data berhasil disimpan.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
+
+        // Ambil data dari form
+        $mesinValue = $this->request->getPost('mesin'); // Format: "master_id|index"
+        list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
+
+        // Ambil nama mesin berdasarkan index di tb_master
+        $master = $this->db->table('tb_master')->where('id', $master_id)->get()->getRowArray();
+        $mesinList = json_decode($master['mesin'], true);
+        $mesinName = $mesinList[$mesin_index] ?? 'Unknown'; // Ambil nama mesin berdasarkan index
+
+        // Data yang akan disimpan
+        $data = [
+            'bulan'      => $this->request->getPost('bulan'),
+            'departemen' => $this->request->getPost('departemen'),
+            'seksi'      => $this->request->getPost('seksi'),
+            'master_id'  => $master_id, // Simpan ID dari tb_master
+            'mesin'      => $mesinName, // Simpan nama mesin
+        ];
+
+        // Simpan ke database
+        $this->db->table('tb_checksheet')->insert($data);
+
+        return redirect()->to('/list-checksheet')->with('success', 'Data berhasil disimpan!');
     }
 
-    public function detail($id, $mesin_index = null)
+    public function detail($id)
     {
         $db = \Config\Database::connect();
 
-        // Query untuk mendapatkan data checksheet
-        $queryChecksheet = $db->table('tb_checksheet')
+        // Ambil data checksheet berdasarkan ID
+        $checksheet = $db->table('tb_checksheet')
             ->select('*')
             ->where('id', $id)
-            ->get();
-        $checksheet = $queryChecksheet->getRowArray(); // Ambil hanya satu baris karena ini checksheet utama
+            ->get()
+            ->getRowArray();
 
         if (!$checksheet) {
             return redirect()->to('/table-checksheet')->with('error', 'Data tidak ditemukan');
         }
 
-        // Query untuk mendapatkan semua data dari tb_master berdasarkan master_id dari checksheet
-        $queryMaster = $db->table('tb_master')
+        // Ambil data master berdasarkan master_id di tb_checksheet
+        $master = $db->table('tb_master')
             ->select('*')
-            ->where('id', $checksheet['master_id']) // Ambil semua data yang sesuai dengan master_id
-            ->get();
-        $masterData = $queryMaster->getResultArray(); // Ambil semua data dalam bentuk array
+            ->where('id', $checksheet['master_id'])
+            ->get()
+            ->getRowArray();
+
+        // Ambil data dari tb_detail_master berdasarkan master_id
+        $detailMasters = $db->table('tb_detail_master')
+            ->select('*')
+            ->where('master_id', $checksheet['master_id'])
+            ->get()
+            ->getResultArray();
+
+        // Ambil data status dari tb_detail_checksheet berdasarkan tanggal
+        $detailChecksheet = $db->table('tb_detail_checksheet')
+            ->select('*')
+            ->where('checksheet_id', $id)
+            ->get()
+            ->getResultArray();
+
+        // Buat array status berdasarkan item_check dan tanggal
+        $statusArray = [];
+        foreach ($detailChecksheet as $row) {
+            $statusArray[$row['item_check']][$row['tanggal']] = $row['status'];
+        }
 
         $data = [
             'title' => 'Detail Checksheet',
-            'checksheet' => $checksheet, // Data utama checksheet (hanya satu baris)
-            'masterData' => $masterData, // Semua data dari tb_master
-            'mesin_index' => $mesin_index ?? $checksheet['mesin_index']
+            'checksheet' => $checksheet,
+            'master' => $master,
+            'detailMasters' => $detailMasters,
+            'statusArray' => $statusArray, // Kirim status ke view
         ];
 
         return view('checksheet/tabel', $data);
