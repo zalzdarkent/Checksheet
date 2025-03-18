@@ -133,8 +133,18 @@ class AppController extends BaseController
 
         // Buat array status berdasarkan item_check dan tanggal
         $statusArray = [];
+        $npkArray = [];
+        $isSubmitted = false;
         foreach ($detailChecksheet as $row) {
-            $statusArray[$row['item_check']][$row['tanggal']] = $row['status'];
+            if (!empty($row['is_submitted']) && $row['is_submitted'] == 1) {
+                $isSubmitted = true;
+                break; // Stop loop jika sudah menemukan satu yang submitted
+            }
+
+            $statusArray[$row['item_check']][$row['kolom']] = $row['status'];
+            if (!empty($row['npk'])) {
+                $npkArray[$row['kolom']] = $row['npk'];
+            }
         }
 
         $data = [
@@ -142,7 +152,10 @@ class AppController extends BaseController
             'checksheet' => $checksheet,
             'master' => $master,
             'detailMasters' => $detailMasters,
+            'detailChecksheet' => $detailChecksheet,
             'statusArray' => $statusArray, // Kirim status ke view
+            'npkArray' => $npkArray,
+            'isSubmitted' => $isSubmitted
         ];
 
         return view('checksheet/tabel', $data);

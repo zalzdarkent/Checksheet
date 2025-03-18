@@ -8,12 +8,12 @@ class DetailChecksheet extends Model
 {
     protected $table            = 'tb_detail_checksheet';
     protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
+    protected $useAutoIncrement = true;  
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'checksheet_id', 'item_check', 'inspeksi', 'standar', 'status', 'npk', 'created_at'
+        'checksheet_id', 'item_check', 'inspeksi', 'standar', 'status', 'npk', 'created_at', 'kolom', 'is_submitted'
     ];
 
     // protected bool $allowEmptyInserts = false;

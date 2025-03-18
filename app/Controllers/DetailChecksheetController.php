@@ -64,32 +64,42 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Minimal satu OK/NG harus dipilih.');
         }
 
-        // Di awal controller
-        // $debug = [
-        //     'statusData' => $statusData,
-        //     'filledColumns' => $filledColumnsArray,
-        //     'requestData' => $this->request->getPost(),
-        // ];
-        // dd($debug);
-
         // Simpan data ke database
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
                 if (!empty($status)) {
-                    // Gunakan colIndex sebagai tanggal
-                    $tanggal = $colIndex;
-
-                    $data = [
+                    // Cek apakah data sudah ada untuk mencegah duplikasi
+                    $existing = $model->where([
                         'checksheet_id' => $checksheetId,
-                        'tanggal'       => $filledColumnsArray,
                         'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                        'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
-                        'standar'       => $standarData[$rowIndex] ?? null,
-                        'status'        => $status,
-                        'npk'           => $npkData[$colIndex] ?? null,
-                        'is_submitted'  => ($action == 'submit') ? 1 : 0,
-                    ];
-                    $model->insert($data);
+                        'kolom'         => $colIndex, // Pastikan hanya menyimpan 1 kolom, bukan array
+                    ])->first();
+
+                    // Tentukan status is_submitted berdasarkan tombol yang diklik
+                    $isSubmitted = ($action == 'submit') ? 1 : 0;
+
+                    if (!$existing) {
+                        // Jika data belum ada, tambahkan data baru
+                        $data = [
+                            'checksheet_id' => $checksheetId,
+                            'tanggal'       => $colIndex, // Simpan sebagai tanggal
+                            'kolom'         => implode(',', $filledColumnsArray), // Simpan kolom sebagai angka
+                            'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                            'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
+                            'standar'       => $standarData[$rowIndex] ?? null,
+                            'status'        => $status,
+                            'npk'           => $npkData[$colIndex] ?? null,
+                            'is_submitted'  => $isSubmitted, // Set berdasarkan tombol yang diklik
+                        ];
+                        $model->insert($data);
+                    } else {
+                        // Jika sudah ada, update status dan is_submitted jika perlu
+                        $model->where('id', $existing['id'])->set([
+                            'status'       => $status,
+                            'npk'          => $npkData[$colIndex] ?? $existing['npk'],
+                            'is_submitted' => $isSubmitted, // Perbarui status jika diklik "Kirim"
+                        ])->update();
+                    }
                 }
             }
         }

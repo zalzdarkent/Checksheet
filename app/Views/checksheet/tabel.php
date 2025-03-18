@@ -6,7 +6,8 @@
 
 <?= $this->section('content') ?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
-    <h2 class="text-center">Checksheet <?= esc($checksheet['mesin']) ?></h2>
+    <h2 class="text-center">Checksheet <?= esc($master['judul_checksheet']) ?></h2>
+    <a href="/list-checksheet" class="btn btn-secondary mb-3">Kembali</a>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>
@@ -112,7 +113,8 @@
                         <td colspan="4"><label class="fw-bold">Diisi oleh (NPK):</label></td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
                             <td class="text-center">
-                                <input type="text" class="form-control" name="npk[<?= $i ?>]">
+                                <input type="text" class="form-control" name="npk[<?= $i ?>]"
+                                    value="<?= isset($npkArray[$i]) ? esc($npkArray[$i]) : ''; ?>">
                             </td>
                         <?php endfor; ?>
                     </tr>
@@ -120,8 +122,13 @@
             </table>
         </div>
         <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
-        <button type="submit" name="action" value="save" class="btn btn-primary mt-3">Simpan</button>
-        <button type="submit" name="action" value="submit" class="btn btn-success mt-3">Kirim</button>
+        <?php if ($isSubmitted) : ?>
+            <button type="submit" class="btn btn-primary mt-3" disabled>Simpan</button>
+            <button type="submit" class="btn btn-success mt-3" disabled>Kirim</button>
+        <?php else : ?>
+            <button type="submit" name="action" value="save" class="btn btn-primary mt-3">Simpan</button>
+            <button type="submit" name="action" value="submit" class="btn btn-success mt-3">Kirim</button>
+        <?php endif; ?>
     </form>
 </main>
 
