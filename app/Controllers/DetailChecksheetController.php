@@ -12,36 +12,47 @@ class DetailChecksheetController extends BaseController
     {
         $model = new DetailChecksheet();
 
-        // dd($this->request->getPost());
+        // Ambil data dari request
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
         $npkData = $this->request->getPost('npk');
         $action = $this->request->getPost('action');
-        $tanggalData = $this->request->getPost('tanggal'); // Ambil tanggal dalam bentuk array
 
-        // Ambil data tambahan dari form
+        // Dapatkan kolom yang telah diisi dari JS
+        $filledColumns = $this->request->getPost('filled_columns');
+        $filledColumnsArray = !empty($filledColumns) ? explode(',', $filledColumns) : [];
+
+        // Ambil data tambahan
         $itemCheckData = $this->request->getPost('item_check');
         $inspeksiData = $this->request->getPost('inspeksi');
         $standarData = $this->request->getPost('standar');
 
-        $today = date('j'); // Tanggal hari ini
+        // Tanggal hari ini
+        $today = date('j');
 
+        // Validasi awal
         if (!$checksheetId || empty($statusData)) {
             return redirect()->back()->with('error', 'Data tidak lengkap!');
         }
 
+        // Cek apakah ada status yang diisi
         $hasAnyStatus = false;
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
                 if (!empty($status)) {
                     $hasAnyStatus = true;
 
-                    // Cek apakah NPK diisi
+                    // Pastikan NPK diisi jika status ada
                     if (empty($npkData[$colIndex])) {
                         return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
                     }
 
-                    // Cek apakah tanggal lebih dari hari ini
+                    // Pastikan NPK diisi jika status ada
+                    if (empty($npkData[$colIndex])) {
+                        return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
+                    }
+
+                    // Cegah pengisian tanggal masa depan
                     if ($colIndex > $today) {
                         return redirect()->back()->with('error', 'Tidak bisa mengisi data untuk tanggal yang belum lewat.');
                     }
@@ -53,32 +64,24 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Minimal satu OK/NG harus dipilih.');
         }
 
-        $filteredTanggal = [];
-        foreach ($tanggalData as $key => $tanggal) {
-            if (!empty($statusData[$key]) && !empty($npkData[$key])) {
-                $filteredTanggal[] = $tanggal;
-            }
-        }
-
-        // **Debugging untuk memastikan tanggal terbawa dengan benar**
-        dd([
-            'checksheet_id' => $checksheetId,
-            'tanggalData'   => $tanggalData[$colIndex + 1] ?? $colIndex + 1, // Cek apakah input hidden ini terbawa
-            'statusData'    => $statusData,
-            'npkData'       => $npkData,
-            'colIndex'      => array_keys($statusData[0] ?? []),
-        ]);
+        // Di awal controller
+        // $debug = [
+        //     'statusData' => $statusData,
+        //     'filledColumns' => $filledColumnsArray,
+        //     'requestData' => $this->request->getPost(),
+        // ];
+        // dd($debug);
 
         // Simpan data ke database
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
                 if (!empty($status)) {
-                    // Pastikan indeks tanggal sesuai dengan colIndex
-                    // $tanggalFix = $tanggalData[$colIndex - 1] ?? $colIndex;
+                    // Gunakan colIndex sebagai tanggal
+                    $tanggal = $colIndex;
 
                     $data = [
                         'checksheet_id' => $checksheetId,
-                        'tanggal'       => $tanggalData, // Gunakan tanggal yang benar
+                        'tanggal'       => $filledColumnsArray,
                         'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
                         'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
                         'standar'       => $standarData[$rowIndex] ?? null,

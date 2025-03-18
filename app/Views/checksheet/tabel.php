@@ -128,6 +128,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
+        // Tambahkan array untuk melacak kolom yang diisi
+        let filledColumns = [];
 
         buttons.forEach(button => {
             button.addEventListener("click", function() {
@@ -138,6 +140,26 @@
                 // Set nilai OK/NG di input hidden
                 const inputStatus = document.querySelector(`#status_${index}_${col}`);
                 inputStatus.value = value;
+
+                // Tambahkan kolom yang diisi ke array jika belum ada
+                if (!filledColumns.includes(col) && value !== "") {
+                    filledColumns.push(col);
+
+                    // Buat atau update hidden input untuk menyimpan kolom yang diisi
+                    let filledInput = document.querySelector("#filled_columns");
+                    if (!filledInput) {
+                        filledInput = document.createElement("input");
+                        filledInput.type = "hidden";
+                        filledInput.id = "filled_columns";
+                        filledInput.name = "filled_columns";
+                        document.getElementById("checksheet-form").appendChild(filledInput);
+                    }
+                    filledInput.value = filledColumns.join(",");
+                } else if (value === "" && filledColumns.includes(col)) {
+                    // Hapus dari array jika nilainya kosong
+                    filledColumns = filledColumns.filter(item => item !== col);
+                    document.querySelector("#filled_columns").value = filledColumns.join(",");
+                }
 
                 // Update tampilan button
                 const parentDiv = this.parentElement;
