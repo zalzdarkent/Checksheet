@@ -67,6 +67,9 @@ class DetailChecksheetController extends BaseController
         // Simpan data ke database
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
+                if (!empty($npk) && !ctype_digit($npk)) {
+                    return redirect()->back()->with('error', 'NPK hanya boleh berisi angka!');
+                }
                 if (!empty($status)) {
                     // Cek apakah data sudah ada untuk mencegah duplikasi
                     $existing = $model->where([

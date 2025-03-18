@@ -110,10 +110,13 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4"><label class="fw-bold">Diisi oleh (NPK):</label></td>
+                        <td colspan="4"><label class="fw-bold">Diisi oleh (NPK): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-title="NPK hanya boleh diisi dengan angka">(?)</span></label></td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
                             <td class="text-center">
-                                <input type="text" class="form-control" name="npk[<?= $i ?>]"
+                                <input type="text" class="form-control" pattern="[0-9]*" inputmode="numeric" name="npk[<?= $i ?>]"
                                     value="<?= isset($npkArray[$i]) ? esc($npkArray[$i]) : ''; ?>">
                             </td>
                         <?php endfor; ?>
@@ -133,6 +136,10 @@
 </main>
 
 <script>
+    // Tambahkan ini di dalam event listener DOMContentLoaded yang sudah ada
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    
     document.addEventListener("DOMContentLoaded", function() {
         const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
         // Tambahkan array untuk melacak kolom yang diisi
