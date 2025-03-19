@@ -169,12 +169,32 @@ class AppController extends BaseController
 
     public function edit($id)
     {
-        $model = new Checksheet();
-        $data['checksheet'] = $model->find($id);
+        $db = \Config\Database::connect();
 
-        if (!$data['checksheet']) {
+        // Ambil data checksheet berdasarkan ID
+        $checksheet = $db->table('tb_checksheet')
+            ->select('*')
+            ->where('id', $id)
+            ->get()
+            ->getRowArray();
+
+        if (!$checksheet) {
             return redirect()->to('/checksheet')->with('error', 'Data tidak ditemukan!');
         }
+
+        // Ambil data master berdasarkan master_id di tb_checksheet
+        $masters = $db->table('tb_master')
+            ->select('*')
+            ->where('id', $checksheet['master_id'])
+            ->get()
+            ->getRowArray();
+
+        // Gabungkan data dari kedua tabel
+        $data = [
+            'title' => 'Edit Checksheet',
+            'checksheet' => $checksheet,
+            'masters' => $masters
+        ];
 
         return view('checksheet/edit', $data);
     }
