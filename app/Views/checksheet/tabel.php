@@ -139,7 +139,7 @@
     // Tambahkan ini di dalam event listener DOMContentLoaded yang sudah ada
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    
+
     document.addEventListener("DOMContentLoaded", function() {
         const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
         // Tambahkan array untuk melacak kolom yang diisi
@@ -150,6 +150,12 @@
                 const index = this.dataset.index;
                 const col = this.dataset.col;
                 const value = this.dataset.value;
+
+                // Cek apakah sudah ada kolom lain yang diisi
+                if (filledColumns.length > 0 && !filledColumns.includes(col)) {
+                    alert("Anda hanya dapat mengisi satu kolom pada satu waktu. Silakan simpan data terlebih dahulu sebelum mengisi kolom berikutnya.");
+                    return; // Hentikan proses
+                }
 
                 // Set nilai OK/NG di input hidden
                 const inputStatus = document.querySelector(`#status_${index}_${col}`);
@@ -211,6 +217,15 @@
             if (!valid) {
                 e.preventDefault();
                 alert("Harap isi NPK untuk kolom yang telah diisi OK/NG!");
+            }
+        });
+
+        // Reset status saat form berhasil disubmit
+        window.addEventListener("pageshow", function(event) {
+            // Cek apakah halaman di-reload setelah submit
+            if (event.persisted || window.performance && window.performance.navigation.type === 1) {
+                // Reset array kolom yang diisi jika halaman di-reload
+                filledColumns = [];
             }
         });
     });

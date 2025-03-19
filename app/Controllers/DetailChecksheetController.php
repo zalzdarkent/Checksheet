@@ -64,6 +64,8 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Minimal satu OK/NG harus dipilih.');
         }
 
+        // dd($filledColumnsArray);
+
         // Simpan data ke database
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
@@ -86,7 +88,7 @@ class DetailChecksheetController extends BaseController
                         $data = [
                             'checksheet_id' => $checksheetId,
                             'tanggal'       => $colIndex, // Simpan sebagai tanggal
-                            'kolom'         => implode(',', $filledColumnsArray), // Simpan kolom sebagai angka
+                            'kolom'         => $filledColumnsArray, // Simpan kolom sebagai angka
                             'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
                             'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
                             'standar'       => $standarData[$rowIndex] ?? null,

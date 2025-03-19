@@ -135,12 +135,18 @@ class AppController extends BaseController
         $statusArray = [];
         $npkArray = [];
         $isSubmitted = false;
+
+        // Pertama, cek apakah ada data yang submitted
         foreach ($detailChecksheet as $row) {
             if (!empty($row['is_submitted']) && $row['is_submitted'] == 1) {
                 $isSubmitted = true;
-                break; // Stop loop jika sudah menemukan satu yang submitted
+                break;
             }
+        }
 
+        // Kemudian, muat semua data terlepas dari status submitted
+        foreach ($detailChecksheet as $row) {
+            // Simpan status dan npk ke array
             $statusArray[$row['item_check']][$row['kolom']] = $row['status'];
             if (!empty($row['npk'])) {
                 $npkArray[$row['kolom']] = $row['npk'];
