@@ -20,8 +20,23 @@ class MasterController extends BaseController
     public function index()
     {
         $model = new Master();
-        $data['items'] = $model->findAll();
-        $data['title'] = 'Master Checksheet ';
+        $pager = \Config\Services::pager();
+
+        // Set jumlah item per halaman
+        $perPage = 10;
+        
+        // Hitung total records untuk pagination
+        $totalRecords = $model->countAllResults();
+
+        // Ambil nomor halaman dari URL, default ke halaman 1
+        $page = $this->request->getGet('page') ?? 1;
+
+        // Query dengan pagination
+        $data['items'] = $model->findAll($perPage, ($page - 1) * $perPage);
+        $data['title'] = 'Master Checksheet';
+        $data['pager'] = $pager->makeLinks($page, $perPage, $totalRecords, 'bootstrap_pager');
+        $data['currentPage'] = $page;
+
         return view('checksheet/master', $data);
     }
     public function create()
@@ -112,6 +127,7 @@ class MasterController extends BaseController
     {
         $validation = \Config\Services::validation();
         $db = \Config\Database::connect();
+        $detailModel = new \App\Models\DetailMaster();
         $db->transBegin();
 
         try {
@@ -131,44 +147,42 @@ class MasterController extends BaseController
                 return redirect()->back()->withInput()->with('errors', $validation->getErrors());
             }
 
-            // Siapkan data yang akan diupdate (hanya yang dikirim dari form)
+            // Update data master
             $masterData = [
-                'judul_checksheet' => $inputData['judul'] ?? $existingData['judul_checksheet'], // Jika tidak dikirim, pakai data lama
-                'mesin' => isset($inputData['mesin'])
-                    ? (is_array($inputData['mesin']) ? json_encode($inputData['mesin']) : $inputData['mesin'])
-                    : $existingData['mesin'], // Hindari JSON nested
-                'updated_at' => date('Y-m-d H:i:s')
+                'judul_checksheet' => $inputData['judul'],
+                'mesin' => $inputData['mesin']
             ];
-
-            // Update tb_master
             $this->masterModel->update($id, $masterData);
 
-            // Update tb_detail_master hanya jika ada perubahan
-            if (isset($inputData['item_check']) && count($inputData['item_check']) > 0) {
-                // Hapus detail lama hanya jika ada data baru
-                $this->detailMasterModel->where('master_id', $id)->delete();
+            // Hapus semua detail lama
+            $detailModel->where('master_id', $id)->delete();
 
-                // Masukkan data detail master baru
-                $detailData = [];
-                foreach ($inputData['item_check'] as $index => $itemCheck) {
-                    $detailData[] = [
-                        'item_check' => $itemCheck,
-                        'inspeksi'   => $inputData['inspeksi'][$index] ?? null,
-                        'standar'    => $inputData['standar'][$index] ?? null,
-                        'master_id'  => $id,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s')
-                    ];
+            // Insert detail baru
+            $itemChecks = $inputData['item_check'] ?? [];
+            $inspeksiList = $inputData['inspeksi'] ?? [];
+            $standarList = $inputData['standar'] ?? [];
+
+            foreach ($itemChecks as $index => $itemCheck) {
+                // Skip jika semua field dalam row kosong
+                if (empty($itemCheck) && empty($inspeksiList[$index]) && empty($standarList[$index])) {
+                    continue;
                 }
 
-                $this->detailMasterModel->insertBatch($detailData);
+                $detailData = [
+                    'master_id' => $id,
+                    'item_check' => $itemCheck,
+                    'inspeksi' => $inspeksiList[$index],
+                    'standar' => $standarList[$index]
+                ];
+                $detailModel->insert($detailData);
             }
 
             $db->transCommit();
-            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diperbarui');
+            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diupdate!');
+
         } catch (\Exception $e) {
             $db->transRollback();
-            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

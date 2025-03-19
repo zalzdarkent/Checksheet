@@ -50,7 +50,7 @@
                     <?php
                     foreach ($itemChecks as $index => $check) :
                     ?>
-                        <div class="row mb-3 form-group">
+                        <div class="row mb-3 form-group item-row">
                             <div class="col-md-4">
                                 <label class="form-label">Item Check</label>
                                 <input type="text" class="form-control" name="item_check[]" value="<?= htmlspecialchars($check) ?>">
@@ -59,9 +59,14 @@
                                 <label class="form-label">Inspeksi</label>
                                 <input type="text" class="form-control" name="inspeksi[]" value="<?= htmlspecialchars($inspeksiList[$index] ?? '') ?>">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Standar</label>
                                 <input type="text" class="form-control" name="standar[]" value="<?= htmlspecialchars($standarList[$index] ?? '') ?>">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end mb-2">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -76,12 +81,10 @@
     </div>
 </main>
 
-
 <script>
     document.getElementById("judul_checksheet").addEventListener("input", function() {
         document.getElementById("judul_checksheet_hidden").value = this.value;
     });
-
 
     let selectedMesin = <?= json_encode($selectedMesin) ?>;
 
@@ -123,40 +126,39 @@
         document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
     }
 
+    function removeRow(button) {
+        const row = button.closest('.item-row');
+        if (document.querySelectorAll('.item-row').length > 1) {
+            row.remove();
+        } else {
+            alert('Minimal harus ada satu baris data!');
+        }
+    }
+
     function addForm() {
-        let formContainer = document.getElementById("formContainer");
-        let newForm = document.createElement("div");
-        newForm.classList.add("row", "mb-3", "form-group");
-        document.getElementById("dynamicForm").addEventListener("submit", function() {
-            let form = this;
-
-            // Ambil semua input yang ada di dalam form (termasuk yang ditambahkan secara dinamis)
-            let inputs = form.querySelectorAll("input[name='item_check[]'], input[name='inspeksi[]'], input[name='standar[]']");
-
-            // Pastikan tidak ada input kosong yang tidak sengaja masuk ke database
-            inputs.forEach(input => {
-                if (input.value.trim() === "") {
-                    input.remove();
-                }
-            });
-        });
-
-        newForm.innerHTML = `
-            <div class="col-md-4">
-                <label class="form-label">Item Check</label>
-                <input type="text" class="form-control" name="item_check[]">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Inspeksi</label>
-                <input type="text" class="form-control" name="inspeksi[]">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Standar</label>
-                <input type="text" class="form-control" name="standar[]">
+        const container = document.querySelector('#dynamicForm .card-body');
+        const newRow = `
+            <div class="row mb-3 form-group item-row">
+                <div class="col-md-4">
+                    <label class="form-label">Item Check</label>
+                    <input type="text" class="form-control" name="item_check[]">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Inspeksi</label>
+                    <input type="text" class="form-control" name="inspeksi[]">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Standar</label>
+                    <input type="text" class="form-control" name="standar[]">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" onclick="removeRow(this)" style="width: 25px; height: 25px; padding: 0; line-height: 1;">
+                        <i class="bi bi-x" style="font-size: 1.2rem;"></i>
+                    </button>
+                </div>
             </div>
         `;
-
-        formContainer.appendChild(newForm);
+        container.insertAdjacentHTML('beforeend', newRow);
     }
 </script>
 

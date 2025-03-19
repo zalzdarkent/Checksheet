@@ -8,7 +8,7 @@
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="fs-7">Master Checksheet Pre-Use</h3>
-        <a href="/master-checksheet/tambah" class="btn btn-primary">Tambah</a>
+        <a href="/master/create" class="btn btn-primary">Tambah</a>
     </div>
 
     <div class="table-responsive">
@@ -40,7 +40,7 @@
                 <?php else : ?>
                     <?php foreach ($items as $key => $item) : ?>
                         <tr>
-                            <td><?= $key + 1; ?></td>
+                            <td><?= (($currentPage - 1) * 10) + $key + 1; ?></td>
                             <td><?= $item['judul_checksheet']; ?></td>
                             <td>
                                 <?php
@@ -57,14 +57,19 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="<?= base_url('master/edit/' . $item['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="<?= base_url('master/delete/' . $item['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
+                                <a href="/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-end mt-3">
+            <?= $pager ?>
+        </div>
     </div>
 </main>
 <?= $this->endSection() ?>

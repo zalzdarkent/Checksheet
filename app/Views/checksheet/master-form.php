@@ -34,7 +34,7 @@
     <!-- Card untuk Form Utama -->
     <div class="card ms-3 ms-md-5" style="max-width: 800px;">
         <div class="card-body">
-            <form id="dynamicForm" action="/master-checksheet/store" method="post">
+            <form id="dynamicForm" action="/master/store" method="post">
                 <?= csrf_field() ?>
                 <div id="formContainer">
                     <input type="hidden" name="judul_checksheet" id="judul_checksheet_hidden">

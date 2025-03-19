@@ -19,21 +19,38 @@ class AppController extends BaseController
     }
     public function checksheet()
     {
-        $checksheets = $this->db->table('tb_checksheet')
+        $db = \Config\Database::connect();
+        $pager = \Config\Services::pager();
+
+        // Set jumlah item per halaman
+        $perPage = 10;
+        
+        // Hitung total records untuk pagination
+        $totalRecords = $db->table('tb_checksheet')
+            ->countAllResults();
+
+        // Ambil nomor halaman dari URL, default ke halaman 1
+        $page = $this->request->getGet('page') ?? 1;
+
+        // Query dengan pagination
+        $checksheets = $db->table('tb_checksheet')
             ->select('tb_checksheet.*, tb_master.mesin as master_mesin, tb_master.id as master_id')
             ->join('tb_master', 'tb_checksheet.master_id = tb_master.id', 'left')
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
 
         foreach ($checksheets as &$checksheet) {
-            $checksheet['mesin'] = $checksheet['mesin'] ?? 'Unknown'; // Langsung ambil dari tb_checksheet
+            $checksheet['mesin'] = $checksheet['mesin'] ?? 'Unknown';
         }
 
-        $masters = $this->db->table('tb_master')->get()->getResultArray(); // Ambil data tb_master
+        $masters = $db->table('tb_master')->get()->getResultArray();
 
         return view('checksheet/index', [
             'checksheets' => $checksheets,
             'masters' => $masters,
+            'pager' => $pager->makeLinks($page, $perPage, $totalRecords, 'bootstrap_pager'),
+            'currentPage' => $page
         ]);
     }
 
@@ -73,26 +90,46 @@ class AppController extends BaseController
 
         // Ambil data dari form
         $mesinValue = $this->request->getPost('mesin'); // Format: "master_id|index"
+        $bulan = $this->request->getPost('bulan');
+        
         list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
         // Ambil nama mesin berdasarkan index di tb_master
         $master = $this->db->table('tb_master')->where('id', $master_id)->get()->getRowArray();
+        if (!$master) {
+            return redirect()->back()->withInput()->with('error', 'Data master tidak ditemukan!');
+        }
+
         $mesinList = json_decode($master['mesin'], true);
-        $mesinName = $mesinList[$mesin_index] ?? 'Unknown'; // Ambil nama mesin berdasarkan index
+        $mesinName = $mesinList[$mesin_index] ?? 'Unknown';
+
+        // Cek apakah kombinasi mesin dan bulan sudah ada
+    $existingChecksheet = $this->db->table('tb_checksheet')
+            ->where('master_id', $master_id)
+            ->where('mesin', $mesinName)
+            ->where('bulan', $bulan)
+            ->get()
+            ->getRowArray();
+
+        if ($existingChecksheet) {
+            $bulanFormatted = date('F Y', strtotime($bulan));
+            return redirect()->back()->withInput()
+                ->with('error', "Checksheet untuk mesin '{$mesinName}' pada bulan {$bulanFormatted} sudah ada!");
+        }
 
         // Data yang akan disimpan
         $data = [
-            'bulan'      => $this->request->getPost('bulan'),
+            'bulan'      => $bulan,
             'departemen' => $this->request->getPost('departemen'),
             'seksi'      => $this->request->getPost('seksi'),
-            'master_id'  => $master_id, // Simpan ID dari tb_master
-            'mesin'      => $mesinName, // Simpan nama mesin
+            'master_id'  => $master_id,
+            'mesin'      => $mesinName,
         ];
 
         // Simpan ke database
         $this->db->table('tb_checksheet')->insert($data);
 
-        return redirect()->to('/list-checksheet')->with('success', 'Data berhasil disimpan!');
+        return redirect()->to('/checksheet')->with('success', 'Data berhasil disimpan!');
     }
 
     public function detail($id)
@@ -107,7 +144,7 @@ class AppController extends BaseController
             ->getRowArray();
 
         if (!$checksheet) {
-            return redirect()->to('/table-checksheet')->with('error', 'Data tidak ditemukan');
+            return redirect()->to('/checksheet')->with('error', 'Data tidak ditemukan!');
         }
 
         // Ambil data master berdasarkan master_id di tb_checksheet
@@ -209,13 +246,13 @@ class AppController extends BaseController
         ];
 
         $this->checksheetModel->update($id, $data);
-        return redirect()->to('/list-checksheet')->with('success', 'Checksheet berhasil diperbarui!');
+        return redirect()->to('/checksheet')->with('success', 'Checksheet berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $model = new Checksheet();
         $model->delete($id);
-        return redirect()->to('/list-checksheet')->with('success', 'Data berhasil dihapus');
+        return redirect()->to('/checksheet')->with('success', 'Data berhasil dihapus');
     }
 }

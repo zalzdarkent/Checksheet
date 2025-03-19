@@ -7,7 +7,7 @@
 <?= $this->section('content') ?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
     <h2 class="text-center">Checksheet <?= esc($master['judul_checksheet']) ?></h2>
-    <a href="/list-checksheet" class="btn btn-secondary mb-3">Kembali</a>
+    <a href="/checksheet" class="btn btn-secondary mb-3">Kembali</a>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>
@@ -41,7 +41,7 @@
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h4 class="mb-0">Table Daily Check</h4>
     </div>
-    <form id="checksheet-form" method="POST" action="<?= site_url('/checksheet/saveStatus'); ?>">
+    <form id="checksheet-form" method="POST" action="<?= site_url('checksheet/save-status'); ?>">
         <?= csrf_field() ?>
         <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
         <div class="table-responsive">

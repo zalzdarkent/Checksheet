@@ -13,10 +13,13 @@
                 <div class="mb-3">
                     <label for="mesin" class="form-label">Mesin</label>
                     <select class="form-select" id="mesin" name="mesin">
-                        <option value="A" <?= $checksheet['mesin'] == 'A' ? 'selected' : '' ?>>A</option>
-                        <option value="B" <?= $checksheet['mesin'] == 'B' ? 'selected' : '' ?>>B</option>
-                        <option value="C" <?= $checksheet['mesin'] == 'C' ? 'selected' : '' ?>>C</option>
-                        <option value="D" <?= $checksheet['mesin'] == 'D' ? 'selected' : '' ?>>D</option>
+                        <?php 
+                        $mesinList = json_decode($masters['mesin'], true);
+                        foreach ($mesinList as $index => $mesinName): ?>
+                            <option value="<?= $masters['id'] ?>|<?= $index ?>" <?= $checksheet['mesin'] == $mesinName ? 'selected' : '' ?>>
+                                <?= $mesinName ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 

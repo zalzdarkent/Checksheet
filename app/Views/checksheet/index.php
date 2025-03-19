@@ -18,6 +18,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
+        
+        <?php if (session()->getFlashdata('error')) : ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
@@ -33,7 +41,7 @@
                 <?php if (!empty($checksheets)) : ?>
                     <?php foreach ($checksheets as $index => $row) : ?>
                         <tr>
-                            <td><?= $index + 1 ?></td>
+                            <td><?= (($currentPage - 1) * 10) + $index + 1 ?></td>
                             <td><?= esc($row['mesin']) ?></td>
                             <td><?= date('m-Y', strtotime($row['bulan'])) ?></td>
                             <td>
@@ -55,7 +63,7 @@
                                 <span class="badge <?= $warna ?>"><?= esc($row['seksi']) ?></span>
                             </td>
                             <td>
-                                <a href="/table-checksheet/<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
+                                <a href="/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
                                 <a href="/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
                                 <form action="/checksheet/delete/<?= $row['id'] ?>" method="post" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus?');">
                                     <?= csrf_field() ?>
@@ -67,11 +75,16 @@
                     <?php endforeach; ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="6" class="text-center">Tidak ada data checksheet</td>
+                        <td colspan="6" class="text-center">Tidak ada data</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-end mt-3">
+            <?= $pager ?>
+        </div>
     </div>
 </main>
 
@@ -84,7 +97,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/checksheet-store" method="post">
+                <form action="/checksheet/store" method="post">
                     <?= csrf_field() ?>
                     <div class="mb-3">
                         <label for="mesin" class="form-label">Mesin</label>
