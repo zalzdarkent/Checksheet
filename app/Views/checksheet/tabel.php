@@ -41,7 +41,7 @@
     <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
         <h4 class="mb-0">Table Daily Check</h4>
     </div>
-    <form id="checksheet-form" method="POST" action="<?= site_url('checksheet/save-status'); ?>">
+    <form id="checksheet-form" method="POST" action="<?= site_url('checksheet/save-status'); ?>" onsubmit="return validateForm(event)">
         <?= csrf_field() ?>
         <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
         <div class="table-responsive">
@@ -50,9 +50,10 @@
                     <?= session()->getFlashdata('success') ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            <?php elseif (session()->getFlashdata('error')) : ?>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('error')) : ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <?= session()->getFlashdata('danger') ?>
+                    <?= session()->getFlashdata('error') ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
@@ -136,13 +137,11 @@
 </main>
 
 <script>
-    // Tambahkan ini di dalam event listener DOMContentLoaded yang sudah ada
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
     document.addEventListener("DOMContentLoaded", function() {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
         const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
-        // Tambahkan array untuk melacak kolom yang diisi
         let filledColumns = [];
 
         buttons.forEach(button => {
@@ -153,19 +152,21 @@
 
                 // Cek apakah sudah ada kolom lain yang diisi
                 if (filledColumns.length > 0 && !filledColumns.includes(col)) {
-                    alert("Anda hanya dapat mengisi satu kolom pada satu waktu. Silakan simpan data terlebih dahulu sebelum mengisi kolom berikutnya.");
-                    return; // Hentikan proses
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Perhatian!',
+                        text: 'Anda hanya dapat mengisi satu kolom pada satu waktu. Silakan simpan data terlebih dahulu sebelum mengisi kolom berikutnya.',
+                    });
+                    return;
                 }
 
                 // Set nilai OK/NG di input hidden
                 const inputStatus = document.querySelector(`#status_${index}_${col}`);
                 inputStatus.value = value;
 
-                // Tambahkan kolom yang diisi ke array jika belum ada
+                // Tambahkan kolom yang diisi ke array
                 if (!filledColumns.includes(col) && value !== "") {
                     filledColumns.push(col);
-
-                    // Buat atau update hidden input untuk menyimpan kolom yang diisi
                     let filledInput = document.querySelector("#filled_columns");
                     if (!filledInput) {
                         filledInput = document.createElement("input");
@@ -176,7 +177,6 @@
                     }
                     filledInput.value = filledColumns.join(",");
                 } else if (value === "" && filledColumns.includes(col)) {
-                    // Hapus dari array jika nilainya kosong
                     filledColumns = filledColumns.filter(item => item !== col);
                     document.querySelector("#filled_columns").value = filledColumns.join(",");
                 }
@@ -186,48 +186,80 @@
                 parentDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
                 this.classList.add("active");
 
-                // Wajib isi NPK jika OK/NG sudah dipilih
+                // Wajib isi NPK
                 const npkInput = document.querySelector(`input[name='npk[${col}]']`);
                 npkInput.setAttribute("required", "required");
             });
         });
 
-        document.querySelector("#checksheet-form").addEventListener("submit", function(e) {
-            let valid = true;
-
-            // Cek jika ada kolom OK/NG yang sudah terisi tetapi NPK kosong
-            document.querySelectorAll("input[name^='npk']").forEach(input => {
-                const col = input.name.match(/\d+/)[0]; // Ambil nomor kolom
-                let isChecked = false;
-
-                document.querySelectorAll(`input[name^='status'][name*='[${col}]']`).forEach(statusInput => {
-                    if (statusInput.value !== "") {
-                        isChecked = true;
-                    }
-                });
-
-                if (isChecked && input.value.trim() === "") {
-                    valid = false;
-                    input.classList.add("is-invalid");
-                } else {
-                    input.classList.remove("is-invalid");
-                }
-            });
-
-            if (!valid) {
-                e.preventDefault();
-                alert("Harap isi NPK untuk kolom yang telah diisi OK/NG!");
-            }
-        });
-
-        // Reset status saat form berhasil disubmit
+        // Reset status saat halaman di-reload
         window.addEventListener("pageshow", function(event) {
-            // Cek apakah halaman di-reload setelah submit
             if (event.persisted || window.performance && window.performance.navigation.type === 1) {
-                // Reset array kolom yang diisi jika halaman di-reload
                 filledColumns = [];
             }
         });
     });
+
+    function validateForm(event) {
+        event.preventDefault();
+        let valid = true;
+        let npkMissing = false;
+        let action = event.submitter.value;
+
+        // Cek NPK untuk kolom yang diisi
+        document.querySelectorAll("input[name^='npk']").forEach(input => {
+            const col = input.name.match(/\d+/)[0];
+            let isChecked = false;
+
+            document.querySelectorAll(`input[name^='status'][name*='[${col}]']`).forEach(statusInput => {
+                if (statusInput.value !== "") {
+                    isChecked = true;
+                }
+            });
+
+            if (isChecked && input.value.trim() === "") {
+                valid = false;
+                npkMissing = true;
+                input.classList.add("is-invalid");
+            } else {
+                input.classList.remove("is-invalid");
+            }
+        });
+
+        if (!valid) {
+            if (npkMissing) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Harap isi NPK untuk kolom yang telah diisi OK/NG!',
+                });
+            }
+            return false;
+        }
+
+        // Konfirmasi submit
+        let title = action === 'submit' ? 'Kirim Data?' : 'Simpan Data?';
+        let text = action === 'submit' ? 
+            'Data yang sudah dikirim tidak dapat diubah kembali!' : 
+            'Pastikan data yang diisi sudah benar!';
+
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: action === 'submit' ? '#198754' : '#0d6efd',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: action === 'submit' ? 'Ya, Kirim!' : 'Ya, Simpan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('checksheet-form').submit();
+            }
+        });
+
+        return false;
+    }
 </script>
+
 <?= $this->endSection() ?>

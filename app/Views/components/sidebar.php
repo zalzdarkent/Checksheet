@@ -10,7 +10,9 @@
 <div class="offcanvas offcanvas-start sidebar-bg text-white d-md-none" id="offcanvasSidebar">
     <div class="offcanvas-header border-bottom border-secondary">
         <div class="text-center w-100">
-            <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
+            <a href="/">
+                <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
+            </a>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
@@ -34,7 +36,9 @@
 
 <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar-bg text-white min-vh-100 p-0">
     <div class="text-center py-4 border-bottom border-secondary">
-        <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
+        <a href="/">
+            <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
+        </a>
     </div>
     <div class="nav flex-column py-3">
         <a href="/" class="nav-link sidebar-link" data-route="/">

@@ -101,18 +101,19 @@ class MasterController extends BaseController
 
     public function edit($id)
     {
-        $model = new Master();
-        $detailModel = new DetailMaster(); // Model untuk tabel kedua
-
         // Ambil data dari tabel master
-        $data['item'] = $model->find($id);
+        $data['item'] = $this->masterModel->find($id);
 
         if (!$data['item']) {
             return redirect()->to('/master')->with('error', 'Data tidak ditemukan.');
         }
 
         // Ambil data dari tabel detail berdasarkan master_id
-        $details = $detailModel->where('master_id', $id)->findAll();
+        $details = $this->detailMasterModel->getDetailsByMasterId($id);
+
+        if (empty($details)) {
+            return redirect()->to('/master')->with('error', 'Detail data tidak ditemukan.');
+        }
 
         // Ubah hasil query ke array untuk digunakan di view
         $data['itemChecks'] = array_column($details, 'item_check');
