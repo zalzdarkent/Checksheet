@@ -96,7 +96,7 @@ class MasterController extends BaseController
 
         $detailMasterModel->insertBatch($dataToInsert);
 
-        return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil disimpan.');
+        return redirect()->to('/master')->with('success', 'Data berhasil disimpan.');
     }
 
     public function edit($id)
@@ -178,7 +178,7 @@ class MasterController extends BaseController
             }
 
             $db->transCommit();
-            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil diupdate!');
+            return redirect()->to('/master')->with('success', 'Data berhasil diupdate!');
 
         } catch (\Exception $e) {
             $db->transRollback();
@@ -193,9 +193,9 @@ class MasterController extends BaseController
 
         if ($data) {
             $model->delete($id);
-            return redirect()->to('/master-checksheet/index')->with('success', 'Data berhasil dihapus.');
+            return redirect()->to('/master')->with('success', 'Data berhasil dihapus.');
         } else {
-            return redirect()->to('/master-checksheet/index')->with('error', 'Data tidak ditemukan.');
+            return redirect()->to('/master')->with('error', 'Data tidak ditemukan.');
         }
     }
 }

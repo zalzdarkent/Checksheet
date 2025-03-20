@@ -136,7 +136,7 @@
     }
 
     function addForm() {
-        const container = document.querySelector('#dynamicForm .card-body');
+        const container = document.getElementById('formContainer');
         const newRow = `
             <div class="row mb-3 form-group item-row">
                 <div class="col-md-4">
@@ -151,9 +151,9 @@
                     <label class="form-label">Standar</label>
                     <input type="text" class="form-control" name="standar[]">
                 </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle" onclick="removeRow(this)" style="width: 25px; height: 25px; padding: 0; line-height: 1;">
-                        <i class="bi bi-x" style="font-size: 1.2rem;"></i>
+                <div class="col-md-1 d-flex align-items-end mb-2">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
+                        <i class="bi bi-trash"></i>
                     </button>
                 </div>
             </div>
