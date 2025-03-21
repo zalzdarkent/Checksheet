@@ -26,15 +26,15 @@
             </div>
         <?php endif; ?>
 
-        <table class="table table-striped table-bordered">
+        <table class="table table-bordered table-striped align-middle text-center">
             <thead class="table-dark">
                 <tr>
-                    <th>No</th>
-                    <th>Mesin</th>
-                    <th>Bulan</th>
-                    <th>Dept.</th>
-                    <th>Seksi</th>
-                    <th>Aksi</th>
+                    <th class="custom-header">No</th>
+                    <th class="custom-header">Mesin</th>
+                    <th class="custom-header">Bulan</th>
+                    <th class="custom-header">Dept.</th>
+                    <th class="custom-header">Seksi</th>
+                    <th class="custom-header">Aksi</th>
                 </tr>
             </thead>
             <tbody>

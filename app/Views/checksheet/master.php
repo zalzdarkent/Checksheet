@@ -23,13 +23,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        <table id="myTable" class="table table-striped table-bordered">
+        <table id="myTable" class="table table-bordered table-striped align-middle text-center">
             <thead class="table-dark">
                 <tr>
-                    <th>No</th>
-                    <th>Judul Checksheet</th>
-                    <th>Mesin</th>
-                    <th>Aksi</th>
+                    <th class="custom-header">No</th>
+                    <th class="custom-header">Judul Checksheet</th>
+                    <th class="custom-header">Mesin</th>
+                    <th class="custom-header">Aksi</th>
                 </tr>
             </thead>
             <tbody>
