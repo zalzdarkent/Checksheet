@@ -24,7 +24,7 @@ class AppController extends BaseController
 
         // Set jumlah item per halaman
         $perPage = 10;
-        
+
         // Hitung total records untuk pagination
         $totalRecords = $db->table('preuse_tb_checksheet')
             ->countAllResults();
@@ -91,7 +91,7 @@ class AppController extends BaseController
         // Ambil data dari form
         $mesinValue = $this->request->getPost('mesin'); // Format: "master_id|index"
         $bulan = $this->request->getPost('bulan');
-        
+
         list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
         // Ambil nama mesin berdasarkan index di preuse_tb_master
@@ -104,7 +104,7 @@ class AppController extends BaseController
         $mesinName = $mesinList[$mesin_index] ?? 'Unknown';
 
         // Cek apakah kombinasi mesin dan bulan sudah ada
-    $existingChecksheet = $this->db->table('preuse_tb_checksheet')
+        $existingChecksheet = $this->db->table('preuse_tb_checksheet')
             ->where('master_id', $master_id)
             ->where('mesin', $mesinName)
             ->where('bulan', $bulan)
@@ -161,7 +161,7 @@ class AppController extends BaseController
             ->get()
             ->getResultArray();
 
-        // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
+        /// Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
             ->select('*')
             ->where('checksheet_id', $id)
@@ -196,9 +196,9 @@ class AppController extends BaseController
             'master' => $master,
             'detailMasters' => $detailMasters,
             'detailChecksheet' => $detailChecksheet,
-            'statusArray' => $statusArray, // Kirim status ke view
+            'statusArray' => $statusArray,
             'npkArray' => $npkArray,
-            'isSubmitted' => $isSubmitted
+            'isSubmitted' => $isSubmitted,
         ];
 
         return view('checksheet/tabel', $data);

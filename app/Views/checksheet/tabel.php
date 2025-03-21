@@ -129,13 +129,13 @@
                                     data-bs-title="Pilih NPK yang sesuai">(?)</span></label></td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
                             <td class="text-center">
-                                <select class="form-select" name="npk[<?= $i ?>]">
+                                <select class="form-select" name="npk[<?= $i ?>]" <?= $isSubmitted ? 'disabled' : '' ?>>
                                     <option value="">Pilih NPK</option>
-                                    <option value="12345">12345 - Operator 1</option>
-                                    <option value="23456">23456 - Operator 2</option>
-                                    <option value="34567">34567 - Operator 3</option>
-                                    <option value="45678">45678 - Operator 4</option>
-                                    <option value="56789">56789 - Operator 5</option>
+                                    <?php
+                                    $selectedNpk = $npkArray[$i] ?? '';
+                                    if (!empty($selectedNpk)) : ?>
+                                        <option value="<?= $selectedNpk ?>" selected><?= $selectedNpk ?></option>
+                                    <?php endif; ?>
                                 </select>
                             </td>
                         <?php endfor; ?>
@@ -257,8 +257,8 @@
 
         // Konfirmasi submit
         let title = action === 'submit' ? 'Kirim Data?' : 'Simpan Data?';
-        let text = action === 'submit' ? 
-            'Data yang sudah dikirim tidak dapat diubah kembali!' : 
+        let text = action === 'submit' ?
+            'Data yang sudah dikirim tidak dapat diubah kembali!' :
             'Pastikan data yang diisi sudah benar!';
 
         Swal.fire({
