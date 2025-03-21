@@ -5,17 +5,20 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\DetailMaster;
 use App\Models\Master;
+use App\Models\DetailChecksheet;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class MasterController extends BaseController
 {
     protected $masterModel;
     protected $detailMasterModel;
+    protected $detailChecksheetModel;
 
     public function __construct()
     {
         $this->masterModel = new Master();
         $this->detailMasterModel = new DetailMaster();
+        $this->detailChecksheetModel = new DetailChecksheet();
     }
     public function index()
     {
@@ -129,6 +132,7 @@ class MasterController extends BaseController
         $validation = \Config\Services::validation();
         $db = \Config\Database::connect();
         $detailModel = new \App\Models\DetailMaster();
+        $detailChecksheetModel = new \App\Models\DetailChecksheet();
         $db->transBegin();
 
         try {
@@ -155,10 +159,14 @@ class MasterController extends BaseController
             ];
             $this->masterModel->update($id, $masterData);
 
-            // Hapus semua detail lama
+            // Dapatkan item_check yang ada sebelumnya
+            $existingDetails = $detailModel->where('master_id', $id)->findAll();
+            $existingItemChecks = array_column($existingDetails, 'item_check');
+
+            // Hapus detail lama dari tb_detail_master
             $detailModel->where('master_id', $id)->delete();
 
-            // Insert detail baru
+            // Insert detail baru ke tb_detail_master
             $itemChecks = $inputData['item_check'] ?? [];
             $inspeksiList = $inputData['inspeksi'] ?? [];
             $standarList = $inputData['standar'] ?? [];
@@ -176,6 +184,19 @@ class MasterController extends BaseController
                     'standar' => $standarList[$index]
                 ];
                 $detailModel->insert($detailData);
+            }
+
+            // Cek item_check yang dihapus
+            $deletedItemChecks = array_diff($existingItemChecks, $itemChecks);
+            
+            // Soft delete data di tb_detail_checksheet untuk item_check yang dihapus
+            if (!empty($deletedItemChecks)) {
+                foreach ($deletedItemChecks as $deletedItemCheck) {
+                    $detailChecksheetModel
+                        ->where('item_check', $deletedItemCheck)
+                        ->set(['deleted_at' => date('Y-m-d H:i:s')])
+                        ->update();
+                }
             }
 
             $db->transCommit();

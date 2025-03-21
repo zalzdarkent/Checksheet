@@ -75,10 +75,14 @@
                 <tbody>
                     <?php $no = 1; ?>
                     <?php foreach ($detailMasters as $index => $row) : ?>
-                        <tr>
+                        <?php $isDeleted = in_array($row['item_check'], $deletedItemChecks ?? []); ?>
+                        <tr class="<?= $isDeleted ? 'table-secondary' : '' ?>">
                             <td><?= $no++; ?></td>
                             <td>
                                 <?= esc($row['item_check']); ?>
+                                <?php if ($isDeleted): ?>
+                                    <span class="badge bg-secondary">Dihapus</span>
+                                <?php endif; ?>
                                 <input type="hidden" name="item_check[<?= $index ?>]" value="<?= esc($row['item_check']); ?>">
                             </td>
                             <td>
@@ -92,17 +96,25 @@
                             <?php
                             $jumlahKolom = date('t', strtotime($checksheet['bulan']));
                             for ($i = 1; $i <= $jumlahKolom; $i++) :
-                                $status = $statusArray[$row['item_check']][$i] ?? null; // Cek status per item_check dan tanggal
+                                $status = $statusArray[$row['item_check']][$i] ?? null;
                             ?>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
                                         <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="">
 
-                                        <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
-                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
+                                        <?php if ($isDeleted): ?>
+                                            <?php if ($status == 'OK'): ?>
+                                                <span class="badge bg-success">OK</span>
+                                            <?php elseif ($status == 'NG'): ?>
+                                                <span class="badge bg-danger">NG</span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
+                                                data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
-                                        <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
-                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
+                                                data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             <?php endfor; ?>
@@ -114,11 +126,17 @@
                         <td colspan="4"><label class="fw-bold">Diisi oleh (NPK): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    data-bs-title="NPK hanya boleh diisi dengan angka">(?)</span></label></td>
+                                    data-bs-title="Pilih NPK yang sesuai">(?)</span></label></td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
                             <td class="text-center">
-                                <input type="text" class="form-control" pattern="[0-9]*" inputmode="numeric" name="npk[<?= $i ?>]"
-                                    value="<?= isset($npkArray[$i]) ? esc($npkArray[$i]) : ''; ?>">
+                                <select class="form-select" name="npk[<?= $i ?>]">
+                                    <option value="">Pilih NPK</option>
+                                    <option value="12345">12345 - Operator 1</option>
+                                    <option value="23456">23456 - Operator 2</option>
+                                    <option value="34567">34567 - Operator 3</option>
+                                    <option value="45678">45678 - Operator 4</option>
+                                    <option value="56789">56789 - Operator 5</option>
+                                </select>
                             </td>
                         <?php endfor; ?>
                     </tr>

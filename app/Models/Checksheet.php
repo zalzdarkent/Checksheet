@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class Checksheet extends Model
 {
-    protected $table            = 'tb_checksheet';
+    protected $table            = 'preuse_tb_checksheet';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

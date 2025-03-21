@@ -26,16 +26,16 @@ class AppController extends BaseController
         $perPage = 10;
         
         // Hitung total records untuk pagination
-        $totalRecords = $db->table('tb_checksheet')
+        $totalRecords = $db->table('preuse_tb_checksheet')
             ->countAllResults();
 
         // Ambil nomor halaman dari URL, default ke halaman 1
         $page = $this->request->getGet('page') ?? 1;
 
         // Query dengan pagination
-        $checksheets = $db->table('tb_checksheet')
-            ->select('tb_checksheet.*, tb_master.mesin as master_mesin, tb_master.id as master_id')
-            ->join('tb_master', 'tb_checksheet.master_id = tb_master.id', 'left')
+        $checksheets = $db->table('preuse_tb_checksheet')
+            ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id as master_id')
+            ->join('preuse_tb_master', 'preuse_tb_checksheet.master_id = preuse_tb_master.id', 'left')
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
@@ -44,7 +44,7 @@ class AppController extends BaseController
             $checksheet['mesin'] = $checksheet['mesin'] ?? 'Unknown';
         }
 
-        $masters = $db->table('tb_master')->get()->getResultArray();
+        $masters = $db->table('preuse_tb_master')->get()->getResultArray();
 
         return view('checksheet/index', [
             'checksheets' => $checksheets,
@@ -94,8 +94,8 @@ class AppController extends BaseController
         
         list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
-        // Ambil nama mesin berdasarkan index di tb_master
-        $master = $this->db->table('tb_master')->where('id', $master_id)->get()->getRowArray();
+        // Ambil nama mesin berdasarkan index di preuse_tb_master
+        $master = $this->db->table('preuse_tb_master')->where('id', $master_id)->get()->getRowArray();
         if (!$master) {
             return redirect()->back()->withInput()->with('error', 'Data master tidak ditemukan!');
         }
@@ -104,7 +104,7 @@ class AppController extends BaseController
         $mesinName = $mesinList[$mesin_index] ?? 'Unknown';
 
         // Cek apakah kombinasi mesin dan bulan sudah ada
-    $existingChecksheet = $this->db->table('tb_checksheet')
+    $existingChecksheet = $this->db->table('preuse_tb_checksheet')
             ->where('master_id', $master_id)
             ->where('mesin', $mesinName)
             ->where('bulan', $bulan)
@@ -127,7 +127,7 @@ class AppController extends BaseController
         ];
 
         // Simpan ke database
-        $this->db->table('tb_checksheet')->insert($data);
+        $this->db->table('preuse_tb_checksheet')->insert($data);
 
         return redirect()->to('/checksheet')->with('success', 'Data berhasil disimpan!');
     }
@@ -137,7 +137,7 @@ class AppController extends BaseController
         $db = \Config\Database::connect();
 
         // Ambil data checksheet berdasarkan ID
-        $checksheet = $db->table('tb_checksheet')
+        $checksheet = $db->table('preuse_tb_checksheet')
             ->select('*')
             ->where('id', $id)
             ->get()
@@ -147,22 +147,22 @@ class AppController extends BaseController
             return redirect()->to('/checksheet')->with('error', 'Data tidak ditemukan!');
         }
 
-        // Ambil data master berdasarkan master_id di tb_checksheet
-        $master = $db->table('tb_master')
+        // Ambil data master berdasarkan master_id di preuse_tb_checksheet
+        $master = $db->table('preuse_tb_master')
             ->select('*')
             ->where('id', $checksheet['master_id'])
             ->get()
             ->getRowArray();
 
-        // Ambil data dari tb_detail_master berdasarkan master_id
-        $detailMasters = $db->table('tb_detail_master')
+        // Ambil data dari preuse_tb_detail_master berdasarkan master_id
+        $detailMasters = $db->table('preuse_tb_detail_master')
             ->select('*')
             ->where('master_id', $checksheet['master_id'])
             ->get()
             ->getResultArray();
 
-        // Ambil data status dari tb_detail_checksheet berdasarkan tanggal
-        $detailChecksheet = $db->table('tb_detail_checksheet')
+        // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
+        $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
             ->select('*')
             ->where('checksheet_id', $id)
             ->get()
@@ -209,7 +209,7 @@ class AppController extends BaseController
         $db = \Config\Database::connect();
 
         // Ambil data checksheet berdasarkan ID
-        $checksheet = $db->table('tb_checksheet')
+        $checksheet = $db->table('preuse_tb_checksheet')
             ->select('*')
             ->where('id', $id)
             ->get()
@@ -219,8 +219,8 @@ class AppController extends BaseController
             return redirect()->to('/checksheet')->with('error', 'Data tidak ditemukan!');
         }
 
-        // Ambil data master berdasarkan master_id di tb_checksheet
-        $masters = $db->table('tb_master')
+        // Ambil data master berdasarkan master_id di preuse_tb_checksheet
+        $masters = $db->table('preuse_tb_master')
             ->select('*')
             ->where('id', $checksheet['master_id'])
             ->get()

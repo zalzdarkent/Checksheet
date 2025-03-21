@@ -6,43 +6,30 @@ use CodeIgniter\Model;
 
 class DetailChecksheet extends Model
 {
-    protected $table            = 'tb_detail_checksheet';
+    protected $table            = 'preuse_tb_detail_checksheet';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;  
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'checksheet_id', 'item_check', 'inspeksi', 'standar', 'status', 'npk', 'created_at', 'kolom', 'is_submitted'
+        'checksheet_id', 'item_check', 'inspeksi', 'standar', 'status', 'npk', 'created_at', 'kolom', 'is_submitted', 'tanggal', 'deleted_at'
     ];
 
-    // protected bool $allowEmptyInserts = false;
-    // protected bool $updateOnlyChanged = true;
+    protected $dateFormat    = 'datetime';
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
 
-    // protected array $casts = [];
-    // protected array $castHandlers = [];
+    // Fungsi untuk mendapatkan data termasuk yang sudah dihapus
+    public function getAllIncludingDeleted()
+    {
+        return $this->withDeleted()->findAll();
+    }
 
-    // // Dates
-    // protected $useTimestamps = false;
-    // protected $dateFormat    = 'datetime';
-    // protected $createdField  = 'created_at';
-    // protected $updatedField  = 'updated_at';
-    // protected $deletedField  = 'deleted_at';
-
-    // // Validation
-    // protected $validationRules      = [];
-    // protected $validationMessages   = [];
-    // protected $skipValidation       = false;
-    // protected $cleanValidationRules = true;
-
-    // // Callbacks
-    // protected $allowCallbacks = true;
-    // protected $beforeInsert   = [];
-    // protected $afterInsert    = [];
-    // protected $beforeUpdate   = [];
-    // protected $afterUpdate    = [];
-    // protected $beforeFind     = [];
-    // protected $afterFind      = [];
-    // protected $beforeDelete   = [];
-    // protected $afterDelete    = [];
+    // Fungsi untuk mendapatkan data yang sudah dihapus
+    public function getDeletedOnly()
+    {
+        return $this->onlyDeleted()->findAll();
+    }
 }

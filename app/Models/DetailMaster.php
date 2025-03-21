@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class DetailMaster extends Model
 {
-    protected $table            = 'tb_detail_master';
+    protected $table            = 'preuse_tb_detail_master';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class Master extends Model
 {
-    protected $table            = 'tb_master';
+    protected $table            = 'preuse_tb_master';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

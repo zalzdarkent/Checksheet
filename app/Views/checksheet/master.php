@@ -23,7 +23,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        <table class="table table-striped table-bordered">
+        <table id="myTable" class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>No</th>
@@ -72,4 +72,7 @@
         </div>
     </div>
 </main>
+<script>
+    new DataTable('#myTable');
+</script>
 <?= $this->endSection() ?>

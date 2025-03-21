@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\DetailChecksheet;
+use App\Models\Checksheet;
+use App\Models\DetailMaster;
+use App\Models\Npk;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class DetailChecksheetController extends BaseController
@@ -11,12 +14,19 @@ class DetailChecksheetController extends BaseController
     public function saveStatus()
     {
         $model = new DetailChecksheet();
+        $checksheetModel = new Checksheet();
 
         // Ambil data dari request
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
         $npkData = $this->request->getPost('npk');
         $action = $this->request->getPost('action');
+
+        // Dapatkan data checksheet untuk mendapatkan bulan
+        $checksheet = $checksheetModel->find($checksheetId);
+        if (!$checksheet) {
+            return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
+        }
 
         // Dapatkan kolom yang telah diisi dari JS
         $filledColumns = $this->request->getPost('filled_columns');
@@ -93,8 +103,6 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Minimal satu OK/NG harus dipilih.');
         }
 
-        // dd($filledColumnsArray);
-
         // Simpan data ke database
         foreach ($statusData as $rowIndex => $statuses) {
             foreach ($statuses as $colIndex => $status) {
@@ -138,12 +146,15 @@ class DetailChecksheetController extends BaseController
                         }
                     }
 
+                    // Buat tanggal lengkap dari kombinasi hari dan bulan
+                    $fullDate = date('Y-m-d', strtotime($checksheet['bulan'] . '-' . $colIndex));
+                    
                     if (!$existing) {
                         // Jika data belum ada, tambahkan data baru
                         $data = [
                             'checksheet_id' => $checksheetId,
-                            'tanggal'       => intval($colIndex), // Konversi ke integer
-                            'kolom'         => intval($colIndex), // Konversi ke integer
+                            'tanggal'       => $fullDate, // Menggunakan format tanggal lengkap
+                            'kolom'         => intval($colIndex),
                             'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
                             'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
                             'standar'       => $standarData[$rowIndex] ?? null,
@@ -165,5 +176,60 @@ class DetailChecksheetController extends BaseController
         }
 
         return redirect()->back()->with('success', 'Data berhasil ' . ($action == 'submit' ? 'dikirim!' : 'disimpan!'));
+    }
+
+    public function index($id)
+    {
+        $checksheetModel = new Checksheet();
+        $detailChecksheetModel = new DetailChecksheet();
+        $detailMasterModel = new DetailMaster();
+        $npkModel = new Npk();
+
+        // Ambil data checksheet
+        $data['checksheet'] = $checksheetModel->find($id);
+        
+        if (!$data['checksheet']) {
+            return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
+        }
+
+        // Ambil data detail checksheet yang sudah ada, termasuk yang soft deleted
+        $existingData = $detailChecksheetModel->getAllIncludingDeleted();
+        
+        // Format data untuk tampilan
+        $statusArray = [];
+        $uniqueItemChecks = [];
+        foreach ($existingData as $item) {
+            $statusArray[$item['item_check']][$item['kolom']] = $item['status'];
+            $uniqueItemChecks[] = $item['item_check'];
+        }
+        $uniqueItemChecks = array_unique($uniqueItemChecks);
+        
+        // Ambil semua data master (termasuk yang aktif dan tidak)
+        $allMasterItems = $detailMasterModel->where('master_id', $data['checksheet']['master_id'])->findAll();
+        $activeMasterItems = [];
+        $deletedMasterItems = [];
+
+        // Pisahkan item yang masih aktif dan yang sudah dihapus
+        foreach ($allMasterItems as $item) {
+            if (in_array($item['item_check'], $uniqueItemChecks)) {
+                $activeMasterItems[] = $item;
+            } else {
+                $deletedMasterItems[] = $item;
+            }
+        }
+
+        // Gabungkan data active dan deleted dengan urutan yang benar
+        $data['detailMasters'] = array_merge($activeMasterItems, $deletedMasterItems);
+        
+        // Set item yang dihapus
+        $data['deletedItemChecks'] = array_column($deletedMasterItems, 'item_check');
+        
+        $data['statusArray'] = $statusArray;
+        $data['isSubmitted'] = false;
+
+        // Ambil data NPK
+        $data['npkList'] = $npkModel->getAllNpk();
+
+        return view('checksheet/tabel', $data);
     }
 }
