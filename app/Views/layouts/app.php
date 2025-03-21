@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/css/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/datatables/datatables.min.css') ?>">
     <!-- Bootstrap JS & jQuery (wajib untuk DataTables) -->
-    <script src="<?= base_url('assets/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-    <script src="<?= base_url('assets/datatables/datatables.min.js') ?>"></script>
     <title><?= $this->renderSection('title') ?></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- SweetAlert2 -->
@@ -38,6 +36,9 @@
 
     <!-- Additional Scripts -->
     <?= $this->renderSection('scripts') ?>
+    <script src="<?= base_url('assets/highcharts/highchart.js') ?>"></script>
+    <script src="<?= base_url('assets/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+    <script src="<?= base_url('assets/datatables/datatables.min.js') ?>"></script>
 </body>
 
 </html>

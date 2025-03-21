@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\DashboardController;
 use App\Controllers\AppController;
 use App\Controllers\DetailChecksheetController;
 use App\Controllers\MasterController;
@@ -11,7 +12,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // Dashboard
-$routes->get('/', [AppController::class, 'dashboard']);
+$routes->get('/', [DashboardController::class, 'index']);
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
