@@ -16,101 +16,65 @@ class DetailChecksheetController extends BaseController
         $model = new DetailChecksheet();
         $checksheetModel = new Checksheet();
 
-        // Ambil data dari request
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
         $npkData = $this->request->getPost('npk');
         $action = $this->request->getPost('action');
-
-        // Dapatkan data checksheet untuk mendapatkan bulan
-        $checksheet = $checksheetModel->find($checksheetId);
-        if (!$checksheet) {
-            return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
-        }
-
-        // Dapatkan kolom yang telah diisi dari JS
-        $filledColumns = $this->request->getPost('filled_columns');
-        $filledColumnsArray = !empty($filledColumns) ? explode(',', $filledColumns) : [];
-
-        // Ambil data tambahan
         $itemCheckData = $this->request->getPost('item_check');
         $inspeksiData = $this->request->getPost('inspeksi');
         $standarData = $this->request->getPost('standar');
 
-        // Tanggal hari ini
-        $today = date('j');
-
-        // Validasi awal
-        if (!$checksheetId || empty($statusData)) {
-            return redirect()->back()->with('error', 'Data tidak lengkap!');
+        $checksheet = $checksheetModel->find($checksheetId);
+        if (!$checksheetId || !$checksheet) {
+            return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
         }
 
-        // Cek apakah ada status yang diisi
-        $hasAnyStatus = false;
-        $filledColumns = [];
+        $today = date('j');
+        $hasChanges = false;
 
-        // Pertama, kumpulkan semua kolom yang diisi
-        foreach ($statusData as $rowIndex => $statuses) {
-            foreach ($statuses as $colIndex => $status) {
-                if (!empty($status)) {
-                    $filledColumns[] = $colIndex;
-                    
-                    // Cek apakah data sudah pernah disubmit
-                    $existingData = $model->where([
-                        'checksheet_id' => $checksheetId,
-                        'kolom' => intval($colIndex),
-                        'is_submitted' => 1
-                    ])->first();
+        // Process NPK updates first
+        foreach ($npkData as $colIndex => $npk) {
+            if (!empty($npk)) {
+                if (!ctype_digit($npk)) {
+                    return redirect()->back()->with('error', 'NPK hanya boleh berisi angka!');
+                }
 
-                    if ($existingData) {
-                        return redirect()->back()->with('error', 'Data untuk tanggal ' . $colIndex . ' sudah disubmit dan tidak bisa diubah!');
-                    }
+                $existingData = $model->where([
+                    'checksheet_id' => $checksheetId,
+                    'kolom' => intval($colIndex),
+                    'is_submitted' => 1
+                ])->first();
+
+                if ($existingData) {
+                    continue; // Skip if already submitted
+                }
+
+                $existing = $model->where([
+                    'checksheet_id' => $checksheetId,
+                    'kolom' => intval($colIndex),
+                ])->first();
+
+                if ($existing) {
+                    $model->update($existing['id'], ['npk' => $npk]);
+                    $hasChanges = true;
                 }
             }
         }
 
-        // Validasi hanya satu kolom yang diisi
-        $uniqueFilledColumns = array_unique($filledColumns);
-        if (count($uniqueFilledColumns) > 1) {
-            return redirect()->back()->with('error', 'Hanya boleh mengisi satu kolom tanggal dalam satu waktu!');
-        }
+        // Process status updates
+        if (!empty($statusData)) {
+            foreach ($statusData as $rowIndex => $statuses) {
+                foreach ($statuses as $colIndex => $status) {
+                    if (empty($status)) continue;
 
-        // Lanjutkan dengan validasi status
-        foreach ($statusData as $rowIndex => $statuses) {
-            foreach ($statuses as $colIndex => $status) {
-                if (!empty($status)) {
-                    $hasAnyStatus = true;
-
-                    // Pastikan NPK diisi jika status ada
-                    if (empty($npkData[$colIndex])) {
-                        return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
-                    }
-
-                    // Pastikan NPK diisi jika status ada
-                    if (empty($npkData[$colIndex])) {
-                        return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
-                    }
-
-                    // Cegah pengisian tanggal masa depan
                     if ($colIndex > $today) {
                         return redirect()->back()->with('error', 'Tidak bisa mengisi data untuk tanggal yang belum lewat.');
                     }
-                }
-            }
-        }
 
-        if (!$hasAnyStatus) {
-            return redirect()->back()->with('error', 'Minimal satu OK/NG harus dipilih.');
-        }
+                    if (empty($npkData[$colIndex])) {
+                        return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
+                    }
 
-        // Simpan data ke database
-        foreach ($statusData as $rowIndex => $statuses) {
-            foreach ($statuses as $colIndex => $status) {
-                if (!empty($npkData[$colIndex]) && !ctype_digit($npkData[$colIndex])) {
-                    return redirect()->back()->with('error', 'NPK hanya boleh berisi angka!');
-                }
-                if (!empty($status)) {
-                    // Double check sekali lagi untuk memastikan data belum disubmit
                     $existingData = $model->where([
                         'checksheet_id' => $checksheetId,
                         'kolom' => intval($colIndex),
@@ -121,58 +85,41 @@ class DetailChecksheetController extends BaseController
                         return redirect()->back()->with('error', 'Data untuk tanggal ' . $colIndex . ' sudah disubmit dan tidak bisa diubah!');
                     }
 
-                    // Cek apakah data sudah ada untuk mencegah duplikasi
                     $existing = $model->where([
                         'checksheet_id' => $checksheetId,
-                        'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                        'kolom'         => intval($colIndex),
+                        'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                        'kolom' => intval($colIndex),
                     ])->first();
 
-                    // Tentukan status is_submitted berdasarkan tombol yang diklik
                     $isSubmitted = ($action == 'submit') ? 1 : 0;
-
-                    // Jika action adalah submit, pastikan semua item untuk kolom tersebut diisi
-                    if ($action == 'submit') {
-                        $allItemsFilled = true;
-                        foreach ($statusData as $checkRow => $checkStatuses) {
-                            if (empty($checkStatuses[$colIndex])) {
-                                $allItemsFilled = false;
-                                break;
-                            }
-                        }
-                        
-                        if (!$allItemsFilled) {
-                            return redirect()->back()->with('error', 'Semua item harus diisi sebelum melakukan submit!');
-                        }
-                    }
-
-                    // Buat tanggal lengkap dari kombinasi hari dan bulan
                     $fullDate = date('Y-m-d', strtotime($checksheet['bulan'] . '-' . $colIndex));
-                    
+
                     if (!$existing) {
-                        // Jika data belum ada, tambahkan data baru
-                        $data = [
+                        $model->insert([
                             'checksheet_id' => $checksheetId,
-                            'tanggal'       => $fullDate, // Menggunakan format tanggal lengkap
-                            'kolom'         => intval($colIndex),
-                            'item_check'    => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                            'inspeksi'      => $inspeksiData[$rowIndex] ?? null,
-                            'standar'       => $standarData[$rowIndex] ?? null,
-                            'status'        => $status,
-                            'npk'           => $npkData[$colIndex] ?? null,
-                            'is_submitted'  => $isSubmitted,
-                        ];
-                        $model->insert($data);
+                            'tanggal' => $fullDate,
+                            'kolom' => intval($colIndex),
+                            'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                            'inspeksi' => $inspeksiData[$rowIndex] ?? null,
+                            'standar' => $standarData[$rowIndex] ?? null,
+                            'status' => $status,
+                            'npk' => $npkData[$colIndex],
+                            'is_submitted' => $isSubmitted,
+                        ]);
                     } else {
-                        // Jika sudah ada, update data yang ada
                         $model->update($existing['id'], [
-                            'status'       => $status,
-                            'npk'          => $npkData[$colIndex] ?? $existing['npk'],
+                            'status' => $status,
+                            'npk' => $npkData[$colIndex],
                             'is_submitted' => $isSubmitted
                         ]);
                     }
+                    $hasChanges = true;
                 }
             }
+        }
+
+        if (!$hasChanges) {
+            return redirect()->back()->with('error', 'Tidak ada perubahan yang dilakukan.');
         }
 
         return redirect()->back()->with('success', 'Data berhasil ' . ($action == 'submit' ? 'dikirim!' : 'disimpan!'));
