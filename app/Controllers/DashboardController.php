@@ -130,4 +130,13 @@ class DashboardController extends BaseController
             'ngData' => $ngData
         ];
     }
+
+    public function dashboardV2()
+    {
+        $data = [
+            'title' => 'Dashboard v2',
+        ];
+
+        return view('layouts/dashboard_v2', $data);
+    }
 }

@@ -13,6 +13,7 @@ use CodeIgniter\Router\RouteCollection;
 
 // Dashboard
 $routes->get('/', [DashboardController::class, 'index']);
+$routes->get('/dashboard-v2', [DashboardController::class, 'dashboardV2']);
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
