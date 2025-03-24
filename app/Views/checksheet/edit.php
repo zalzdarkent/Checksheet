@@ -24,6 +24,15 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="line" class="form-label">Line</label>
+                    <select class="form-select" id="line" name="line" required>
+                        <?php for ($i = 1; $i <= 7; $i++): ?>
+                            <option value="<?= $i ?>" <?= $checksheet['line'] == $i ? 'selected' : '' ?>>Line <?= $i ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label for="bulan" class="form-label">Bulan</label>
                     <input type="month" class="form-control" id="bulan" name="bulan" value="<?= date('Y-m', strtotime($checksheet['bulan'])) ?>">
                 </div>
@@ -45,7 +54,6 @@
                         <option value="Prod. 3" <?= $checksheet['seksi'] == 'Prod. 3' ? 'selected' : '' ?>>Prod. 3</option>
                     </select>
                 </div>
-
                 <button type="submit" class="btn btn-primary">Update</button>
                 <a href="javascript:history.back()" class="btn btn-secondary">Kembali</a>
             </form>

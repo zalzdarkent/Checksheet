@@ -59,36 +59,28 @@
                 </tr>
             </thead>
             <tbody>
+                <?php foreach ($machines as $machine): ?>
                 <tr>
-                    <th scope="row" class="text-white text-uppercase bg-dark border-0">PC</th>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-black" style="background-color: #efe846 !important;">2</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <th class="text-white text-uppercase bg-dark" style="border: none;"><?= $machine['mesin'] ?></th>
+                    <?php for ($line = 1; $line <= 7; $line++): ?>
+                        <?php 
+                            $key = $machine['mesin'] . '_' . $line;
+                            if (isset($machineStatus[$key])) {
+                                $status = $machineStatus[$key];
+                                $bgColor = $status === 'R' ? '#9CCC65' : '#efe846';
+                                $textColor = $status === 'R' ? 'text-white' : 'text-black';
+                            ?>
+                                <td class="<?= $textColor ?>" style="background-color: <?= $bgColor ?> !important;"><?= $status ?></td>
+                            <?php
+                            } else {
+                            ?>
+                                <td></td>
+                            <?php
+                            }
+                        ?>
+                    <?php endfor; ?>
                 </tr>
-                <tr>
-                    <th class="text-white text-uppercase bg-dark" style="border: none;">ENV</th>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                </tr>
-                <tr>
-                    <th class="text-white text-uppercase bg-dark" style="border: none;">PH</th>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
-                </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
