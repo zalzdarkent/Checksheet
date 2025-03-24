@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                     <th class="p-1">Line</th>
-                    <td class="p-1">:</td>
+                    <td class="p-1">: <?= esc($checksheet['seksi']) ?></td></td>
                     <td class="p-1"></td>
                     <th class="p-1">Bulan</th>
                     <td class="p-1">: <?= strftime('%B %Y', strtotime($checksheet['bulan'])) ?></td>
@@ -45,13 +45,13 @@
         <?= csrf_field() ?>
         <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
         <div class="table-responsive">
-            <?php if (session()->getFlashdata('success')) : ?>
+            <?php if (session()->getFlashdata('success')): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <?= session()->getFlashdata('success') ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <?php if (session()->getFlashdata('error')) : ?>
+            <?php if (session()->getFlashdata('error')): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <?= session()->getFlashdata('error') ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -66,7 +66,8 @@
                         <th class="custom-header">Standar</th>
                         <?php
                         $jumlahKolom = date('t', strtotime($checksheet['bulan']));
-                        for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
+                        for ($i = 1; $i <= $jumlahKolom; $i++):
+                            ?>
                             <th class="custom-header text-center align-middle"><?= $i ?></th>
                             <input type="hidden" name="tanggal[<?= $i ?>]" value="<?= $i ?>">
                         <?php endfor; ?>
@@ -74,7 +75,7 @@
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
-                    <?php foreach ($detailMasters as $index => $row) : ?>
+                    <?php foreach ($detailMasters as $index => $row): ?>
                         <?php $isDeleted = in_array($row['item_check'], $deletedItemChecks ?? []); ?>
                         <tr class="<?= $isDeleted ? 'table-secondary' : '' ?>">
                             <td><?= $no++; ?></td>
@@ -95,9 +96,9 @@
                             </td>
                             <?php
                             $jumlahKolom = date('t', strtotime($checksheet['bulan']));
-                            for ($i = 1; $i <= $jumlahKolom; $i++) :
+                            for ($i = 1; $i <= $jumlahKolom; $i++):
                                 $status = $statusArray[$row['item_check']][$i] ?? null;
-                            ?>
+                                ?>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
                                         <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="">
@@ -127,7 +128,7 @@
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     data-bs-title="Pilih NPK yang sesuai">(?)</span></label></td>
-                        <?php for ($i = 1; $i <= $jumlahKolom; $i++) : ?>
+                        <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
                             <td class="text-center">
                                 <select class="form-select" name="npk[<?= $i ?>]" <?= $isSubmitted ? 'disabled' : '' ?>>
                                     <option value="">Pilih NPK</option>
@@ -144,10 +145,10 @@
             </table>
         </div>
         <input type="hidden" name="checksheet_id" value="<?= $checksheet['id']; ?>">
-        <?php if ($isSubmitted) : ?>
+        <?php if ($isSubmitted): ?>
             <button type="submit" class="btn btn-primary mt-3" disabled>Simpan</button>
             <button type="submit" class="btn btn-success mt-3" disabled>Kirim</button>
-        <?php else : ?>
+        <?php else: ?>
             <button type="submit" name="action" value="save" class="btn btn-primary mt-3">Simpan</button>
             <button type="submit" name="action" value="submit" class="btn btn-success mt-3">Kirim</button>
         <?php endif; ?>

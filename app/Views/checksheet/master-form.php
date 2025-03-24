@@ -29,11 +29,11 @@
                 <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
             </div>
             <datalist id="mesinList">
-                <option value="Mesin A">
-                <option value="Mesin B">
-                <option value="Mesin C">
-                <option value="Mesin D">
-                <option value="Mesin E">
+                <option value="PW">
+                <option value="ALT">
+                <option value="COS">
+                <option value="HSM">
+                <option value="ENV">
             </datalist>
             <div id="selectedMesin" class="mt-2"></div>
         </div>

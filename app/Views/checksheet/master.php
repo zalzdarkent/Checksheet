@@ -6,73 +6,142 @@
 
 <?= $this->section('content') ?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fs-7">Master Checksheet Pre-Use</h3>
-        <a href="/master/create" class="btn btn-primary">Tambah</a>
-    </div>
-
-    <div class="table-responsive">
-        <?php if (session()->getFlashdata('success')) : ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="m-0 font-weight-bold">Master Checksheet Pre-Use</h5>
+                <a href="/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah
+                </a>
             </div>
-        <?php elseif (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= session()->getFlashdata('danger') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-        <table id="myTable" class="table table-bordered table-striped align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th class="custom-header">No</th>
-                    <th class="custom-header">Judul Checksheet</th>
-                    <th class="custom-header">Mesin</th>
-                    <th class="custom-header">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($items)) : ?>
-                    <tr>
-                        <td colspan="6" class="text-center">Tidak ada data ditemukan.</td>
-                    </tr>
-                <?php else : ?>
-                    <?php foreach ($items as $key => $item) : ?>
+        </div>
+        <div class="card-body">
+            <?php if (session()->getFlashdata('success')) : ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-1"></i>
+                    <?= session()->getFlashdata('success') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php elseif (session()->getFlashdata('error')) : ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    <?= session()->getFlashdata('danger') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            
+            <div class="table-responsive">
+                <table id="myTable" class="table table-hover align-middle text-nowrap mb-0">
+                    <thead>
                         <tr>
-                            <td><?= (($currentPage - 1) * 10) + $key + 1; ?></td>
-                            <td><?= $item['judul_checksheet']; ?></td>
-                            <td>
-                                <?php
-                                $mesinList = json_decode($item['mesin'], true); // true agar hasilnya array asosiatif
-                                if (is_array($mesinList)) :
-                                    foreach ($mesinList as $mesin) :
-                                ?>
-                                        <span class="badge bg-success"><?= htmlspecialchars($mesin); ?></span>
-                                    <?php
-                                    endforeach;
-                                else :
-                                    ?>
-                                    <span class="text-muted">Tidak ada mesin</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <a href="/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">Hapus</a>
-                            </td>
+                            <th class="text-center" width="5%">No</th>
+                            <th>Judul Checksheet</th>
+                            <th>Mesin</th>
+                            <th class="text-center" width="15%">Aksi</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-end mt-3">
-            <?= $pager ?>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($items)) : ?>
+                            <tr>
+                                <td colspan="4" class="text-center">Tidak ada data ditemukan.</td>
+                            </tr>
+                        <?php else : ?>
+                            <?php foreach ($items as $key => $item) : ?>
+                                <tr>
+                                    <td class="text-center"><?= (($currentPage - 1) * 10) + $key + 1; ?></td>
+                                    <td><?= $item['judul_checksheet']; ?></td>
+                                    <td>
+                                        <?php
+                                        $mesinList = json_decode($item['mesin'], true);
+                                        if (is_array($mesinList)) :
+                                            foreach ($mesinList as $mesin) :
+                                        ?>
+                                                <span class="badge bg-success rounded-pill"><?= htmlspecialchars($mesin); ?></span>
+                                            <?php
+                                            endforeach;
+                                        else :
+                                            ?>
+                                            <span class="text-muted fst-italic">Tidak ada mesin</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a href="/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm rounded-pill px-3 ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>
+
+<?= $this->section('scripts') ?>
+<style>
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        border-color: #dee2e6;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        border-color: #dee2e6;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        margin: 0 0.2rem;
+        border-radius: 0.25rem !important;
+        border: none !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #0d6efd !important;
+        color: white !important;
+        border: none !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #0b5ed7 !important;
+        color: white !important;
+        border: none !important;
+    }
+    .table > :not(caption) > * > * {
+        padding: 0.75rem;
+    }
+    .table thead tr th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
 <script>
-    new DataTable('#myTable');
+    $(document).ready(function() {
+        $('#myTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+            },
+            pageLength: 10,
+            ordering: true,
+            responsive: true,
+            columnDefs: [
+                { orderable: false, targets: 3 }, 
+                { orderable: false, targets: 2 }  
+            ],
+            dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
+            order: [[0, 'asc']]
+        });
+    });
 </script>
+<?= $this->endSection() ?>
+
 <?= $this->endSection() ?>

@@ -16,6 +16,7 @@ class Checksheet extends Model
         'bulan',
         'departemen',
         'seksi',
+        'line',
         'master_id'
     ];
     protected $createdField     = 'created_at';

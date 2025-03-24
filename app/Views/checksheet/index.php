@@ -5,103 +5,121 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
+
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fs-7">List Checksheet Pre-Use</h3>
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahModal">Tambah</a>
-    </div>
-
-    <div class="table-responsive">
-        <?php if (session()->getFlashdata('success')) : ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="m-0 font-weight-bold">List Checksheet Pre-Use</h5>
+                <a href="#" class="btn btn-primary btn-sm px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#tambahModal">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah
+                </a>
             </div>
-        <?php endif; ?>
-        
-        <?php if (session()->getFlashdata('error')) : ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <?= session()->getFlashdata('error') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
+        </div>
+        <div class="card-body">
+            <?php if (session()->getFlashdata('success')) : ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-1"></i>
+                    <?= session()->getFlashdata('success') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (session()->getFlashdata('error')) : ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    <?= session()->getFlashdata('error') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
 
-        <table class="table table-bordered table-striped align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th class="custom-header">No</th>
-                    <th class="custom-header">Mesin</th>
-                    <th class="custom-header">Bulan</th>
-                    <th class="custom-header">Dept.</th>
-                    <th class="custom-header">Seksi</th>
-                    <th class="custom-header">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($checksheets)) : ?>
-                    <?php foreach ($checksheets as $index => $row) : ?>
+            <div class="table-responsive">
+                <table id="myTable" class="table table-hover align-middle text-nowrap mb-0">
+                    <thead>
                         <tr>
-                            <td><?= (($currentPage - 1) * 10) + $index + 1 ?></td>
-                            <td><?= esc($row['mesin']) ?></td>
-                            <td><?= date('m-Y', strtotime($row['bulan'])) ?></td>
-                            <td>
-                                <?php
-                                $warna = 'bg-secondary'; // Default warna
-                                if ($row['departemen'] == 'MTN') $warna = 'bg-success';
-                                if ($row['departemen'] == 'PRD') $warna = 'bg-primary';
-                                if ($row['departemen'] == 'QA') $warna = 'bg-danger';
-                                ?>
-                                <span class="badge <?= $warna ?>"><?= esc($row['departemen']) ?></span>
-                            </td>
-                            <td>
-                                <?php
-                                $warna = 'bg-secondary'; // Default warna
-                                if ($row['seksi'] == 'Prod. 1') $warna = 'bg-warning';
-                                if ($row['seksi'] == 'Prod. 2') $warna = 'bg-primary';
-                                if ($row['seksi'] == 'Prod. 3') $warna = 'bg-danger';
-                                ?>
-                                <span class="badge <?= $warna ?>"><?= esc($row['seksi']) ?></span>
-                            </td>
-                            <td>
-                                <a href="/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm">Detail</a>
-                                <a href="/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <form action="/checksheet/delete/<?= $row['id'] ?>" method="post" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus?');">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                </form>
-                            </td>
+                            <th class="text-center" width="5%">No</th>
+                            <th>Mesin</th>
+                            <th>Line</th>
+                            <th>Bulan</th>
+                            <th>Dept.</th>
+                            <th>Seksi</th>
+                            <th class="text-center" width="15%">Aksi</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <tr>
-                        <td colspan="6" class="text-center">Tidak ada data</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-end mt-3">
-            <?= $pager ?>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($checksheets)) : ?>
+                            <?php foreach ($checksheets as $index => $row) : ?>
+                                <tr>
+                                    <td class="text-center"><?= $index + 1 ?></td>
+                                    <td><?= esc($row['mesin']) ?></td>
+                                    <td class="text-center"><?= esc($row['line'] ?? '-') ?></td>
+                                    <td><?= date('F Y', strtotime($row['bulan'])) ?></td>
+                                    <td>
+                                        <?php
+                                        $warna = 'bg-secondary';
+                                        if ($row['departemen'] == 'MTN') $warna = 'bg-success';
+                                        if ($row['departemen'] == 'PRD') $warna = 'bg-primary';
+                                        if ($row['departemen'] == 'QA') $warna = 'bg-danger';
+                                        ?>
+                                        <span class="badge <?= $warna ?> rounded-pill"><?= esc($row['departemen']) ?></span>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        $warna = 'bg-secondary';
+                                        if ($row['seksi'] == 'Prod. 1') $warna = 'bg-warning';
+                                        if ($row['seksi'] == 'Prod. 2') $warna = 'bg-primary';
+                                        if ($row['seksi'] == 'Prod. 3') $warna = 'bg-danger';
+                                        ?>
+                                        <span class="badge <?= $warna ?> rounded-pill"><?= esc($row['seksi']) ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href="/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm rounded-pill px-3">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form action="/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 ms-1">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <tr>
+                                <td colspan="7" class="text-center">Tidak ada data</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>
 
 <!-- Modal Tambah Data -->
 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="tambahModalLabel">Tambah Checksheet</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/checksheet/store" method="post">
+                <form action="/checksheet/store" method="post" class="needs-validation" novalidate>
                     <?= csrf_field() ?>
                     <div class="mb-3">
                         <label for="mesin" class="form-label">Mesin</label>
-                        <select class="form-select" id="mesin" name="mesin">
+                        <select class="form-select" id="mesin" name="mesin" required>
                             <option value="" selected>Pilih Mesin</option>
                             <?php foreach ($masters as $master): ?>
                                 <?php $mesinList = json_decode($master['mesin'], true); ?>
@@ -112,34 +130,49 @@
                                 <?php endforeach; ?>
                             <?php endforeach; ?>
                         </select>
+                        <div class="invalid-feedback">Silakan pilih mesin</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="line" class="form-label">Line</label>
+                        <select class="form-select" id="line" name="line" required>
+                            <option value="" selected>Pilih Line</option>
+                            <?php for ($i = 1; $i <= 7; $i++): ?>
+                                <option value="<?= $i ?>">Line <?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                        <div class="invalid-feedback">Silakan pilih line</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="bulan" class="form-label">Bulan</label>
-                        <input type="month" class="form-control" id="bulan" name="bulan" placeholder="MM-YYYY">
+                        <input type="month" class="form-control" id="bulan" name="bulan" required>
+                        <div class="invalid-feedback">Silakan pilih bulan</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="dept" class="form-label">Departemen</label>
-                        <select class="form-select" id="dept" name="departemen">
+                        <select class="form-select" id="dept" name="departemen" required>
                             <option value="" selected>Pilih Departemen</option>
                             <option value="MTN">MTN</option>
                             <option value="PRD">PRD</option>
                             <option value="QA">QA</option>
                         </select>
+                        <div class="invalid-feedback">Silakan pilih departemen</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="seksi" class="form-label">Seksi</label>
-                        <select class="form-select" id="seksi" name="seksi">
+                        <select class="form-select" id="seksi" name="seksi" required>
                             <option value="" selected>Pilih Seksi</option>
                             <option value="Prod. 1">Prod. 1</option>
                             <option value="Prod. 2">Prod. 2</option>
                             <option value="Prod. 3">Prod. 3</option>
                         </select>
+                        <div class="invalid-feedback">Silakan pilih seksi</div>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer px-0 pb-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
@@ -148,4 +181,88 @@
         </div>
     </div>
 </div>
+
+<?= $this->section('scripts') ?>
+<style>
+    .dataTables_wrapper .dataTables_length select {
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        border-color: #dee2e6;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 0.25rem;
+        border-color: #dee2e6;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        margin: 0 0.2rem;
+        border-radius: 0.25rem !important;
+        border: none !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #0d6efd !important;
+        color: white !important;
+        border: none !important;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #0b5ed7 !important;
+        color: white !important;
+        border: none !important;
+    }
+    .table > :not(caption) > * > * {
+        padding: 0.75rem;
+    }
+    .table thead tr th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+</style>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#myTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
+            },
+            pageLength: 10,
+            ordering: true,
+            responsive: true,
+            columnDefs: [
+                { orderable: false, targets: 6 }, // Kolom aksi
+                { type: 'date', targets: 3 }     // Kolom bulan
+            ],
+            dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
+            order: [[0, 'asc']]
+        });
+
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    });
+</script>
+<?= $this->endSection() ?>
+
 <?= $this->endSection() ?>
