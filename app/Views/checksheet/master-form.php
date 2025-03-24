@@ -24,10 +24,18 @@
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
             <label class="form-label">Mesin</label>
-            <div class="border p-2 rounded" id="mesinContainer">
-                <input type="text" id="mesinInput" class="form-control border-0" placeholder="Ketik atau pilih mesin..." onkeydown="handleKeyDown(event)">
-                <div id="selectedMesin" class="mt-2"></div>
+            <div class="input-group">
+                <input type="text" id="mesinInput" class="form-control" list="mesinList" placeholder="Ketik atau pilih mesin...">
+                <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
             </div>
+            <datalist id="mesinList">
+                <option value="Mesin A">
+                <option value="Mesin B">
+                <option value="Mesin C">
+                <option value="Mesin D">
+                <option value="Mesin E">
+            </datalist>
+            <div id="selectedMesin" class="mt-2"></div>
         </div>
     </div>
 
@@ -69,69 +77,68 @@
         document.getElementById("judul_checksheet_hidden").value = this.value;
     });
 
-
-    let mesinList = []; // List mesin yang bisa dipilih
     let selectedMesin = [];
 
-    function handleKeyDown(event) {
-        let input = document.getElementById("mesinInput");
-        let value = input.value.trim();
-
-        if (event.key === "Enter" && value !== "") {
+    // Handle enter key pada input mesin
+    document.getElementById("mesinInput").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
             event.preventDefault();
-            addMesin(value);
+            addMesin();
         }
-    }
+    });
 
-    function addMesin(mesin) {
-        if (!selectedMesin.includes(mesin)) {
+    function addMesin() {
+        let input = document.getElementById("mesinInput");
+        let mesin = input.value.trim();
+        
+        if (mesin && !selectedMesin.includes(mesin)) {
             selectedMesin.push(mesin);
-
-            let badge = document.createElement("span");
-            badge.classList.add("badge", "bg-primary", "me-1");
-            badge.textContent = mesin;
-
-            let removeBtn = document.createElement("button");
-            removeBtn.classList.add("btn-close", "btn-close-white", "ms-1");
-            removeBtn.style.fontSize = "10px";
-            removeBtn.onclick = function() {
-                removeMesin(mesin, badge);
-            };
-
-            badge.appendChild(removeBtn);
-            document.getElementById("selectedMesin").appendChild(badge);
+            updateMesinDisplay();
+            input.value = "";
         }
-        document.getElementById("mesinInput").value = "";
-        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
     }
 
-    function removeMesin(mesin, badge) {
+    function removeMesin(mesin) {
         selectedMesin = selectedMesin.filter(item => item !== mesin);
-        badge.remove();
-        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
+        updateMesinDisplay();
+    }
+
+    function updateMesinDisplay() {
+        let container = document.getElementById("selectedMesin");
+        let mesinData = document.getElementById("mesinData");
+        
+        // Update tampilan badge
+        container.innerHTML = "";
+        selectedMesin.forEach(mesin => {
+            let badge = document.createElement("span");
+            badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
+            badge.innerHTML = `${mesin} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin}')"></button>`;
+            container.appendChild(badge);
+        });
+
+        // Update hidden input
+        mesinData.value = JSON.stringify(selectedMesin);
     }
 
     function addForm() {
-        let formContainer = document.getElementById("formContainer");
-        let newForm = document.createElement("div");
-        newForm.classList.add("row", "mb-3", "form-group");
-
-        newForm.innerHTML = `
+        let container = document.getElementById("formContainer");
+        let newRow = document.createElement("div");
+        newRow.className = "row mb-3 form-group";
+        newRow.innerHTML = `
             <div class="col-md-4">
-                <label class="form-label">Item Check</label>
+                <label for="item_check" class="form-label">Item Check</label>
                 <input type="text" class="form-control" name="item_check[]">
             </div>
             <div class="col-md-4">
-                <label class="form-label">Inspeksi</label>
+                <label for="inspeksi" class="form-label">Inspeksi</label>
                 <input type="text" class="form-control" name="inspeksi[]">
             </div>
             <div class="col-md-4">
-                <label class="form-label">Standar</label>
+                <label for="standar" class="form-label">Standar</label>
                 <input type="text" class="form-control" name="standar[]">
             </div>
         `;
-
-        formContainer.appendChild(newForm);
+        container.appendChild(newRow);
     }
 </script>
 

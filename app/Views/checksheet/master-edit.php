@@ -34,19 +34,27 @@
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
             <label class="form-label">Mesin</label>
-            <div class="border p-2 rounded" id="mesinContainer">
-                <input type="text" id="mesinInput" class="form-control border-0" placeholder="Ketik atau pilih mesin..." onkeydown="handleKeyDown(event)">
-                <div id="selectedMesin" class="mt-2">
-                    <?php
-                    $selectedMesin = json_decode($item['mesin'] ?? '[]', true);
-                    foreach ($selectedMesin as $mesin) :
-                    ?>
-                        <span class="badge bg-primary me-1">
-                            <?= htmlspecialchars($mesin) ?>
-                            <button type="button" class="btn-close btn-close-white ms-1" style="font-size: 10px;" onclick="removeMesin('<?= htmlspecialchars($mesin) ?>', this)"></button>
-                        </span>
-                    <?php endforeach; ?>
-                </div>
+            <div class="input-group">
+                <input type="text" id="mesinInput" class="form-control" list="mesinList" placeholder="Ketik atau pilih mesin...">
+                <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
+            </div>
+            <datalist id="mesinList">
+                <option value="Mesin A">
+                <option value="Mesin B">
+                <option value="Mesin C">
+                <option value="Mesin D">
+                <option value="Mesin E">
+            </datalist>
+            <div id="selectedMesin" class="mt-2">
+                <?php
+                $selectedMesin = json_decode($item['mesin'] ?? '[]', true);
+                foreach ($selectedMesin as $mesin) :
+                ?>
+                    <span class="badge bg-primary me-1 mb-1">
+                        <?= htmlspecialchars($mesin) ?>
+                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('<?= htmlspecialchars($mesin) ?>')"></button>
+                    </span>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -108,7 +116,7 @@
 
                 <div class="d-flex justify-content-between mt-3">
                     <button type="button" class="btn btn-success me-2" onclick="addForm()">Tambah</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </form>
         </div>
@@ -122,74 +130,51 @@
 
     let selectedMesin = <?= json_encode($selectedMesin) ?>;
 
-    function handleKeyDown(event) {
-        let input = document.getElementById("mesinInput");
-        let value = input.value.trim();
-
-        if (event.key === "Enter" && value !== "") {
+    // Handle enter key pada input mesin
+    document.getElementById("mesinInput").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
             event.preventDefault();
-            addMesin(value);
+            addMesin();
         }
-    }
+    });
 
-    function addMesin(mesin) {
-        if (!selectedMesin.includes(mesin)) {
+    function addMesin() {
+        let input = document.getElementById("mesinInput");
+        let mesin = input.value.trim();
+        
+        if (mesin && !selectedMesin.includes(mesin)) {
             selectedMesin.push(mesin);
-
-            let badge = document.createElement("span");
-            badge.classList.add("badge", "bg-primary", "me-1");
-            badge.textContent = mesin;
-
-            let removeBtn = document.createElement("button");
-            removeBtn.classList.add("btn-close", "btn-close-white", "ms-1");
-            removeBtn.style.fontSize = "10px";
-            removeBtn.onclick = function() {
-                removeMesin(mesin, badge);
-            };
-
-            badge.appendChild(removeBtn);
-            document.getElementById("selectedMesin").appendChild(badge);
+            updateMesinDisplay();
+            input.value = "";
         }
-        document.getElementById("mesinInput").value = "";
-        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
     }
 
-    function removeMesin(mesin, badge) {
+    function removeMesin(mesin) {
         selectedMesin = selectedMesin.filter(item => item !== mesin);
-        badge.remove();
-        document.getElementById("mesinData").value = JSON.stringify(selectedMesin);
+        updateMesinDisplay();
     }
 
-    function confirmDeleteRow(button) {
-        Swal.fire({
-            title: 'Hapus baris?',
-            text: "Apakah Anda yakin ingin menghapus baris ini?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const row = button.closest('.item-row');
-                if (document.querySelectorAll('.item-row').length > 1) {
-                    row.remove();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Minimal harus ada satu baris data!'
-                    });
-                }
-            }
+    function updateMesinDisplay() {
+        let container = document.getElementById("selectedMesin");
+        let mesinData = document.getElementById("mesinData");
+        
+        // Update tampilan badge
+        container.innerHTML = "";
+        selectedMesin.forEach(mesin => {
+            let badge = document.createElement("span");
+            badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
+            badge.innerHTML = `${mesin} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin}')"></button>`;
+            container.appendChild(badge);
         });
+
+        // Update hidden input
+        mesinData.value = JSON.stringify(selectedMesin);
     }
 
     function addForm() {
-        const container = document.getElementById("formContainer");
-        const newRow = document.createElement("div");
-        newRow.classList.add("row", "mb-3", "form-group", "item-row");
+        let container = document.getElementById("formContainer");
+        let newRow = document.createElement("div");
+        newRow.className = "row mb-3 form-group item-row";
         newRow.innerHTML = `
             <div class="col-md-4">
                 <label class="form-label">Item Check</label>
@@ -212,70 +197,57 @@
         container.appendChild(newRow);
     }
 
+    function confirmDeleteRow(button) {
+        if (document.querySelectorAll('.item-row').length > 1) {
+            if (confirm('Apakah Anda yakin ingin menghapus baris ini?')) {
+                button.closest('.item-row').remove();
+            }
+        } else {
+            alert('Minimal harus ada satu baris item check!');
+        }
+    }
+
     function validateForm(event) {
         event.preventDefault();
 
         // Validasi judul
         const judul = document.getElementById("judul_checksheet").value.trim();
         if (!judul) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Judul checksheet harus diisi!'
-            });
+            alert("Judul checksheet harus diisi!");
             return false;
         }
 
         // Validasi mesin
         if (selectedMesin.length === 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Minimal satu mesin harus dipilih!'
-            });
+            alert("Minimal harus memilih satu mesin!");
             return false;
         }
 
-        // Validasi form items
-        let valid = true;
-        document.querySelectorAll('.item-row').forEach(row => {
-            const inputs = row.querySelectorAll('input[type="text"]');
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    valid = false;
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
-                }
-            });
-        });
+        // Validasi item check, inspeksi, dan standar
+        const itemChecks = document.getElementsByName("item_check[]");
+        const inspeksi = document.getElementsByName("inspeksi[]");
+        const standar = document.getElementsByName("standar[]");
 
-        if (!valid) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Semua field harus diisi!'
-            });
-            return false;
-        }
-
-        // Konfirmasi submit
-        Swal.fire({
-            title: 'Simpan Perubahan?',
-            text: 'Pastikan data yang diisi sudah benar!',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#0d6efd',
-            cancelButtonColor: '#dc3545',
-            confirmButtonText: 'Ya, Simpan!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('dynamicForm').submit();
+        for (let i = 0; i < itemChecks.length; i++) {
+            if (!itemChecks[i].value.trim()) {
+                alert("Item Check tidak boleh kosong!");
+                itemChecks[i].focus();
+                return false;
             }
-        });
+            if (!inspeksi[i].value.trim()) {
+                alert("Inspeksi tidak boleh kosong!");
+                inspeksi[i].focus();
+                return false;
+            }
+            if (!standar[i].value.trim()) {
+                alert("Standar tidak boleh kosong!");
+                standar[i].focus();
+                return false;
+            }
+        }
 
-        return false;
+        // Jika semua validasi berhasil, submit form
+        document.getElementById("dynamicForm").submit();
     }
 </script>
 
