@@ -61,33 +61,33 @@
             <tbody>
                 <tr>
                     <th scope="row" class="text-white text-uppercase bg-dark border-0">PC</th>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-black" style="background-color: #efe846 !important;">2</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
                 </tr>
                 <tr>
                     <th class="text-white text-uppercase bg-dark" style="border: none;">ENV</th>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
                 </tr>
                 <tr>
                     <th class="text-white text-uppercase bg-dark" style="border: none;">PH</th>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
-                    <td style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
+                    <td class="text-white" style="background-color: #9CCC65 !important;">R</td>
                 </tr>
             </tbody>
         </table>

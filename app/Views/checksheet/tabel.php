@@ -131,11 +131,11 @@
                             <td class="text-center">
                                 <select class="form-select" name="npk[<?= $i ?>]" <?= $isSubmitted ? 'disabled' : '' ?>>
                                     <option value="">Pilih NPK</option>
-                                    <?php
-                                    $selectedNpk = $npkArray[$i] ?? '';
-                                    if (!empty($selectedNpk)) : ?>
-                                        <option value="<?= $selectedNpk ?>" selected><?= $selectedNpk ?></option>
-                                    <?php endif; ?>
+                                    <option value="12345" <?= ($npkArray[$i] ?? '') == '12345' ? 'selected' : '' ?>>12345 - Operator 1</option>
+                                    <option value="23456" <?= ($npkArray[$i] ?? '') == '23456' ? 'selected' : '' ?>>23456 - Operator 2</option>
+                                    <option value="34567" <?= ($npkArray[$i] ?? '') == '34567' ? 'selected' : '' ?>>34567 - Operator 3</option>
+                                    <option value="45678" <?= ($npkArray[$i] ?? '') == '45678' ? 'selected' : '' ?>>45678 - Operator 4</option>
+                                    <option value="56789" <?= ($npkArray[$i] ?? '') == '56789' ? 'selected' : '' ?>>56789 - Operator 5</option>
                                 </select>
                             </td>
                         <?php endfor; ?>

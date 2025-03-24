@@ -180,6 +180,7 @@ class AppController extends BaseController
                 break;
             }
         }
+        
 
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
