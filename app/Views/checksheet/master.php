@@ -11,7 +11,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="m-0 font-weight-bold">Master Checksheet Pre-Use</h5>
                 <a href="/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah
+                    <i class="bi bi-plus-circle"></i> Tambah
                 </a>
             </div>
         </div>
@@ -29,7 +29,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            
+
             <div class="table-responsive">
                 <table id="myTable" class="table table-hover align-middle text-nowrap mb-0">
                     <thead>
@@ -90,31 +90,37 @@
         border-radius: 0.25rem;
         border-color: #dee2e6;
     }
+
     .dataTables_wrapper .dataTables_filter input {
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
         border-radius: 0.25rem;
         border-color: #dee2e6;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0.375rem 0.75rem;
         margin: 0 0.2rem;
         border-radius: 0.25rem !important;
         border: none !important;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
         background: #0d6efd !important;
         color: white !important;
         border: none !important;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
         background: #0b5ed7 !important;
         color: white !important;
         border: none !important;
     }
-    .table > :not(caption) > * > * {
+
+    .table> :not(caption)>*>* {
         padding: 0.75rem;
     }
+
     .table thead tr th {
         background-color: #f8f9fa;
         font-weight: 600;
@@ -125,20 +131,30 @@
     $(document).ready(function() {
         $('#myTable').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+                url: '<?= base_url('assets/datatables/i18n/id.json') ?>'
             },
             pageLength: 10,
             ordering: true,
             responsive: true,
-            columnDefs: [
-                { orderable: false, targets: 3 }, 
-                { orderable: false, targets: 2 }  
+            columnDefs: [{
+                    orderable: false,
+                    targets: 3
+                },
+                {
+                    orderable: false,
+                    targets: 2
+                }
             ],
             dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                 '<"row"<"col-sm-12"tr>>' +
-                 '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
-            order: [[0, 'asc']]
+                '<"row"<"col-sm-12"tr>>' +
+                '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "Semua"]
+            ],
+            order: [
+                [0, 'asc']
+            ]
         });
     });
 </script>

@@ -47,7 +47,7 @@
 </main>
 
 <!-- Include Highcharts -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
+<!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

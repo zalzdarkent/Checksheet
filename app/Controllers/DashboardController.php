@@ -121,7 +121,7 @@ class DashboardController extends BaseController
         $monthlyData = $this->getMonthlyData();
 
         $data = [
-            'title' => 'Dashboard',
+            'title' => 'Dashboard ',
             'totalChecksheet' => $totalTemuan,
             'totalNG' => $openItems,
             'totalOK' => $closedItems,

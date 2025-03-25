@@ -5,6 +5,7 @@
 - Dashboard v2 diperbaiki tampilannya ✅
 
 ### Milestone Hari Selasa:
+- Semua CDN sudah di dalam assets ✅
 - Dashboard v2 dinamis 50%
 - NG di table Dashboard v1 bisa diklik
 
