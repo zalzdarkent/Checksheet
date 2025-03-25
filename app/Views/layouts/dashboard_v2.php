@@ -13,26 +13,24 @@
     <!-- Filter Form -->
     <div class="card mb-4">
         <div class="card-body">
-            <form id="filterForm" class="row g-3">
-                <div class="col-md-6">
-                    <label for="line" class="form-label">Line</label>
-                    <select class="form-select" id="line" name="line">
-                        <option value="">Pilih Line</option>
-                        <option value="1">Line 1</option>
-                        <option value="2">Line 2</option>
-                        <option value="3">Line 3</option>
-                        <option value="4">Line 4</option>
-                        <option value="5">Line 5</option>
-                        <option value="6">Line 6</option>
-                        <option value="7">Line 7</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="month" class="form-label">Bulan dan Tahun</label>
-                    <input type="month" class="form-control" id="month" name="month">
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Filter</button>
+            <form method="GET">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="line" class="form-label">Line</label>
+                        <select class="form-select" id="line" name="line">
+                            <option value="">Pilih Line</option>
+                            <?php for ($i = 1; $i <= 7; $i++) : ?>
+                                <option value="<?= $i ?>" <?= ($selectedLine == $i) ? 'selected' : '' ?>>Line <?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="month" class="form-label">Bulan dan Tahun</label>
+                        <input type="month" class="form-control" id="month" name="bulan" value="<?= $selectedBulan ?>">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -46,37 +44,39 @@
     </div>
 </main>
 
-<!-- Include Highcharts -->
-<!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
-
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Column Chart
-    Highcharts.chart('columnChart', {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Yearly Statistics'
-        },
-        xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-        },
-        yAxis: {
+    document.addEventListener('DOMContentLoaded', function() {
+        Highcharts.chart('columnChart', {
+            chart: {
+                type: 'column'
+            },
             title: {
-                text: 'Total Cases'
+                text: 'Monthly Statistic'
+            },
+            xAxis: {
+                categories: ['Line 1', 'Line 2', 'Line 3', 'Line 4', 'Line 5', 'Line 6', 'Line 7']
+            },
+            yAxis: {
+                title: {
+                    text: 'Jumlah Data'
+                }
+            },
+            series: [{
+                    name: 'OK',
+                    data: <?= json_encode($chartData['OK']) ?>,
+                    color: '#28a745'
+                },
+                {
+                    name: 'NG',
+                    data: <?= json_encode($chartData['NG']) ?>,
+                    color: '#dc3545'
+                }
+            ],
+            credits: {
+                enabled: false // Ini buat ngilangin watermark Highcharts
             }
-        },
-        series: [{
-            name: 'OK',
-            data: [45, 52, 38, 41, 47, 53],
-            color: '#28a745'
-        }, {
-            name: 'NG',
-            data: [12, 15, 8, 11, 7, 13],
-            color: '#dc3545'
-        }]
+        });
     });
-});
 </script>
+
 <?= $this->endSection() ?>

@@ -130,9 +130,6 @@
 <script>
     $(document).ready(function() {
         $('#myTable').DataTable({
-            language: {
-                url: '<?= base_url('assets/datatables/i18n/id.json') ?>'
-            },
             pageLength: 10,
             ordering: true,
             responsive: true,
