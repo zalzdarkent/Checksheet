@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                     <th class="p-1">Line</th>
-                    <td class="p-1">: <?= esc($checksheet['seksi']) ?></td></td>
+                    <td class="p-1">: <?= esc($checksheet['line']) ?></td></td>
                     <td class="p-1"></td>
                     <th class="p-1">Bulan</th>
                     <td class="p-1">: <?= strftime('%B %Y', strtotime($checksheet['bulan'])) ?></td>

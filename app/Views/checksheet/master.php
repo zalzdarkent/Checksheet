@@ -43,7 +43,10 @@
                     <tbody>
                         <?php if (empty($items)) : ?>
                             <tr>
-                                <td colspan="4" class="text-center">Tidak ada data ditemukan.</td>
+                                <td class="text-center"></td>
+                                <td class="text-center">Tidak ada data</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
                             </tr>
                         <?php else : ?>
                             <?php foreach ($items as $key => $item) : ?>

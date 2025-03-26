@@ -18,6 +18,7 @@ class Master extends Model
         'created_at'
     ];
     protected $useTimestamps = false;
+
     public function getMasterWithDetails($id)
     {
         return $this->select('tb_master.*, tb_detail_master.item_check, tb_detail_master.inspeksi, tb_detail_master.standar')
@@ -26,6 +27,10 @@ class Master extends Model
             ->findAll();
     }
 
+    public function getAllMachines()
+    {
+        return $this->db->query('SELECT DISTINCT mesin FROM ' . $this->table)->getResultArray();
+    }
 
     // protected bool $allowEmptyInserts = false;
     // protected bool $updateOnlyChanged = true;

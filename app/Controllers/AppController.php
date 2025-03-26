@@ -74,6 +74,7 @@ class AppController extends BaseController
 
     public function store()
     {
+        // dd($this->request->getPost());
         $validation = \Config\Services::validation();
 
         // Aturan validasi
@@ -184,7 +185,7 @@ class AppController extends BaseController
                 break;
             }
         }
-        
+
 
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
@@ -224,18 +225,17 @@ class AppController extends BaseController
             return redirect()->to('/checksheet')->with('error', 'Data tidak ditemukan!');
         }
 
-        // Ambil data master berdasarkan master_id di preuse_tb_checksheet
+        // Ambil semua data mesin dari preuse_tb_master
         $masters = $db->table('preuse_tb_master')
             ->select('*')
-            ->where('id', $checksheet['master_id'])
             ->get()
-            ->getRowArray();
+            ->getResultArray(); // Mengambil semua data
 
         // Gabungkan data dari kedua tabel
         $data = [
             'title' => 'Edit Checksheet',
             'checksheet' => $checksheet,
-            'masters' => $masters
+            'masters' => $masters // Ubah dari getRowArray() ke getResultArray()
         ];
 
         return view('checksheet/edit', $data);
@@ -243,6 +243,7 @@ class AppController extends BaseController
 
     public function update($id)
     {
+        // dd($this->request->getPost()); 
         $validation = \Config\Services::validation();
 
         // Aturan validasi

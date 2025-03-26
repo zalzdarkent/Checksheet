@@ -16,6 +16,15 @@
             <form method="GET">
                 <div class="row g-3">
                     <div class="col-md-6">
+                        <label for="mesin" class="form-label">Mesin</label>
+                        <select class="form-select" id="mesin" name="mesin">
+                            <option value="">Semua Mesin</option>
+                            <?php foreach ($machines as $machine) : ?>
+                                <option value="<?= esc($machine['mesin']) ?>" <?= ($selectedMesin == $machine['mesin']) ? 'selected' : '' ?>><?= esc($machine['mesin']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
                         <label for="line" class="form-label">Line</label>
                         <select class="form-select" id="line" name="line">
                             <option value="">Pilih Line</option>

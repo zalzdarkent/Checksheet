@@ -5,10 +5,6 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css">
-
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white py-3">
@@ -27,7 +23,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (session()->getFlashdata('error')) : ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-circle me-1"></i>
@@ -96,7 +92,13 @@
                             <?php endforeach; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="7" class="text-center">Tidak ada data</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">Tidak ada data</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -190,31 +192,37 @@
         border-radius: 0.25rem;
         border-color: #dee2e6;
     }
+
     .dataTables_wrapper .dataTables_filter input {
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
         border-radius: 0.25rem;
         border-color: #dee2e6;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button {
         padding: 0.375rem 0.75rem;
         margin: 0 0.2rem;
         border-radius: 0.25rem !important;
         border: none !important;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
         background: #0d6efd !important;
         color: white !important;
         border: none !important;
     }
+
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
         background: #0b5ed7 !important;
         color: white !important;
         border: none !important;
     }
-    .table > :not(caption) > * > * {
+
+    .table> :not(caption)>*>* {
         padding: 0.75rem;
     }
+
     .table thead tr th {
         background-color: #f8f9fa;
         font-weight: 600;
@@ -228,24 +236,34 @@
             pageLength: 10,
             ordering: true,
             responsive: true,
-            columnDefs: [
-                { orderable: false, targets: 6 }, // Kolom aksi
-                { type: 'date', targets: 3 }     // Kolom bulan
+            columnDefs: [{
+                    orderable: false,
+                    targets: 6
+                }, // Kolom aksi
+                {
+                    type: 'date',
+                    targets: 3
+                } // Kolom bulan
             ],
             dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                 '<"row"<"col-sm-12"tr>>' +
-                 '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
-            order: [[0, 'asc']]
+                '<"row"<"col-sm-12"tr>>' +
+                '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "Semua"]
+            ],
+            order: [
+                [0, 'asc']
+            ]
         });
 
         // Form validation
-        (function () {
+        (function() {
             'use strict'
             var forms = document.querySelectorAll('.needs-validation')
             Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
+                .forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
                         if (!form.checkValidity()) {
                             event.preventDefault()
                             event.stopPropagation()
