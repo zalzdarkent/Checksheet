@@ -14,6 +14,7 @@ use CodeIgniter\Router\RouteCollection;
 
 // Dashboard
 $routes->get('/', [DashboardController::class, 'index']);
+$routes->get('/dashboard/ng-details', [DashboardController::class, 'getNGDetails']);
 $routes->get('/dashboard-v2', [DashboardV2Controller::class, 'index']);
 
 // Checksheet Routes Group

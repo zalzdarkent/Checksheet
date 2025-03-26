@@ -135,6 +135,30 @@ class DashboardController extends BaseController
         return view('layouts/dashboard', $data);
     }
 
+    public function getNGDetails()
+    {
+        $mesin = $this->request->getGet('mesin');
+        $line = $this->request->getGet('line');
+        
+        // Query untuk mendapatkan detail NG
+        $query = $this->db->query("
+            SELECT 
+                dc.checksheet_id,
+                dc.item_check,
+                dc.inspeksi,
+                dc.standar
+            FROM preuse_tb_checksheet cs
+            JOIN preuse_tb_detail_checksheet dc ON cs.id = dc.checksheet_id
+            WHERE cs.mesin = ? 
+            AND cs.line = ?
+            AND dc.status = 'NG'
+            ORDER BY dc.created_at DESC", 
+            [$mesin, $line]
+        );
+
+        return $this->response->setJSON($query->getResultArray());
+    }
+
     private function getMonthlyData()
     {
         // Ambil data 6 bulan terakhir
