@@ -59,28 +59,37 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($machines as $machine): ?>
-                <tr>
-                    <th class="text-white text-uppercase bg-dark" style="border: none;"><?= $machine['mesin'] ?></th>
-                    <?php for ($line = 1; $line <= 7; $line++): ?>
-                        <?php 
-                            $key = $machine['mesin'] . '_' . $line;
-                            if (isset($machineStatus[$key])) {
-                                $status = $machineStatus[$key];
-                                $bgColor = $status === 'R' ? '#9CCC65' : '#efe846';
-                                $textColor = $status === 'R' ? 'text-white' : 'text-black';
-                            ?>
-                                <td class="<?= $textColor ?>" style="background-color: <?= $bgColor ?> !important;"><?= $status ?></td>
-                            <?php
-                            } else {
-                            ?>
-                                <td></td>
-                            <?php
-                            }
-                        ?>
-                    <?php endfor; ?>
-                </tr>
-                <?php endforeach; ?>
+            <?php foreach ($machines as $machine): ?>
+    <tr>
+        <!-- Mesin -->
+        <th class="text-white text-uppercase bg-dark" style="border: none;">
+            <?= $machine['mesin'] ?>
+        </th>
+
+        <!-- Loop untuk 7 line -->
+        <?php for ($line = 1; $line <= 7; $line++): ?>
+            <?php
+            $key = $machine['mesin'] . '_' . $line;
+            if (isset($machineStatus[$key])) {
+                $statusData = $machineStatus[$key];
+                $status = $statusData['status'];  // Bisa "R" atau jumlah NG
+                $bgColor = $status === 'R' ? '#9CCC65' : '#efe846';  // Hijau atau kuning
+                $textColor = $status === 'R' ? 'text-white' : 'text-black';  // Kontras warna tulisan
+                ?>
+                <td class="<?= $textColor ?>" style="background-color: <?= $bgColor ?> !important; text-align: center;">
+                    <?= $status ?>
+                </td>
+            <?php
+            } else {
+                ?>
+                <!-- Jika tidak ada status, kosongkan kolom -->
+                <td style="background-color: #f5f5f5;"></td>
+            <?php
+            }
+            ?>
+        <?php endfor; ?>
+    </tr>
+<?php endforeach; ?>
             </tbody>
         </table>
     </div>

@@ -27,7 +27,7 @@
                     <div class="col-md-6">
                         <label for="line" class="form-label">Line</label>
                         <select class="form-select" id="line" name="line">
-                            <option value="">Pilih Line</option>
+                            <option value="">Semua Line</option>
                             <?php for ($i = 1; $i <= 7; $i++) : ?>
                                 <option value="<?= $i ?>" <?= ($selectedLine == $i) ? 'selected' : '' ?>>Line <?= $i ?></option>
                             <?php endfor; ?>

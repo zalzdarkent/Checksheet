@@ -42,7 +42,7 @@ class DashboardController extends BaseController
             FROM ItemSequences");
 
         $results = $query->getResultArray();
-        
+
         $totalTemuan = 0;
         $openItems = 0;
         $closedItems = 0;
@@ -66,11 +66,11 @@ class DashboardController extends BaseController
             }
 
             $totalTemuan += $temuanCount;
-            
+
             // If last status is 'NG', it's open
             if ($lastStatus === 'NG') {
                 $openItems++;
-            } 
+            }
             // If last status is 'OK', it's closed
             else if ($lastStatus === 'OK') {
                 $closedItems++;
@@ -79,43 +79,45 @@ class DashboardController extends BaseController
 
         // Get machine status for each line for today only
         $machineStatus = $this->db->query("
-            WITH TodayChecksheets AS (
-                SELECT 
-                    cs.mesin,
-                    cs.line,
-                    cs.id as checksheet_id
-                FROM preuse_tb_checksheet cs
-                JOIN preuse_tb_detail_checksheet dc ON cs.id = dc.checksheet_id
-                WHERE CAST(dc.tanggal AS DATE) = ?
-                GROUP BY cs.mesin, cs.line, cs.id
-            )
-            SELECT 
-                tc.mesin,
-                tc.line,
-                CASE 
-                    WHEN EXISTS (
-                        SELECT 1 
-                        FROM preuse_tb_detail_checksheet dc 
-                        WHERE dc.checksheet_id = tc.checksheet_id 
-                        AND dc.status = 'NG'
-                        AND CAST(dc.tanggal AS DATE) = ?
-                    ) THEN 'NG'
-                    ELSE 'R'
-                END as status
-            FROM TodayChecksheets tc
-            ORDER BY tc.mesin, tc.line", [$today, $today])->getResultArray();
+    WITH AllChecksheets AS (
+        SELECT 
+            cs.mesin,
+            cs.line,
+            cs.id as checksheet_id
+        FROM preuse_tb_checksheet cs
+        JOIN preuse_tb_detail_checksheet dc ON cs.id = dc.checksheet_id
+        GROUP BY cs.mesin, cs.line, cs.id
+    )
+    SELECT 
+        ac.mesin,
+        ac.line,
+        SUM(CASE WHEN dc.status = 'NG' THEN 1 ELSE 0 END) as total_ng
+    FROM AllChecksheets ac
+    LEFT JOIN preuse_tb_detail_checksheet dc ON ac.checksheet_id = dc.checksheet_id
+    GROUP BY ac.mesin, ac.line
+    ORDER BY ac.mesin, ac.line")->getResultArray();
 
         // Convert to associative array for easier access in view
         $machineStatusMap = [];
         foreach ($machineStatus as $status) {
-            $machineStatusMap[$status['mesin'] . '_' . $status['line']] = $status['status'];
+            if ($status['total_ng'] > 0) {
+                $machineStatusMap[$status['mesin'] . '_' . $status['line']] = [
+                    'status' => $status['total_ng'],  // Total NG
+                    'color' => 'yellow'  // NG → Background kuning
+                ];
+            } else {
+                $machineStatusMap[$status['mesin'] . '_' . $status['line']] = [
+                    'status' => 'R',  // Ready (OK semua)
+                    'color' => 'green'  // OK semua → Background hijau
+                ];
+            }
         }
 
         // Get unique machines
-        $machines = $this->db->query("
+        $machines = $this->db->query('
             SELECT DISTINCT mesin 
             FROM preuse_tb_checksheet 
-            ORDER BY mesin")->getResultArray();
+            ORDER BY mesin')->getResultArray();
 
         // Data Chart
         $monthlyData = $this->getMonthlyData();
@@ -145,13 +147,17 @@ class DashboardController extends BaseController
             $months[] = date('M Y', strtotime("-$i months"));
 
             // Query untuk status OK
-            $okCount = $this->db->table('preuse_tb_detail_checksheet')
+            $okCount = $this
+                ->db
+                ->table('preuse_tb_detail_checksheet')
                 ->where('status', 'OK')
                 ->where("FORMAT(created_at, 'yyyy-MM')", $date)
                 ->countAllResults();
 
             // Query untuk status NG
-            $ngCount = $this->db->table('preuse_tb_detail_checksheet')
+            $ngCount = $this
+                ->db
+                ->table('preuse_tb_detail_checksheet')
                 ->where('status', 'NG')
                 ->where("FORMAT(created_at, 'yyyy-MM')", $date)
                 ->countAllResults();
