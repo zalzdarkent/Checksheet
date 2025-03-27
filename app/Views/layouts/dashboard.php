@@ -9,15 +9,19 @@
     .table th {
         border: none !important;
     }
+
     .clickable-cell {
         cursor: pointer;
     }
+
     .clickable-cell:hover {
         opacity: 0.8;
     }
+
     #ngDetailsTableBody tr {
         cursor: pointer;
     }
+
     #ngDetailsTableBody tr:hover {
         background-color: #f5f5f5;
     }
@@ -71,7 +75,13 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($machines as $machine): ?>
+                <?php
+                // Urutkan mesin berdasarkan nama mesin secara alfabetis
+                usort($machines, function ($a, $b) {
+                    return strcmp($a['mesin'], $b['mesin']);
+                });
+
+                foreach ($machines as $machine): ?>
                     <tr>
                         <!-- Mesin -->
                         <th class="text-white text-uppercase bg-dark" style="border: none;">
@@ -88,12 +98,12 @@
                                 $bgColor = $status === 'R' ? '#9CCC65' : '#efe846';  // Hijau atau kuning
                                 $textColor = $status === 'R' ? 'text-white' : 'text-black';  // Kontras warna tulisan
                             ?>
-                                <td class="<?= $textColor ?> <?= $status !== 'R' ? 'clickable-cell' : '' ?>" 
+                                <td class="<?= $textColor ?> <?= $status !== 'R' ? 'clickable-cell' : '' ?>"
                                     style="background-color: <?= $bgColor ?> !important; text-align: center;"
                                     <?php if ($status !== 'R'): ?>
-                                        data-mesin="<?= $machine['mesin'] ?>"
-                                        data-line="<?= $line ?>"
-                                        onclick="showNGDetails(this)"
+                                    data-mesin="<?= $machine['mesin'] ?>"
+                                    data-line="<?= $line ?>"
+                                    onclick="showNGDetails(this)"
                                     <?php endif; ?>>
                                     <?= $status ?>
                                 </td>
@@ -140,38 +150,38 @@
 
 <!-- Script untuk menangani klik dan modal -->
 <script>
-async function showNGDetails(element) {
-    const mesin = element.dataset.mesin;
-    const line = element.dataset.line;
-    
-    try {
-        const response = await fetch(`/dashboard/ng-details?mesin=${encodeURIComponent(mesin)}&line=${line}`);
-        const data = await response.json();
-        
-        const tableBody = document.getElementById('ngDetailsTableBody');
-        tableBody.innerHTML = '';
-        
-        data.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+    async function showNGDetails(element) {
+        const mesin = element.dataset.mesin;
+        const line = element.dataset.line;
+
+        try {
+            const response = await fetch(`/dashboard/ng-details?mesin=${encodeURIComponent(mesin)}&line=${line}`);
+            const data = await response.json();
+
+            const tableBody = document.getElementById('ngDetailsTableBody');
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                 <td>${item.item_check}</td>
                 <td>${item.inspeksi}</td>
                 <td>${item.standar}</td>
             `;
-            row.style.cursor = 'pointer';
-            row.addEventListener('click', () => {
-                window.location.href = `/daily-check/${item.checksheet_id}`;
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    window.location.href = `/daily-check/${item.checksheet_id}`;
+                });
+                tableBody.appendChild(row);
             });
-            tableBody.appendChild(row);
-        });
-        
-        const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
-        modal.show();
-    } catch (error) {
-        console.error('Error fetching NG details:', error);
-        alert('Terjadi kesalahan saat mengambil detail NG');
+
+            const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
+            modal.show();
+        } catch (error) {
+            console.error('Error fetching NG details:', error);
+            alert('Terjadi kesalahan saat mengambil detail NG');
+        }
     }
-}
 </script>
 
 <?= $this->endSection() ?>

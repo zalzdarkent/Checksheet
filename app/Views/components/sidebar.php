@@ -34,6 +34,10 @@
                 <i class="bi bi-clipboard-check me-2"></i>
                 Checksheet
             </a>
+            <a href="/open-ticket" class="nav-link sidebar-link" data-route="open-ticket">
+                <i class="bi bi-ticket-detailed me-2"></i>
+                Open Ticket
+            </a>
         </div>
     </div>
 </div>
@@ -60,6 +64,10 @@
         <a href="/checksheet" class="nav-link sidebar-link" data-route="checksheet">
             <i class="bi bi-clipboard-check me-2"></i>
             Checksheet
+        </a>
+        <a href="/open-ticket" class="nav-link sidebar-link" data-route="open-ticket">
+            <i class="bi bi-ticket-detailed me-2"></i>
+            Open Ticket
         </a>
     </div>
 </nav>

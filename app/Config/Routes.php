@@ -30,6 +30,11 @@ $routes->group('checksheet', function ($routes) {
     $routes->post('detail-checksheet/update-ng-to-ok', 'DetailChecksheetController::updateNGtoOK');
 });
 
+// Detail Checksheet Routes
+$routes->get('open-ticket', [DetailChecksheetController::class, 'ngList']);
+$routes->get('detail-checksheet/change-status/(:num)', [DetailChecksheetController::class, 'changeStatusForm/$1']);
+$routes->post('detail-checksheet/update-status/(:num)', [DetailChecksheetController::class, 'updateStatus/$1']);
+
 // Master Checksheet Routes Group
 $routes->group('master', function ($routes) {
     $routes->get('/', [MasterController::class, 'index']);

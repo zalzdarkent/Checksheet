@@ -7,6 +7,7 @@ use App\Models\DetailChecksheet;
 use App\Models\Checksheet;
 use App\Models\DetailMaster;
 use App\Models\Npk;
+use App\Models\StatusChangeLog;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class DetailChecksheetController extends BaseController
@@ -100,18 +101,33 @@ class DetailChecksheetController extends BaseController
                             'tanggal' => $fullDate,
                             'kolom' => intval($colIndex),
                             'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                            'inspeksi' => $inspeksiData[$rowIndex] ?? null,
-                            'standar' => $standarData[$rowIndex] ?? null,
+                            'inspeksi' => $inspeksiData[$rowIndex] ?? '',
+                            'standar' => $standarData[$rowIndex] ?? '',
                             'status' => $status,
                             'npk' => $npkData[$colIndex],
-                            'is_submitted' => $isSubmitted,
+                            'is_submitted' => $isSubmitted
                         ]);
+                        $detailId = $model->getInsertID();
+                        if ($status === 'NG') {
+                            $statusLogModel = new StatusChangeLog();
+                            $statusLogModel->insert([
+                                'detail_checksheet_id' => $detailId,
+                                'previous_status' => 'NG',
+                            ]);
+                        }
                     } else {
                         $model->update($existing['id'], [
                             'status' => $status,
                             'npk' => $npkData[$colIndex],
                             'is_submitted' => $isSubmitted
                         ]);
+                        if ($status === 'NG') {
+                            $statusLogModel = new StatusChangeLog();
+                            $statusLogModel->insert([
+                                'detail_checksheet_id' => $existing['id'],
+                                'previous_status' => 'NG',
+                            ]);
+                        }
                     }
                     $hasChanges = true;
                 }
@@ -123,5 +139,70 @@ class DetailChecksheetController extends BaseController
         }
 
         return redirect()->back()->with('success', 'Data berhasil ' . ($action == 'submit' ? 'dikirim!' : 'disimpan!'));
+    }
+
+    public function ngList()
+    {
+        $model = new DetailChecksheet();
+        $statusLogModel = new StatusChangeLog();
+        
+        // Get all NG items that have logs with null new_status (unresolved)
+        $ngItems = $statusLogModel
+            ->select('preuse_tb_status_change_log.id, 
+                     preuse_tb_status_change_log.previous_status,
+                     preuse_tb_detail_checksheet.item_check, 
+                     preuse_tb_detail_checksheet.tanggal, 
+                     preuse_tb_detail_checksheet.inspeksi, 
+                     preuse_tb_detail_checksheet.standar,
+                     c.mesin')
+            ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
+            ->join('preuse_tb_checksheet c', 'preuse_tb_detail_checksheet.checksheet_id = c.id')
+            ->where('preuse_tb_status_change_log.new_status IS NULL')
+            ->findAll();
+
+        return view('detail_checksheet/ng_list', ['ngItems' => $ngItems]);
+    }
+
+    public function changeStatusForm($logId)
+    {
+        $statusLogModel = new StatusChangeLog();
+        $log = $statusLogModel
+            ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check')
+            ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
+            ->where('preuse_tb_status_change_log.id', $logId)
+            ->first();
+
+        if (!$log) {
+            return redirect()->back()->with('error', 'Log tidak ditemukan');
+        }
+
+        return view('detail_checksheet/change_status_form', ['log' => $log]);
+    }
+
+    public function updateStatus($logId)
+    {
+        $statusLogModel = new StatusChangeLog();
+        $log = $statusLogModel->find($logId);
+
+        if (!$log) {
+            return redirect()->back()->with('error', 'Log tidak ditemukan');
+        }
+
+        $newStatus = $this->request->getPost('new_status');
+        $reason = $this->request->getPost('reason');
+        $npk = $this->request->getPost('npk');
+
+        if (!$newStatus || !$reason || !$npk) {
+            return redirect()->back()->with('error', 'Semua field harus diisi');
+        }
+
+        $statusLogModel->update($logId, [
+            'new_status' => $newStatus,
+            'reason' => $reason,
+            'changed_by' => $npk,
+            'changed_at' => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->to('open-ticket')->with('success', 'Status berhasil diupdate');
     }
 }
