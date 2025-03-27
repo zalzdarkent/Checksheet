@@ -13,9 +13,11 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // Dashboard
-$routes->get('/', [DashboardController::class, 'index']);
-$routes->get('/dashboard/ng-details', [DashboardController::class, 'getNGDetails']);
-$routes->get('/dashboard-v2', [DashboardV2Controller::class, 'index']);
+$routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'DashboardController::index');
+    $routes->get('/dashboard-v2', 'DashboardV2Controller::index');
+});
+// $routes->get('/dashboard/ng-details', [DashboardController::class, 'getNGDetails']);
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
@@ -30,11 +32,6 @@ $routes->group('checksheet', function ($routes) {
     $routes->post('detail-checksheet/update-ng-to-ok', 'DetailChecksheetController::updateNGtoOK');
 });
 
-// Detail Checksheet Routes
-$routes->get('open-ticket', [DetailChecksheetController::class, 'ngList']);
-$routes->get('detail-checksheet/change-status/(:num)', [DetailChecksheetController::class, 'changeStatusForm/$1']);
-$routes->post('detail-checksheet/update-status/(:num)', [DetailChecksheetController::class, 'updateStatus/$1']);
-
 // Master Checksheet Routes Group
 $routes->group('master', function ($routes) {
     $routes->get('/', [MasterController::class, 'index']);
@@ -43,4 +40,11 @@ $routes->group('master', function ($routes) {
     $routes->get('edit/(:num)', 'MasterController::edit/$1');
     $routes->post('update/(:num)', 'MasterController::update/$1');
     $routes->get('delete/(:num)', 'MasterController::delete/$1');
+});
+
+// Detail Checksheet Routes
+$routes->group('open-ticket', function ($routes) {
+    $routes->get('/', [DetailChecksheetController::class, 'ngList']);
+    $routes->get('change-status/(:num)', [DetailChecksheetController::class, 'changeStatusForm/$1']);
+    $routes->post('update-status/(:num)', [DetailChecksheetController::class, 'updateStatus/$1']);
 });

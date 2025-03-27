@@ -141,6 +141,67 @@ class DetailChecksheetController extends BaseController
         return redirect()->back()->with('success', 'Data berhasil ' . ($action == 'submit' ? 'dikirim!' : 'disimpan!'));
     }
 
+    public function index($id)
+    {
+        $model = new DetailChecksheet();
+        $checksheetModel = new Checksheet();
+        $detailMasterModel = new DetailMaster();
+
+        $checksheet = $checksheetModel->find($id);
+        if (!$checksheet) {
+            return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
+        }
+
+        $master = $detailMasterModel->where('id', $checksheet['master_id'])->first();
+
+        // Get all detail masters for this checksheet
+        $detailMasters = $detailMasterModel->where('master_id', $checksheet['master_id'])->findAll();
+
+        // Get all details for this checksheet
+        $details = $model->where('checksheet_id', $id)->findAll();
+
+        // Initialize status array
+        $statusArray = [];
+        $npkArray = [];
+        $isSubmitted = false;
+
+        // Process details into status array
+        foreach ($details as $detail) {
+            if ($detail['is_submitted']) {
+                $isSubmitted = true;
+            }
+
+            // Store status and resolved state
+            $statusArray[$detail['item_check']][$detail['kolom']] = $detail['status'];
+            $statusArray[$detail['item_check']]['is_resolved'] = $detail['is_resolved'];
+            
+            if (!empty($detail['npk'])) {
+                $npkArray[$detail['kolom']] = $detail['npk'];
+            }
+        }
+
+        // Get list of deleted item checks
+        $deletedItemChecks = [];
+        foreach ($detailMasters as $master) {
+            if ($master['deleted_at']) {
+                $deletedItemChecks[] = $master['item_check'];
+            }
+        }
+
+        $data = [
+            'title' => 'Detail Checksheet',
+            'checksheet' => $checksheet,
+            'master' => $master,
+            'detailMasters' => $detailMasters,
+            'statusArray' => $statusArray,
+            'npkArray' => $npkArray,
+            'isSubmitted' => $isSubmitted,
+            'deletedItemChecks' => $deletedItemChecks
+        ];
+
+        return view('checksheet/tabel', $data);
+    }
+
     public function ngList()
     {
         $model = new DetailChecksheet();
@@ -150,14 +211,16 @@ class DetailChecksheetController extends BaseController
         $ngItems = $statusLogModel
             ->select('preuse_tb_status_change_log.id, 
                      preuse_tb_status_change_log.previous_status,
+                     preuse_tb_status_change_log.new_status,
+                     preuse_tb_detail_checksheet.id as detail_id,
                      preuse_tb_detail_checksheet.item_check, 
                      preuse_tb_detail_checksheet.tanggal, 
                      preuse_tb_detail_checksheet.inspeksi, 
                      preuse_tb_detail_checksheet.standar,
+                     preuse_tb_detail_checksheet.is_resolved,
                      c.mesin')
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
             ->join('preuse_tb_checksheet c', 'preuse_tb_detail_checksheet.checksheet_id = c.id')
-            ->where('preuse_tb_status_change_log.new_status IS NULL')
             ->findAll();
 
         return view('detail_checksheet/ng_list', ['ngItems' => $ngItems]);
@@ -182,6 +245,8 @@ class DetailChecksheetController extends BaseController
     public function updateStatus($logId)
     {
         $statusLogModel = new StatusChangeLog();
+        $detailChecksheetModel = new DetailChecksheet();
+        
         $log = $statusLogModel->find($logId);
 
         if (!$log) {
@@ -196,12 +261,20 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Semua field harus diisi');
         }
 
+        // Update status di log
         $statusLogModel->update($logId, [
             'new_status' => $newStatus,
             'reason' => $reason,
             'changed_by' => $npk,
             'changed_at' => date('Y-m-d H:i:s')
         ]);
+
+        // Jika status diubah menjadi OK, tandai detail checksheet sebagai resolved
+        if ($newStatus === 'OK') {
+            $detailChecksheetModel->where('id', $log['detail_checksheet_id'])
+                                 ->set(['is_resolved' => 1])
+                                 ->update();
+        }
 
         return redirect()->to('open-ticket')->with('success', 'Status berhasil diupdate');
     }

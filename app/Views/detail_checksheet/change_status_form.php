@@ -13,34 +13,41 @@
 
     <div class="card shadow mb-4">
         <div class="card-body">
-            <form action="<?= base_url('detail-checksheet/update-status/' . $log['id']); ?>" method="post">
+            <form action="<?= base_url('open-ticket/update-status/' . $log['id']); ?>" method="post">
                 <?= csrf_field(); ?>
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label>Item Check</label>
-                    <input type="text" class="form-control" value="<?= $log['item_check']; ?>" readonly>
+                    <input type="text" class="form-control bg-secondary bg-opacity-25" value="<?= $log['item_check']; ?>" readonly>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label>Status Awal</label>
-                    <input type="text" class="form-control" value="NG" readonly>
+                    <input type="text" class="form-control bg-secondary bg-opacity-25" value="NG" readonly>
                 </div>
 
-                <div class="form-group">
-                    <label for="new_status">Status Baru *</label>
-                    <select class="form-control" id="new_status" name="new_status" required>
+                <div class="form-group mb-3">
+                    <label for="new_status">Status Baru <span class="text-danger">*</span></label>
+                    <select class="form-select" id="new_status" name="new_status" required>
                         <option value="">Pilih Status</option>
                         <option value="OK">OK</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="reason">Alasan Perubahan *</label>
+                <div class="form-group mb-3">
+                    <label for="reason">Alasan Perubahan <span class="text-danger">*</span></label>
                     <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="npk">NPK *</label>
-                    <input type="text" class="form-control" id="npk" name="npk" required>
+                <div class="form-group mb-3">
+                    <label for="npk">NPK <span class="text-danger">*</span></label>
+                    <select class="form-select" id="npk" name="npk" required>
+                        <option value="">Pilih NPK</option>
+                        <option value="12345">12345 - Operator 1</option>
+                        <option value="23456">23456 - Operator 2</option>
+                        <option value="34567">34567 - Operator 3</option>
+                        <option value="45678">45678 - Operator 4</option>
+                        <option value="56789">56789 - Operator 5</option>
+                    </select>
                 </div>
 
                 <div class="mt-4">

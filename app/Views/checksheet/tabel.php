@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                     <th class="p-1">Line</th>
-                    <td class="p-1">: <?= esc($checksheet['line']) ?></td></td>
+                    <td class="p-1">: <?= esc($checksheet['line']) ?></td>
                     <td class="p-1"></td>
                     <th class="p-1">Bulan</th>
                     <td class="p-1">: <?= strftime('%B %Y', strtotime($checksheet['bulan'])) ?></td>
@@ -107,14 +107,23 @@
                                             <?php if ($status == 'OK'): ?>
                                                 <span class="badge bg-success">OK</span>
                                             <?php elseif ($status == 'NG'): ?>
-                                                <span class="badge bg-danger">NG</span>
+                                                <?php if ($statusArray[$row['item_check']]['is_resolved'] ?? false): ?>
+                                                    <span class="badge bg-warning text-dark">NG</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger">NG</span>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
                                                 data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
-                                            <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
-                                                data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                            <?php if ($status == 'NG' && ($statusArray[$row['item_check']]['is_resolved'] ?? false)): ?>
+                                                <button type="button" class="btn btn-outline-warning btn-sm active"
+                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
+                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -160,7 +169,7 @@
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
-        const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger");
+        const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger, .btn-outline-warning");
         let filledColumns = [];
 
         buttons.forEach(button => {

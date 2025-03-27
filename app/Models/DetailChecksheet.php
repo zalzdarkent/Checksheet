@@ -13,7 +13,18 @@ class DetailChecksheet extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'checksheet_id', 'item_check', 'inspeksi', 'standar', 'status', 'npk', 'created_at', 'kolom', 'is_submitted', 'tanggal', 'deleted_at'
+        'checksheet_id',
+        'tanggal',
+        'kolom',
+        'item_check',
+        'inspeksi',
+        'standar',
+        'status',
+        'npk',
+        'is_submitted',
+        'is_resolved',  // Menambahkan field untuk menandai status yang sudah resolved
+        'created_at', 
+        'deleted_at'
     ];
 
     protected $dateFormat    = 'datetime';

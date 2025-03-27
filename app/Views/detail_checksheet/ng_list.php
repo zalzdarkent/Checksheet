@@ -22,7 +22,7 @@
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="ngTable" width="100%" cellspacing="0">
+                <table class="table table-hover align-middle text-nowrap mb-0" id="ngTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -45,11 +45,21 @@
                                 <td><?= $item['inspeksi']; ?></td>
                                 <td><?= $item['standar']; ?></td>
                                 <td><?= date('d-m-Y', strtotime($item['tanggal'])); ?></td>
-                                <td><span class="badge badge-danger"><?= $item['previous_status']; ?></span></td>
                                 <td>
-                                    <a href="<?= base_url('detail-checksheet/change-status/' . $item['id']); ?>" class="btn btn-primary btn-sm">
-                                        Ubah Status
-                                    </a>
+                                    <?php if ($item['new_status'] === 'OK'): ?>
+                                        <span class="badge bg-warning text-dark"><?= $item['previous_status']; ?></span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger"><?= $item['previous_status']; ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($item['new_status'] !== 'OK'): ?>
+                                        <a href="<?= base_url('open-ticket/change-status/' . $item['id']); ?>" class="btn btn-primary btn-sm">
+                                            Ubah Status
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Resolved</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

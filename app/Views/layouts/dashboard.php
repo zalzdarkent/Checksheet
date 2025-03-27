@@ -149,7 +149,7 @@
 </main>
 
 <!-- Script untuk menangani klik dan modal -->
-<script>
+<!-- <script>
     async function showNGDetails(element) {
         const mesin = element.dataset.mesin;
         const line = element.dataset.line;
@@ -182,6 +182,6 @@
             alert('Terjadi kesalahan saat mengambil detail NG');
         }
     }
-</script>
+</script> -->
 
 <?= $this->endSection() ?>
