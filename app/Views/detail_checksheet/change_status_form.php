@@ -14,6 +14,7 @@
     <div class="card shadow mb-4">
         <div class="card-body">
             <form action="<?= base_url('detail-checksheet/update-status/' . $log['id']); ?>" method="post">
+                <?= csrf_field(); ?>
                 <div class="form-group">
                     <label>Item Check</label>
                     <input type="text" class="form-control" value="<?= $log['item_check']; ?>" readonly>

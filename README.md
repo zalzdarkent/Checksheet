@@ -11,3 +11,7 @@
 ### Milestone Hari Rabu:
 - NG di table Dashboard v1 bisa diklik ✅
 - Item check yg dihapus pada pertengahan bulan bisa tampil kembali
+
+### Fitur yang belum
+- Open ticket (menampilkan status yang NG) ✅
+- Change Log Ticket (Mengubah status NG menjadi OK tanpa memengaruhi status di tb master nya) ✅

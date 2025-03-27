@@ -6,8 +6,16 @@
     <h1 class="h3 mb-4 text-gray-800">Daftar Item Status NG</h1>
 
     <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-1"></i>
             <?= session()->getFlashdata('success'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php elseif (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            <?= session()->getFlashdata('error'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
