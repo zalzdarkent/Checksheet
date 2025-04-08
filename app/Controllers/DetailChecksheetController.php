@@ -174,7 +174,7 @@ class DetailChecksheetController extends BaseController
             // Store status and resolved state
             $statusArray[$detail['item_check']][$detail['kolom']] = $detail['status'];
             $statusArray[$detail['item_check']]['is_resolved'] = $detail['is_resolved'];
-            
+
             if (!empty($detail['npk'])) {
                 $npkArray[$detail['kolom']] = $detail['npk'];
             }
@@ -206,7 +206,7 @@ class DetailChecksheetController extends BaseController
     {
         $model = new DetailChecksheet();
         $statusLogModel = new StatusChangeLog();
-        
+
         // Get all NG items that have logs with null new_status (unresolved)
         $ngItems = $statusLogModel
             ->select('preuse_tb_status_change_log.id, 
@@ -225,6 +225,38 @@ class DetailChecksheetController extends BaseController
 
         return view('detail_checksheet/ng_list', ['ngItems' => $ngItems]);
     }
+
+    public function notifNG()
+    {
+        $statusLogModel = new StatusChangeLog();
+
+        // Hitung total log status
+        $totalLogs = $statusLogModel->countAll();
+
+        dd($totalLogs);
+        // Kirim data ke view
+        return view('layouts/app', ['totalLogs' => $totalLogs]);
+    }
+
+    public function detailChangeLog($id)
+    {
+        $statusLogModel = new StatusChangeLog();
+
+        // Ambil data berdasarkan ID
+        $log = $statusLogModel
+            ->select('preuse_tb_status_change_log.*, d.item_check, d.tanggal, d.inspeksi, d.standar, c.mesin')
+            ->join('preuse_tb_detail_checksheet d', 'd.id = preuse_tb_status_change_log.detail_checksheet_id')
+            ->join('preuse_tb_checksheet c', 'd.checksheet_id = c.id')
+            ->find($id);
+
+        // Jika tidak ditemukan
+        if (!$log) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Change log not found.');
+        }
+
+        return view('detail_checksheet/detail', ['log' => $log]);
+    }
+
 
     public function changeStatusForm($logId)
     {
@@ -246,7 +278,7 @@ class DetailChecksheetController extends BaseController
     {
         $statusLogModel = new StatusChangeLog();
         $detailChecksheetModel = new DetailChecksheet();
-        
+
         $log = $statusLogModel->find($logId);
 
         if (!$log) {
@@ -272,8 +304,8 @@ class DetailChecksheetController extends BaseController
         // Jika status diubah menjadi OK, tandai detail checksheet sebagai resolved
         if ($newStatus === 'OK') {
             $detailChecksheetModel->where('id', $log['detail_checksheet_id'])
-                                 ->set(['is_resolved' => 1])
-                                 ->update();
+                ->set(['is_resolved' => 1])
+                ->update();
         }
 
         return redirect()->to('open-ticket')->with('success', 'Status berhasil diupdate');

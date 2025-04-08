@@ -6,6 +6,7 @@ use App\Controllers\DashboardV2Controller;
 use App\Controllers\DetailChecksheetController;
 use App\Controllers\MasterController;
 use App\Controllers\UserController;
+use App\Controllers\ApiController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -46,5 +47,6 @@ $routes->group('master', function ($routes) {
 $routes->group('open-ticket', function ($routes) {
     $routes->get('/', [DetailChecksheetController::class, 'ngList']);
     $routes->get('change-status/(:num)', [DetailChecksheetController::class, 'changeStatusForm/$1']);
+    $routes->get('change-log/(:num)', [DetailChecksheetController::class, 'detailChangeLog/$1']);
     $routes->post('update-status/(:num)', [DetailChecksheetController::class, 'updateStatus/$1']);
 });

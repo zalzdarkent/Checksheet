@@ -43,4 +43,12 @@ class DetailChecksheet extends Model
     {
         return $this->onlyDeleted()->findAll();
     }
+
+    // Fungsi untuk mendapatkan jumlah tiket NG yang belum resolved
+    public function getUnresolvedNGCount()
+    {
+        return $this->where('status', 'NG')
+                    ->where('is_resolved', 0)
+                    ->countAllResults();
+    }
 }

@@ -38,6 +38,15 @@ database.default.DBDriver = SQLSRV
 database.default.DBPrefix =
 database.default.port = 1433
 
+# CUSTOM connection group - prodControlv2  
+database.prodControlv2.hostname = DESKTOP-LRQ27LE
+database.prodControlv2.database = production_control_v2
+database.prodControlv2.username = sa
+database.prodControlv2.password = Saaccountalif123
+database.prodControlv2.DBDriver = SQLSRV
+database.prodControlv2.DBPrefix =
+database.prodControlv2.port = 1433
+
 # If you use MySQLi as tests, first update the values of Config\Database::$tests.
 # database.tests.hostname = localhost
 # database.tests.database = ci4_test

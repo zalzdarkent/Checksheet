@@ -18,7 +18,6 @@ class Database extends Config
      * Lets you choose which connection group to use if no other is specified.
      */
     public string $defaultGroup = 'default';
-
     /**
      * The default database connection.
      *
@@ -49,7 +48,33 @@ class Database extends Config
             'datetime' => 'Y-m-d H:i:s',
             'time'     => 'H:i:s',
         ],
-    ];
+    ];   
+    // public array $prodControlv2 = [
+    //     'DSN'          => '',
+    //     'hostname'     => 'DESKTOP-LRQ27LE',
+    //     'username'     => 'sa',
+    //     'password'     => 'Saaccountalif123',
+    //     'database'     => 'production_control_v2',
+    //     'DBDriver'     => 'SQLSRV',
+    //     'DBPrefix'     => '',
+    //     'pConnect'     => false,
+    //     'DBDebug'      => (ENVIRONMENT !== 'production'),
+    //     'charset'      => 'utf8mb4',
+    //     'DBCollat'     => 'utf8mb4_general_ci',
+    //     'swapPre'      => '',
+    //     'encrypt'      => false,
+    //     'compress'     => false,
+    //     'strictOn'     => false,
+    //     'failover'     => [],
+    //     'port'         => 1433,
+    //     'numberNative' => false,
+    //     'foundRows'    => false,
+    //     'dateFormat'   => [
+    //         'date'     => 'Y-m-d',
+    //         'datetime' => 'Y-m-d H:i:s',
+    //         'time'     => 'H:i:s',
+    //     ],
+    // ];
 
     //    /**
     //     * Sample database connection for SQLite3.

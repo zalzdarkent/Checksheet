@@ -34,9 +34,15 @@
                 <i class="bi bi-clipboard-check me-2"></i>
                 Checksheet
             </a>
-            <a href="/open-ticket" class="nav-link sidebar-link" data-route="open-ticket">
+            <a href="/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
                 <i class="bi bi-ticket-detailed me-2"></i>
                 Open Ticket
+
+                <?php if (!empty($totalLogs) && $totalLogs > 0): ?>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        <?= esc($totalLogs) ?>
+                    </span>
+                <?php endif; ?>
             </a>
         </div>
     </div>
@@ -65,9 +71,12 @@
             <i class="bi bi-clipboard-check me-2"></i>
             Checksheet
         </a>
-        <a href="/open-ticket" class="nav-link sidebar-link" data-route="open-ticket">
+        <a href="/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
             <i class="bi bi-ticket-detailed me-2"></i>
             Open Ticket
+            <span class="position-absolute translate-middle badge rounded-pill bg-danger ng-badge" style="top: 50%; right: 15px; display: none;">
+                0
+            </span>
         </a>
     </div>
 </nav>
@@ -131,4 +140,26 @@
             link.classList.add("active");
         }
     });
+
+    // Function to update NG badge count
+    function updateNGBadgeCount() {
+        fetch('/api/ng-count')
+            .then(response => response.json())
+            .then(data => {
+                const badges = document.querySelectorAll('.ng-badge');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = data.count;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching NG count:', error));
+    }
+
+    // Update badge count every 30 seconds
+    updateNGBadgeCount();
+    setInterval(updateNGBadgeCount, 30000);
 </script>

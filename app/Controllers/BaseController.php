@@ -46,10 +46,14 @@ abstract class BaseController extends Controller
     /**
      * @return void
      */
+    protected $statusLogModel;
+    protected $totalLogs;
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
+        $this->statusLogModel = new \App\Models\StatusChangeLog();
+        $this->totalLogs = $this->statusLogModel->countAll();
 
         // Preload any models, libraries, etc, here.
 

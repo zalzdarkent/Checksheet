@@ -34,13 +34,13 @@ class Toolbar extends BaseConfig
      * @var list<class-string>
      */
     public array $collectors = [
-        // Timers::class,
-        // Database::class,
-        // Logs::class,
-        // Views::class,
-        // Files::class,
-        // Routes::class,
-        // Events::class,
+        Timers::class,
+        Database::class,
+        Logs::class,
+        Views::class,
+        Files::class,
+        Routes::class,
+        Events::class,
     ];
 
     /**
