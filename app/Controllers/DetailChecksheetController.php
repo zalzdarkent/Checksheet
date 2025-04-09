@@ -276,6 +276,7 @@ class DetailChecksheetController extends BaseController
 
     public function updateStatus($logId)
     {
+        date_default_timezone_set('Asia/Jakarta');
         $statusLogModel = new StatusChangeLog();
         $detailChecksheetModel = new DetailChecksheet();
 

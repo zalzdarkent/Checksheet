@@ -21,8 +21,8 @@ class StatusChangeLog extends Model
         'changed_at'
     ];
 
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'changed_at';
+    // protected $useTimestamps = true;
+    // protected $dateFormat    = 'datetime';
+    // protected $createdField  = 'changed_at';
     protected $updatedField  = '';
 }

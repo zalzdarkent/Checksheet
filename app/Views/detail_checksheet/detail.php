@@ -1,10 +1,6 @@
 <?= $this->extend('layouts/app'); ?>
 
 <?= $this->section('content'); ?>
-<?php
-use CodeIgniter\I18n\Time;
-
-?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="container-fluid">
         <div class="card shadow-sm rounded-4 border-0">
@@ -59,7 +55,7 @@ use CodeIgniter\I18n\Time;
                                 <td>
                                     <?= isset($log['changed_at'])
                                         ? date('d F Y, H:i', strtotime($log['changed_at']))
-                                        : 'Null' ?>
+                                        : '-' ?>
                                 </td>
                             </tr>
                         </tbody>

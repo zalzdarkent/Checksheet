@@ -36,7 +36,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $i = 1; ?>
+                            <?php
+                            // Urutkan data supaya status 'OK' berada di bawah
+                            usort($ngItems, function ($a, $b) {
+                                // Prioritaskan yang belum resolved
+                                if ($a['new_status'] === 'OK' && $b['new_status'] !== 'OK') {
+                                    return 1;
+                                } elseif ($a['new_status'] !== 'OK' && $b['new_status'] === 'OK') {
+                                    return -1;
+                                }
+
+                                // Kalau status sama-sama belum resolved, urutkan dari yang terbaru
+                                $timeA = strtotime($a['changed_at'] ?? $a['tanggal']);
+                                $timeB = strtotime($b['changed_at'] ?? $b['tanggal']);
+                                return $timeB - $timeA;
+                            });
+                            $i = 1;
+                            ?>
                             <?php foreach ($ngItems as $item): ?>
                                 <tr>
                                     <td><?= $i++; ?></td>
@@ -73,7 +89,6 @@
         </div>
     </div>
 </main>
-
 <?= $this->section('scripts'); ?>
 <script>
     $(document).ready(function() {
