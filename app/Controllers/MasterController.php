@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\DetailMaster;
 use App\Models\Master;
 use App\Models\DetailChecksheet;
+use App\Models\MasterMesin;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class MasterController extends BaseController
@@ -27,7 +28,7 @@ class MasterController extends BaseController
 
         // Set jumlah item per halaman
         $perPage = 10;
-        
+
         // Hitung total records untuk pagination
         $totalRecords = $model->countAllResults();
 
@@ -44,9 +45,15 @@ class MasterController extends BaseController
     }
     public function create()
     {
-        $data['title'] = 'Form Master ';
+        $mesinModel = new MasterMesin();
+        $data['title'] = 'Form Master';
+
+        // Ambil semua data mesin dari DB
+        $data['mesinList'] = $mesinModel->findAll();
+
         return view('checksheet/master-form', $data);
     }
+
     public function store()
     {
         $masterModel = new Master(); // Model untuk tb_master
@@ -188,7 +195,7 @@ class MasterController extends BaseController
 
             // Cek item_check yang dihapus
             $deletedItemChecks = array_diff($existingItemChecks, $itemChecks);
-            
+
             // Soft delete data di tb_detail_checksheet untuk item_check yang dihapus
             if (!empty($deletedItemChecks)) {
                 foreach ($deletedItemChecks as $deletedItemCheck) {
@@ -201,7 +208,6 @@ class MasterController extends BaseController
 
             $db->transCommit();
             return redirect()->to('/master')->with('success', 'Data berhasil diupdate!');
-
         } catch (\Exception $e) {
             $db->transRollback();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

@@ -26,6 +26,10 @@
                 <i class="bi bi-graph-up me-2"></i>
                 Dashboard v2
             </a>
+            <a href="/dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
+                <i class="bi bi-globe2 me-2"></i>
+                Dashboard v3
+            </a>
             <a href="/master" class="nav-link sidebar-link" data-route="master">
                 <i class="bi bi-card-checklist me-2"></i>
                 Master Checksheet
@@ -62,6 +66,10 @@
         <a href="/dashboard-v2" class="nav-link sidebar-link" data-route="dashboard-v2">
             <i class="bi bi-graph-up me-2"></i>
             Dashboard v2
+        </a>
+        <a href="/dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
+            <i class="bi bi-globe2 me-2"></i>
+            Dashboard v3
         </a>
         <a href="/master" class="nav-link sidebar-link" data-route="master">
             <i class="bi bi-card-checklist me-2"></i>

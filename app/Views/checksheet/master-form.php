@@ -29,14 +29,13 @@
                 <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
             </div>
             <datalist id="mesinList">
-                <option value="PW">
-                <option value="ALT">
-                <option value="COS">
-                <option value="HSM">
-                <option value="ENV">
+                <?php foreach ($mesinList as $mesin): ?>
+                    <option value="<?= esc($mesin['name_machine']) ?>">
+                    <?php endforeach; ?>
             </datalist>
             <div id="selectedMesin" class="mt-2"></div>
         </div>
+        <small id="mesinError" class="text-danger d-none">Mesin tidak valid. Pilih dari daftar yang tersedia.</small>
     </div>
 
     <!-- Card untuk Form Utama -->
@@ -73,6 +72,7 @@
 </main>
 
 <script>
+    const mesinList = <?= json_encode(array_column($mesinList, 'name_machine')) ?>;
     document.getElementById("judul_checksheet").addEventListener("input", function() {
         document.getElementById("judul_checksheet_hidden").value = this.value;
     });
@@ -87,14 +87,32 @@
         }
     });
 
+    document.getElementById("mesinInput").addEventListener("input", function() {
+        document.getElementById("mesinError").classList.add("d-none");
+    });
+
     function addMesin() {
         let input = document.getElementById("mesinInput");
         let mesin = input.value.trim();
-        
+        let errorEl = document.getElementById("mesinError");
+
+        if (!mesinList.includes(mesin)) {
+            if (!errorEl) {
+                errorEl = document.createElement("small");
+                errorEl.id = "mesinError";
+                errorEl.className = "text-danger";
+                input.parentNode.appendChild(errorEl);
+            }
+            errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
+            errorEl.classList.remove("d-none");
+            return;
+        }
+
         if (mesin && !selectedMesin.includes(mesin)) {
             selectedMesin.push(mesin);
             updateMesinDisplay();
             input.value = "";
+            if (errorEl) errorEl.classList.add("d-none");
         }
     }
 
@@ -106,7 +124,7 @@
     function updateMesinDisplay() {
         let container = document.getElementById("selectedMesin");
         let mesinData = document.getElementById("mesinData");
-        
+
         // Update tampilan badge
         container.innerHTML = "";
         selectedMesin.forEach(mesin => {
