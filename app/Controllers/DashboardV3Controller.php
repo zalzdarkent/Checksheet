@@ -65,7 +65,7 @@ class DashboardV3Controller extends BaseController
         )->getResultArray();
 
         $data = [
-            'title' => 'Dashboard v3',
+            'title' => 'Dashboard V3',
             'machineData' => $machineData,
             'machines' => $machines,
             'currentMonth' => $currentMonth,

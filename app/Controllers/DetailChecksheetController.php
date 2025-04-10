@@ -222,8 +222,13 @@ class DetailChecksheetController extends BaseController
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
             ->join('preuse_tb_checksheet c', 'preuse_tb_detail_checksheet.checksheet_id = c.id')
             ->findAll();
+        
+        $data = [
+            'title' => 'Open Ticket',
+            'ngItems' => $ngItems
+        ];
 
-        return view('detail_checksheet/ng_list', ['ngItems' => $ngItems]);
+        return view('detail_checksheet/ng_list', $data);
     }
 
     public function notifNG()
@@ -254,7 +259,12 @@ class DetailChecksheetController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Change log not found.');
         }
 
-        return view('detail_checksheet/detail', ['log' => $log]);
+        $data = [
+            'title' => 'Detail Ticket',
+            'log' => $log
+        ];
+
+        return view('detail_checksheet/detail', $data);
     }
 
 
@@ -271,7 +281,12 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Log tidak ditemukan');
         }
 
-        return view('detail_checksheet/change_status_form', ['log' => $log]);
+        $data = [
+            'title' => 'Change Ticket',
+            'log' => $log
+        ];
+
+        return view('detail_checksheet/change_status_form', $data);
     }
 
     public function updateStatus($logId)

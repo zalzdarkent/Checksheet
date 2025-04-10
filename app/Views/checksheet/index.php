@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/app') ?>
 
 <?= $this->section('title') ?>
-<?= isset($title) ? $title . '| CBI' : 'CBI' ?>
+<?= isset($title) ? $title . ' | CBI' : 'CBI' ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>

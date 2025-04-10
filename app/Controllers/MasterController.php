@@ -141,7 +141,7 @@ class MasterController extends BaseController
         $data['inspeksiList'] = array_column($details, 'inspeksi');
         $data['standarList']  = array_column($details, 'standar');
 
-        $data['title'] = 'Edit Data';
+        $data['title'] = 'Edit Checksheet ';
         return view('checksheet/master-edit', $data);
     }
 

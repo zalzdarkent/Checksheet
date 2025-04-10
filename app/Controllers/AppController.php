@@ -46,12 +46,15 @@ class AppController extends BaseController
 
         $masters = $db->table('preuse_tb_master')->get()->getResultArray();
 
-        return view('checksheet/index', [
+        $data = [
+            'title' => 'Checksheet Pre-Use',
             'checksheets' => $checksheets,
             'masters' => $masters,
             'pager' => $pager->makeLinks($page, $perPage, $totalRecords, 'bootstrap_pager'),
             'currentPage' => $page
-        ]);
+        ];
+
+        return view('checksheet/index', $data);
     }
 
     public function tableChecksheet()
