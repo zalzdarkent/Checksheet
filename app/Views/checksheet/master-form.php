@@ -119,7 +119,7 @@
     }
 
     function removeMesin(mesinNama) {
-        selectedMesin = selectedMesin.filter(item => itfem.name_machine !== mesinNama);
+        selectedMesin = selectedMesin.filter(item => item.name_machine !== mesinNama);
         updateMesinDisplay();
     }
 
@@ -142,7 +142,7 @@
             // Badge ID mesin
             let badgeId = document.createElement("span");
             badgeId.classList.add("badge", "bg-secondary", "me-1", "mb-1");
-            badgeId.textContent = `${mesin.id_machine}`;
+            badgeId.textContent = mesin.id_machine;
             idMesinContainer.appendChild(badgeId);
         });
 
