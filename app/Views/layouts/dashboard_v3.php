@@ -42,24 +42,11 @@
     </div>
 
     <form class="mb-4 p-4 bg-light rounded-4 shadow-sm border" method="get">
-        <div class="row g-4 align-items-end">
+        <div class="row g-4">
             <!-- Filter Bulan -->
             <div class="col-md-4">
                 <label for="filterBulan" class="form-label fw-semibold text-primary">🗓️ Filter Bulan</label>
-                <select id="filterBulan" name="filterBulan" class="form-select rounded-3 shadow-sm">
-                    <option value="1" <?= $filterBulan == '1' ? 'selected' : '' ?>>Januari</option>
-                    <option value="2" <?= $filterBulan == '2' ? 'selected' : '' ?>>Februari</option>
-                    <option value="3" <?= $filterBulan == '3' ? 'selected' : '' ?>>Maret</option>
-                    <option value="4" <?= $filterBulan == '4' ? 'selected' : '' ?>>April</option>
-                    <option value="5" <?= $filterBulan == '5' ? 'selected' : '' ?>>Mei</option>
-                    <option value="6" <?= $filterBulan == '6' ? 'selected' : '' ?>>Juni</option>
-                    <option value="7" <?= $filterBulan == '7' ? 'selected' : '' ?>>Juli</option>
-                    <option value="8" <?= $filterBulan == '8' ? 'selected' : '' ?>>Agustus</option>
-                    <option value="9" <?= $filterBulan == '9' ? 'selected' : '' ?>>September</option>
-                    <option value="10" <?= $filterBulan == '10' ? 'selected' : '' ?>>Oktober</option>
-                    <option value="11" <?= $filterBulan == '11' ? 'selected' : '' ?>>November</option>
-                    <option value="12" <?= $filterBulan == '12' ? 'selected' : '' ?>>Desember</option>
-                </select>
+                <input type="month" id="filterBulan" name="filterBulan" class="form-control rounded-3 shadow-sm" value="<?= $filterBulan ?>">
             </div>
 
             <!-- Filter Mesin -->
@@ -76,11 +63,19 @@
             </div>
 
             <!-- Tombol Filter -->
-            <div class="col-md-4">
-                <label class="form-label d-block invisible">Filter</label>
+            <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-gradient-primary w-100 fw-semibold shadow-sm rounded-3">
                     🔍 Filter
                 </button>
+            </div>
+        </div>
+
+        <!-- Tombol Reset -->
+        <div class="row mt-3">
+            <div class="col-md-4 offset-md-4">
+                <a href="<?= current_url() ?>" class="btn btn-outline-danger w-100 fw-semibold shadow-sm rounded-3">
+                    🔄 Reset Filter
+                </a>
             </div>
         </div>
     </form>

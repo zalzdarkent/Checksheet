@@ -26,25 +26,31 @@ class DashboardV3Controller extends BaseController
         $currentMonthYear = $currentYear . '-' . $currentMonth;
 
         // Get filter parameters
-        $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonth;
+        $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonthYear; // Default to current month-year
         $filterMesin = $this->request->getGet('filterMesin');
 
-        // Pastikan filterBulan adalah integer
-        $filterBulan = (int) $filterBulan;
+        // Extract year and month from filterBulan if it's in 'YYYY-MM' format
+        if ($filterBulan) {
+            $filterYear = substr($filterBulan, 0, 4); // Extract year
+            $filterMonth = substr($filterBulan, 5, 2); // Extract month
+        } else {
+            $filterYear = $currentYear;
+            $filterMonth = $currentMonth;
+        }
 
-        // Buat format bulan-tahun untuk query (misal: 2025-04)
-        $filterMonthFormatted = sprintf('%04d-%02d', $currentYear, $filterBulan);
+        // Build the formatted filter month-year for query (e.g., 2025-04)
+        $filterMonthFormatted = sprintf('%04d-%02d', $filterYear, $filterMonth);
 
-        // Hitung jumlah hari dalam bulan yang difilter
-        $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $filterBulan, $currentYear);
+        // Calculate the number of days in the selected month
+        $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $filterMonth, $filterYear);
 
         // Build query to get machine status data
         $query = $this->checksheetModel->select('
-            preuse_tb_checksheet.mesin,
-            preuse_tb_checksheet.id_machine,
-            preuse_tb_detail_checksheet.tanggal,
-            preuse_tb_detail_checksheet.status
-        ')
+        preuse_tb_checksheet.mesin,
+        preuse_tb_checksheet.id_machine,
+        preuse_tb_detail_checksheet.tanggal,
+        preuse_tb_detail_checksheet.status
+    ')
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id')
             ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted);
 
@@ -58,7 +64,7 @@ class DashboardV3Controller extends BaseController
         // Process the data for the view
         $machineData = [];
         foreach ($results as $row) {
-            $day = date('j', strtotime($row['tanggal'])); // ambil tanggal (1-31)
+            $day = date('j', strtotime($row['tanggal'])); // Get day (1-31)
             $key = $row['mesin'] . '_' . $row['id_machine'];
             $machineData[$key]['mesin'] = $row['mesin'];
             $machineData[$key]['id_machine'] = $row['id_machine'];
@@ -69,10 +75,10 @@ class DashboardV3Controller extends BaseController
         $db = \Config\Database::connect();
         $machines = $db->query(
             "
-            SELECT DISTINCT id_machine, mesin 
-            FROM preuse_tb_checksheet 
-            WHERE bulan = ?",
-            [$currentMonthYear]
+        SELECT DISTINCT id_machine, mesin 
+        FROM preuse_tb_checksheet 
+        WHERE bulan = ?",
+            [$filterMonthFormatted]
         )->getResultArray();
 
         $data = [

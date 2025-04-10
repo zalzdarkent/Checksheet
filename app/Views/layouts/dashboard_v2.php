@@ -39,10 +39,14 @@
                         <label for="month" class="form-label fw-semibold text-dark">Bulan & Tahun</label>
                         <input type="month" class="form-control rounded-3" id="month" name="bulan" value="<?= $selectedBulan ?>">
                     </div>
-                    <div class="col-12 d-flex justify-content-end mt-2">
+                    <div class="col-12 d-flex justify-content-between mt-2">
                         <button type="submit" class="btn btn-dark rounded-3 px-4 py-2" style="transition: 0.3s ease;">
                             <i class="bi bi-funnel-fill me-1"></i> Filter
                         </button>
+                        <!-- Tombol Reset -->
+                        <a href="<?= current_url() ?>" class="btn btn-outline-danger rounded-3 px-4 py-2" style="transition: 0.3s ease;">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </a>
                     </div>
                 </div>
             </form>
