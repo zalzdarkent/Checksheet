@@ -64,6 +64,7 @@
                     </span>
                 <?php endforeach; ?>
             </div>
+            <div id="mesinError" class="text-danger mt-2 d-none"></div>
         </div>
     </div>
 
@@ -149,6 +150,10 @@
         }
     });
 
+    document.getElementById("mesinInput").addEventListener("input", function() {
+        document.getElementById("mesinError").classList.add("d-none");
+    });
+
     function addMesin() {
         let input = document.getElementById("mesinInput");
         let mesinNama = input.value.trim();
@@ -158,26 +163,23 @@
         let mesinObj = mesinList.find(m => m.name_machine === mesinNama);
 
         if (!mesinObj) {
-            if (!errorEl) {
-                errorEl = document.createElement("div");
-                errorEl.id = "mesinError";
-                errorEl.className = "text-danger mt-2";
-                input.parentNode.appendChild(errorEl);
-            }
             errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
             errorEl.classList.remove("d-none");
             return;
         }
 
-        if (!selectedMesin.includes(mesinNama)) {
-            selectedMesin.push(mesinNama);
-            selectedIdMesin.push(mesinObj.id_machine);
-            updateMesinDisplay();
-            input.value = "";
-            if (errorEl) {
-                errorEl.classList.add("d-none");
-            }
+        // Cek apakah mesin sudah dipilih sebelumnya
+        if (selectedMesin.includes(mesinNama)) {
+            errorEl.textContent = "Mesin ini sudah dipilih sebelumnya. Silakan pilih mesin lain.";
+            errorEl.classList.remove("d-none");
+            return;
         }
+
+        selectedMesin.push(mesinNama);
+        selectedIdMesin.push(mesinObj.id_machine);
+        updateMesinDisplay();
+        input.value = "";
+        errorEl.classList.add("d-none");
     }
 
     function removeMesin(mesinNama) {

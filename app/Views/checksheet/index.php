@@ -142,7 +142,7 @@
                         <label class="form-label">ID Mesin</label>
                         <div class="input-group">
                             <input type="text" class="form-control bg-light" id="idMachineInput" name="id_machine" readonly>
-                            <span class="input-group-text bg-primary text-white" id="idMachineBadge">
+                            <span class="input-group-text bg-primary text-white">
                                 <i class="bi bi-tag"></i>
                             </span>
                         </div>

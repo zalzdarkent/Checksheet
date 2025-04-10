@@ -23,15 +23,15 @@ $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
-    $routes->get('/', 'AppController::checksheet');
+    $routes->get('/', [AppController::class, 'checksheet']);
     $routes->get('table/(:num)', 'AppController::detail/$1');
-    $routes->get('create', 'AppController::checksheetCreate');
-    $routes->post('store', 'AppController::store');
+    $routes->get('create', [AppController::class, 'checksheetCreate']);
+    $routes->post('store', [AppController::class, 'store']);
     $routes->delete('delete/(:num)', 'AppController::destroy/$1');
     $routes->get('edit/(:num)', 'AppController::edit/$1');
     $routes->post('update/(:num)', 'AppController::update/$1');
     $routes->post('save-status', [DetailChecksheetController::class, 'saveStatus']);
-    $routes->post('detail-checksheet/update-ng-to-ok', 'DetailChecksheetController::updateNGtoOK');
+    $routes->post('detail-checksheet/update-ng-to-ok', [DetailChecksheetController::class, 'updateNGtoOK']);
 });
 
 // Master Checksheet Routes Group
@@ -44,7 +44,7 @@ $routes->group('master', function ($routes) {
     $routes->get('delete/(:num)', 'MasterController::delete/$1');
 });
 
-// Detail Checksheet Routes
+// Open Ticket Routes
 $routes->group('open-ticket', function ($routes) {
     $routes->get('/', [DetailChecksheetController::class, 'ngList']);
     $routes->get('change-status/(:num)', [DetailChecksheetController::class, 'changeStatusForm/$1']);

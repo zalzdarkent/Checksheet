@@ -35,8 +35,8 @@
             </datalist>
             <div id="selectedMesin" class="mt-2"></div>
             <div id="selectedIdMesin" class="mt-2"></div>
+            <div id="mesinError" class="text-danger mt-2 d-none"></div>
         </div>
-        <small id="mesinError" class="text-danger d-none">Mesin tidak valid. Pilih dari daftar yang tersedia.</small>
     </div>
 
     <!-- Card untuk Form Utama -->
@@ -107,15 +107,20 @@
             return;
         }
 
-        if (!selectedMesin.find(m => m.name_machine === mesinNama)) {
-            selectedMesin.push({
-                name_machine: mesinObj.name_machine,
-                id_machine: mesinObj.id_machine
-            });
-            updateMesinDisplay();
-            input.value = "";
-            errorEl.classList.add("d-none");
+        // Cek apakah mesin sudah dipilih sebelumnya
+        if (selectedMesin.find(m => m.name_machine === mesinNama)) {
+            errorEl.textContent = "Mesin ini sudah dipilih sebelumnya. Silakan pilih mesin lain.";
+            errorEl.classList.remove("d-none");
+            return;
         }
+
+        selectedMesin.push({
+            name_machine: mesinObj.name_machine,
+            id_machine: mesinObj.id_machine
+        });
+        updateMesinDisplay();
+        input.value = "";
+        errorEl.classList.add("d-none");
     }
 
     function removeMesin(mesinNama) {
