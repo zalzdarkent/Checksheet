@@ -39,11 +39,9 @@
                 <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
             </div>
             <datalist id="mesinList">
-                <option value="PW">
-                <option value="ALT">
-                <option value="COS">
-                <option value="HSM">
-                <option value="ENV">
+                <?php foreach ($mesinList as $mesin): ?>
+                    <option value="<?= esc($mesin['name_machine']) ?>" data-id="<?= esc($mesin['id_machine']) ?>">
+                <?php endforeach; ?>
             </datalist>
             <div id="selectedMesin" class="mt-2">
                 <?php
@@ -53,6 +51,16 @@
                     <span class="badge bg-primary me-1 mb-1">
                         <?= htmlspecialchars($mesin) ?>
                         <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('<?= htmlspecialchars($mesin) ?>')"></button>
+                    </span>
+                <?php endforeach; ?>
+            </div>
+            <div id="selectedIdMesin" class="mt-2">
+            <?php
+                $selectedIdMesin = json_decode($item['id_machine'] ?? '[]', true);
+                foreach ($selectedIdMesin as $id_mesin) :
+                ?>
+                    <span class="badge bg-secondary me-1 mb-1">
+                        <?= htmlspecialchars($id_mesin) ?>
                     </span>
                 <?php endforeach; ?>
             </div>
@@ -67,7 +75,7 @@
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="judul" id="judul_checksheet_hidden" value="<?= htmlspecialchars($item['judul_checksheet'] ?? '') ?>">
                 <input type="hidden" name="mesin" id="mesinData" value='<?= json_encode($selectedMesin) ?>'>
-
+                <input type="hidden" name="mesin_id" id="idMachineData" value='<?= json_encode($selectedIdMesin) ?>'>
                 <div id="formContainer">
                     <?php if (!empty($itemChecks)) : ?>
                         <?php foreach ($itemChecks as $index => $check) : ?>
@@ -124,11 +132,14 @@
 </main>
 
 <script>
+    // Inisialisasi data mesin dari database
+    const mesinList = <?= json_encode($mesinList) ?>;
     document.getElementById("judul_checksheet").addEventListener("input", function() {
         document.getElementById("judul_checksheet_hidden").value = this.value;
     });
 
     let selectedMesin = <?= json_encode($selectedMesin) ?>;
+    let selectedIdMesin = <?= json_encode($selectedIdMesin) ?>;
 
     // Handle enter key pada input mesin
     document.getElementById("mesinInput").addEventListener("keydown", function(event) {
@@ -140,35 +151,69 @@
 
     function addMesin() {
         let input = document.getElementById("mesinInput");
-        let mesin = input.value.trim();
-        
-        if (mesin && !selectedMesin.includes(mesin)) {
-            selectedMesin.push(mesin);
+        let mesinNama = input.value.trim();
+        let errorEl = document.getElementById("mesinError");
+
+        // Cari mesin dari list
+        let mesinObj = mesinList.find(m => m.name_machine === mesinNama);
+
+        if (!mesinObj) {
+            if (!errorEl) {
+                errorEl = document.createElement("div");
+                errorEl.id = "mesinError";
+                errorEl.className = "text-danger mt-2";
+                input.parentNode.appendChild(errorEl);
+            }
+            errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
+            errorEl.classList.remove("d-none");
+            return;
+        }
+
+        if (!selectedMesin.includes(mesinNama)) {
+            selectedMesin.push(mesinNama);
+            selectedIdMesin.push(mesinObj.id_machine);
             updateMesinDisplay();
             input.value = "";
+            if (errorEl) {
+                errorEl.classList.add("d-none");
+            }
         }
     }
 
-    function removeMesin(mesin) {
-        selectedMesin = selectedMesin.filter(item => item !== mesin);
-        updateMesinDisplay();
+    function removeMesin(mesinNama) {
+        const index = selectedMesin.indexOf(mesinNama);
+        if (index !== -1) {
+            selectedMesin.splice(index, 1);
+            selectedIdMesin.splice(index, 1);
+            updateMesinDisplay();
+        }
     }
 
     function updateMesinDisplay() {
-        let container = document.getElementById("selectedMesin");
-        let mesinData = document.getElementById("mesinData");
-        
-        // Update tampilan badge
-        container.innerHTML = "";
-        selectedMesin.forEach(mesin => {
+        let mesinContainer = document.getElementById("selectedMesin");
+        let idMesinContainer = document.getElementById("selectedIdMesin");
+        let mesinDataInput = document.getElementById("mesinData");
+        let idMachineDataInput = document.getElementById("idMachineData");
+
+        mesinContainer.innerHTML = "";
+        idMesinContainer.innerHTML = "";
+
+        selectedMesin.forEach((mesin, index) => {
+            // Badge nama mesin
             let badge = document.createElement("span");
             badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
             badge.innerHTML = `${mesin} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin}')"></button>`;
-            container.appendChild(badge);
+            mesinContainer.appendChild(badge);
+
+            // Badge ID mesin
+            let badgeId = document.createElement("span");
+            badgeId.classList.add("badge", "bg-secondary", "me-1", "mb-1");
+            badgeId.textContent = selectedIdMesin[index];
+            idMesinContainer.appendChild(badgeId);
         });
 
-        // Update hidden input
-        mesinData.value = JSON.stringify(selectedMesin);
+        mesinDataInput.value = JSON.stringify(selectedMesin);
+        idMachineDataInput.value = JSON.stringify(selectedIdMesin);
     }
 
     function addForm() {

@@ -64,6 +64,7 @@ class MasterController extends BaseController
         $validation->setRules([
             'judul_checksheet' => 'required',
             'mesin'            => 'required',
+            'id_machine'       => 'required',
             'item_check'       => 'required',
             'inspeksi'         => 'required',
             'standar'          => 'required',
@@ -76,6 +77,7 @@ class MasterController extends BaseController
         // Ambil data dari request
         $judulChecksheet = $this->request->getPost('judul_checksheet');
         $mesin = json_decode($this->request->getPost('mesin'), true); // Ubah JSON ke array
+        $idMachine       = json_decode($this->request->getPost('id_machine'), true);
         $itemCheck = $this->request->getPost('item_check'); // Array
         $inspeksi = $this->request->getPost('inspeksi'); // Array
         $standar = $this->request->getPost('standar'); // Array
@@ -84,6 +86,7 @@ class MasterController extends BaseController
         $masterData = [
             'judul_checksheet' => $judulChecksheet,
             'mesin'            => json_encode($mesin), // Simpan dalam bentuk JSON
+            'id_machine'       => json_encode($idMachine),
             'created_at'       => date('Y-m-d H:i:s'),
         ];
 
@@ -118,6 +121,14 @@ class MasterController extends BaseController
             return redirect()->to('/master')->with('error', 'Data tidak ditemukan.');
         }
 
+        // Decode JSON untuk mesin dan id_machine
+        $data['mesin'] = json_decode($data['item']['mesin'], true);
+        $data['id_machine'] = json_decode($data['item']['id_machine'], true);
+
+        // Ambil semua data mesin dari MasterMesin
+        $mesinModel = new MasterMesin();
+        $data['mesinList'] = $mesinModel->findAll();
+
         // Ambil data dari tabel detail berdasarkan master_id
         $details = $this->detailMasterModel->getDetailsByMasterId($id);
 
@@ -126,9 +137,9 @@ class MasterController extends BaseController
         }
 
         // Ubah hasil query ke array untuk digunakan di view
-        $data['itemChecks'] = array_column($details, 'item_check');
+        $data['itemChecks']   = array_column($details, 'item_check');
         $data['inspeksiList'] = array_column($details, 'inspeksi');
-        $data['standarList'] = array_column($details, 'standar');
+        $data['standarList']  = array_column($details, 'standar');
 
         $data['title'] = 'Edit Data';
         return view('checksheet/master-edit', $data);
@@ -152,6 +163,7 @@ class MasterController extends BaseController
             if (!$this->validate([
                 'judul'   => 'permit_empty',
                 'mesin'   => 'permit_empty',
+                'mesin_id' => 'permit_empty',
                 'item_check' => 'permit_empty',
                 'inspeksi' => 'permit_empty',
                 'standar'  => 'permit_empty',
@@ -162,7 +174,8 @@ class MasterController extends BaseController
             // Update data master
             $masterData = [
                 'judul_checksheet' => $inputData['judul'],
-                'mesin' => $inputData['mesin']
+                'mesin' => $inputData['mesin'],
+                'id_machine' => $inputData['mesin_id']
             ];
             $this->masterModel->update($id, $masterData);
 

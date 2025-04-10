@@ -14,6 +14,7 @@ class Master extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'mesin',
+        'id_machine',
         'judul_checksheet',
         'created_at'
     ];

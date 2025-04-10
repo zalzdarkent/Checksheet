@@ -30,10 +30,11 @@
             </div>
             <datalist id="mesinList">
                 <?php foreach ($mesinList as $mesin): ?>
-                    <option value="<?= esc($mesin['name_machine']) ?>">
+                    <option value="<?= esc($mesin['name_machine']) ?>" data-id="<?= esc($mesin['id_machine']) ?>">
                     <?php endforeach; ?>
             </datalist>
             <div id="selectedMesin" class="mt-2"></div>
+            <div id="selectedIdMesin" class="mt-2"></div>
         </div>
         <small id="mesinError" class="text-danger d-none">Mesin tidak valid. Pilih dari daftar yang tersedia.</small>
     </div>
@@ -46,6 +47,7 @@
                 <div id="formContainer">
                     <input type="hidden" name="judul_checksheet" id="judul_checksheet_hidden">
                     <input type="hidden" name="mesin" id="mesinData">
+                    <input type="hidden" name="id_machine" id="idMachineData">
                     <div class="row mb-3 form-group">
                         <div class="col-md-4">
                             <label for="item_check" class="form-label">Item Check</label>
@@ -72,7 +74,7 @@
 </main>
 
 <script>
-    const mesinList = <?= json_encode(array_column($mesinList, 'name_machine')) ?>;
+    const mesinList = <?= json_encode($mesinList) ?>;
     document.getElementById("judul_checksheet").addEventListener("input", function() {
         document.getElementById("judul_checksheet_hidden").value = this.value;
     });
@@ -93,49 +95,59 @@
 
     function addMesin() {
         let input = document.getElementById("mesinInput");
-        let mesin = input.value.trim();
+        let mesinNama = input.value.trim();
         let errorEl = document.getElementById("mesinError");
 
-        if (!mesinList.includes(mesin)) {
-            if (!errorEl) {
-                errorEl = document.createElement("small");
-                errorEl.id = "mesinError";
-                errorEl.className = "text-danger";
-                input.parentNode.appendChild(errorEl);
-            }
+        // Cari mesin dari list
+        let mesinObj = mesinList.find(m => m.name_machine === mesinNama);
+
+        if (!mesinObj) {
             errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
             errorEl.classList.remove("d-none");
             return;
         }
 
-        if (mesin && !selectedMesin.includes(mesin)) {
-            selectedMesin.push(mesin);
+        if (!selectedMesin.find(m => m.name_machine === mesinNama)) {
+            selectedMesin.push({
+                name_machine: mesinObj.name_machine,
+                id_machine: mesinObj.id_machine
+            });
             updateMesinDisplay();
             input.value = "";
-            if (errorEl) errorEl.classList.add("d-none");
+            errorEl.classList.add("d-none");
         }
     }
 
-    function removeMesin(mesin) {
-        selectedMesin = selectedMesin.filter(item => item !== mesin);
+    function removeMesin(mesinNama) {
+        selectedMesin = selectedMesin.filter(item => itfem.name_machine !== mesinNama);
         updateMesinDisplay();
     }
 
     function updateMesinDisplay() {
-        let container = document.getElementById("selectedMesin");
-        let mesinData = document.getElementById("mesinData");
+        let mesinContainer = document.getElementById("selectedMesin");
+        let idMesinContainer = document.getElementById("selectedIdMesin");
+        let mesinDataInput = document.getElementById("mesinData");
+        let idMachineDataInput = document.getElementById("idMachineData");
 
-        // Update tampilan badge
-        container.innerHTML = "";
+        mesinContainer.innerHTML = "";
+        idMesinContainer.innerHTML = "";
+
         selectedMesin.forEach(mesin => {
+            // Badge nama mesin
             let badge = document.createElement("span");
             badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
-            badge.innerHTML = `${mesin} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin}')"></button>`;
-            container.appendChild(badge);
+            badge.innerHTML = `${mesin.name_machine} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin.name_machine}')"></button>`;
+            mesinContainer.appendChild(badge);
+
+            // Badge ID mesin
+            let badgeId = document.createElement("span");
+            badgeId.classList.add("badge", "bg-secondary", "me-1", "mb-1");
+            badgeId.textContent = `${mesin.id_machine}`;
+            idMesinContainer.appendChild(badgeId);
         });
 
-        // Update hidden input
-        mesinData.value = JSON.stringify(selectedMesin);
+        mesinDataInput.value = JSON.stringify(selectedMesin.map(m => m.name_machine));
+        idMachineDataInput.value = JSON.stringify(selectedMesin.map(m => m.id_machine));
     }
 
     function addForm() {
