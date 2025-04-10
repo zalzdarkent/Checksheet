@@ -34,7 +34,7 @@ class AppController extends BaseController
 
         // Query dengan pagination
         $checksheets = $db->table('preuse_tb_checksheet')
-            ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id as master_id')
+            ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id_machine as master_id_machine, preuse_tb_master.id as master_id')
             ->join('preuse_tb_master', 'preuse_tb_checksheet.master_id = preuse_tb_master.id', 'left')
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()
@@ -83,6 +83,7 @@ class AppController extends BaseController
             'departemen' => 'required',
             'seksi'      => 'required',
             'mesin'      => 'required',
+            'id_machine' => 'required',
             'line'       => 'required|numeric|greater_than[0]|less_than[8]',
         ];
 
@@ -94,6 +95,7 @@ class AppController extends BaseController
         $mesinValue = $this->request->getPost('mesin'); // Format: "master_id|index"
         $bulan = $this->request->getPost('bulan');
         $line = $this->request->getPost('line');
+        $idMachine = $this->request->getPost('id_machine');
 
         list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
@@ -128,6 +130,7 @@ class AppController extends BaseController
             'seksi'      => $this->request->getPost('seksi'),
             'master_id'  => $master_id,
             'mesin'      => $mesinName,
+            'id_machine' => $idMachine,
             'line'       => $line,
         ];
 
@@ -243,50 +246,70 @@ class AppController extends BaseController
 
     public function update($id)
     {
-        // dd($this->request->getPost()); 
+        // Validasi input
         $validation = \Config\Services::validation();
-
-        // Aturan validasi
-        $rules = [
-            'bulan'      => 'required',
+        $validation->setRules([
+            'mesin' => 'required',
+            'id_machine' => 'required',
+            'line' => 'required|numeric',
+            'bulan' => 'required',
             'departemen' => 'required',
-            'seksi'      => 'required',
-            'mesin'      => 'required',
-            'line'       => 'required|numeric|greater_than[0]|less_than[8]',
-        ];
+            'seksi' => 'required'
+        ]);
 
-        if (!$this->validate($rules)) {
+        if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
         // Ambil data dari form
         $mesinValue = $this->request->getPost('mesin'); // Format: "master_id|index"
-        list($master_id, $mesin_index) = explode('|', $mesinValue);
+        $id_machine = $this->request->getPost('id_machine');
+        $line = $this->request->getPost('line');
+        $bulan = $this->request->getPost('bulan');
+        $departemen = $this->request->getPost('departemen');
+        $seksi = $this->request->getPost('seksi');
+
+        list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
         // Ambil nama mesin berdasarkan index di preuse_tb_master
         $master = $this->db->table('preuse_tb_master')->where('id', $master_id)->get()->getRowArray();
         if (!$master) {
-            return redirect()->back()->with('error', 'Data master tidak ditemukan!');
+            return redirect()->back()->withInput()->with('error', 'Data master tidak ditemukan!');
         }
 
         $mesinList = json_decode($master['mesin'], true);
-        $mesinName = $mesinList[$mesin_index] ?? null;
+        $mesinName = $mesinList[$mesin_index] ?? 'Unknown';
 
-        if ($mesinName === null) {
-            return redirect()->back()->with('error', 'Index mesin tidak valid!');
+        // Cek apakah kombinasi mesin, line, dan bulan sudah ada (kecuali untuk data yang sedang diupdate)
+        $existingChecksheet = $this->db->table('preuse_tb_checksheet')
+            ->where('master_id', $master_id)
+            ->where('mesin', $mesinName)
+            ->where('line', $line)
+            ->where('bulan', $bulan)
+            ->where('id !=', $id) // Exclude current record
+            ->get()
+            ->getRowArray();
+
+        if ($existingChecksheet) {
+            $bulanFormatted = date('F Y', strtotime($bulan));
+            return redirect()->back()->withInput()
+                ->with('error', "Checksheet untuk mesin '{$mesinName}' Line {$line} pada bulan {$bulanFormatted} sudah ada!");
         }
 
+        // Update data ke database
         $data = [
             'master_id' => $master_id,
             'mesin' => $mesinName,
-            'bulan' => $this->request->getPost('bulan'),
-            'departemen' => $this->request->getPost('departemen'),
-            'seksi' => $this->request->getPost('seksi'),
-            'line' => $this->request->getPost('line'),
+            'id_machine' => $id_machine,
+            'line' => $line,
+            'bulan' => $bulan,
+            'departemen' => $departemen,
+            'seksi' => $seksi
         ];
 
         $this->checksheetModel->update($id, $data);
-        return redirect()->to('/checksheet')->with('success', 'Checksheet berhasil diperbarui!');
+
+        return redirect()->to('/checksheet')->with('success', 'Data checksheet berhasil diperbarui');
     }
 
     public function destroy($id)

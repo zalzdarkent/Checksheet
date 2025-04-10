@@ -18,6 +18,7 @@ class Checksheet extends Model
         'seksi',
         'line',
         'mesin',
+        'id_machine',
         'master_id'
     ];
     protected $createdField     = 'created_at';

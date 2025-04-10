@@ -12,18 +12,34 @@
 
                 <div class="mb-3">
                     <label for="mesin" class="form-label">Mesin</label>
-                    <select class="form-select" id="mesin" name="mesin">
-                        <?php
-                        foreach ($masters as $master) : // Looping semua master
-                            $mesinList = json_decode($master['mesin'], true);
-                            foreach ($mesinList as $index => $mesinName) : ?>
-                                <option value="<?= $master['id'] ?>|<?= $index ?>"
-                                    <?= ($checksheet['mesin'] == $mesinName) ? 'selected' : '' ?>>
-                                    <?= $mesinName ?>
+                    <select class="form-select" id="mesin" name="mesin" required onchange="updateIdMachine(this)">
+                        <option value="" selected>Pilih Mesin</option>
+                        <?php foreach ($masters as $master): ?>
+                            <?php 
+                                $mesinList = json_decode($master['mesin'], true);
+                                $idMachineList = json_decode($master['id_machine'], true);
+                            ?>
+                            <?php foreach ($mesinList as $index => $mesin): ?>
+                                <option value="<?= $master['id'] . '|' . $index; ?>" 
+                                        data-id-machine="<?= $idMachineList[$index] ?? '' ?>"
+                                        <?= ($mesin == $checksheet['mesin']) ? 'selected' : '' ?>>
+                                    <?= $mesin; ?>
                                 </option>
-                        <?php endforeach;
-                        endforeach; ?>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
                     </select>
+                    <div class="invalid-feedback">Silakan pilih mesin</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">ID Mesin</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-light" id="idMachineInput" name="id_machine" readonly value="<?= esc($checksheet['id_machine']) ?>">
+                        <span class="input-group-text bg-primary text-white" id="idMachineBadge">
+                            <i class="bi bi-tag"></i> <?= esc($checksheet['id_machine']) ?>
+                        </span>
+                    </div>
+                    <small class="text-muted">ID mesin akan otomatis terisi saat memilih mesin</small>
                 </div>
 
                 <div class="mb-3">
@@ -63,4 +79,33 @@
         </div>
     </div>
 </main>
+
+<script>
+    function updateIdMachine(select) {
+        const selectedOption = select.options[select.selectedIndex];
+        const idMachine = selectedOption.getAttribute('data-id-machine');
+        const idMachineInput = document.getElementById('idMachineInput');
+        const idMachineBadge = document.getElementById('idMachineBadge');
+        
+        if (idMachine) {
+            idMachineInput.value = idMachine;
+            idMachineBadge.innerHTML = `<i class="bi bi-tag"></i> ${idMachine}`;
+            idMachineBadge.classList.remove('bg-secondary');
+            idMachineBadge.classList.add('bg-primary');
+        } else {
+            idMachineInput.value = '';
+            idMachineBadge.innerHTML = '<i class="bi bi-tag"></i>';
+            idMachineBadge.classList.remove('bg-primary');
+            idMachineBadge.classList.add('bg-secondary');
+        }
+    }
+
+    // Initialize id_machine display on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const mesinSelect = document.getElementById('mesin');
+        if (mesinSelect) {
+            updateIdMachine(mesinSelect);
+        }
+    });
+</script>
 <?= $this->endSection() ?>
