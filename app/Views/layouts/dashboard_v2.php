@@ -11,22 +11,24 @@
     </div>
 
     <!-- Filter Form -->
-    <div class="card mb-4">
-        <div class="card-body">
+    <div class="card mb-4 border-0" style="border-radius: 1rem;">
+        <div class="card-body bg-light py-4 px-4">
             <form method="GET">
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-6">
-                        <label for="mesin" class="form-label">Mesin</label>
-                        <select class="form-select" id="mesin" name="mesin">
+                        <label for="mesin" class="form-label fw-semibold text-dark">Mesin</label>
+                        <select class="form-select rounded-3" id="mesin" name="mesin">
                             <option value="">Semua Mesin</option>
                             <?php foreach ($machines as $machine) : ?>
-                                <option value="<?= esc($machine['mesin']) ?>" <?= ($selectedMesin == $machine['mesin']) ? 'selected' : '' ?>><?= esc($machine['mesin']) ?></option>
+                                <option value="<?= esc($machine['mesin']) ?>" <?= ($selectedMesin == $machine['mesin']) ? 'selected' : '' ?>>
+                                    <?= esc($machine['mesin']) ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="line" class="form-label">Line</label>
-                        <select class="form-select" id="line" name="line">
+                        <label for="line" class="form-label fw-semibold text-dark">Line</label>
+                        <select class="form-select rounded-3" id="line" name="line">
                             <option value="">Semua Line</option>
                             <?php for ($i = 1; $i <= 7; $i++) : ?>
                                 <option value="<?= $i ?>" <?= ($selectedLine == $i) ? 'selected' : '' ?>>Line <?= $i ?></option>
@@ -34,11 +36,13 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="month" class="form-label">Bulan dan Tahun</label>
-                        <input type="month" class="form-control" id="month" name="bulan" value="<?= $selectedBulan ?>">
+                        <label for="month" class="form-label fw-semibold text-dark">Bulan & Tahun</label>
+                        <input type="month" class="form-control rounded-3" id="month" name="bulan" value="<?= $selectedBulan ?>">
                     </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Filter</button>
+                    <div class="col-12 d-flex justify-content-end mt-2">
+                        <button type="submit" class="btn btn-dark rounded-3 px-4 py-2" style="transition: 0.3s ease;">
+                            <i class="bi bi-funnel-fill me-1"></i> Filter
+                        </button>
                     </div>
                 </div>
             </form>
