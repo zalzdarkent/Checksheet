@@ -10,29 +10,35 @@
         <h1 class="h2">Dashboard v3</h1>
     </div>
 
-    <form class="mb-3">
+    <form class="mb-3" method="get">
         <div class="row g-3 align-items-end">
             <div class="col-md-4">
                 <label for="filterBulan" class="form-label">Filter Bulan</label>
-                <select id="filterBulan" class="form-select">
-                    <option selected disabled>Pilih Bulan</option>
-                    <option value="1">Januari</option>
-                    <option value="2">Februari</option>
-                    <option value="3">Maret</option>
-                    <option value="4">April</option>
-                    <option value="5">Mei</option>
-                    <option value="6">Juni</option>
-                    <option value="7">Juli</option>
-                    <option value="8">Agustus</option>
-                    <option value="9">September</option>
-                    <option value="10">Oktober</option>
-                    <option value="11">November</option>
-                    <option value="12">Desember</option>
+                <select id="filterBulan" name="filterBulan" class="form-select">
+                    <option value="1" <?= $filterBulan == '1' ? 'selected' : '' ?>>Januari</option>
+                    <option value="2" <?= $filterBulan == '2' ? 'selected' : '' ?>>Februari</option>
+                    <option value="3" <?= $filterBulan == '3' ? 'selected' : '' ?>>Maret</option>
+                    <option value="4" <?= $filterBulan == '4' ? 'selected' : '' ?>>April</option>
+                    <option value="5" <?= $filterBulan == '5' ? 'selected' : '' ?>>Mei</option>
+                    <option value="6" <?= $filterBulan == '6' ? 'selected' : '' ?>>Juni</option>
+                    <option value="7" <?= $filterBulan == '7' ? 'selected' : '' ?>>Juli</option>
+                    <option value="8" <?= $filterBulan == '8' ? 'selected' : '' ?>>Agustus</option>
+                    <option value="9" <?= $filterBulan == '9' ? 'selected' : '' ?>>September</option>
+                    <option value="10" <?= $filterBulan == '10' ? 'selected' : '' ?>>Oktober</option>
+                    <option value="11" <?= $filterBulan == '11' ? 'selected' : '' ?>>November</option>
+                    <option value="12" <?= $filterBulan == '12' ? 'selected' : '' ?>>Desember</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label for="filterMesin" class="form-label">ID Mesin</label>
-                <input type="text" id="filterMesin" class="form-control" placeholder="Contoh: 001">
+                <select id="filterMesin" name="filterMesin" class="form-select">
+                    <option value="">Semua Mesin</option>
+                    <?php foreach ($machines as $machine): ?>
+                        <option value="<?= $machine['id_machine'] ?>" <?= $filterMesin == $machine['id_machine'] ? 'selected' : '' ?>>
+                            <?= $machine['id_machine'] ?> - <?= $machine['mesin'] ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -46,154 +52,31 @@
                 <tr>
                     <th>Mesin</th>
                     <th>ID Mesin</th>
-                    <!-- Tanggal 1 - 31 -->
-                    <!-- Bisa generate otomatis nanti, tapi ini dummy -->
-                    <!-- Kamu juga bisa pakai loop di backend -->
-                    <!-- Di sini manual -->
-                    <!-- atau pakai JS nanti -->
-                    <!-- Untuk slicing, tulis manual dulu aja -->
-                    <!-- Lebih cepat -->
-                    <!-- Bisa pakai Emmet juga: `th*31{$}` -->
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                    <th>13</th>
-                    <th>14</th>
-                    <th>15</th>
-                    <th>16</th>
-                    <th>17</th>
-                    <th>18</th>
-                    <th>19</th>
-                    <th>20</th>
-                    <th>21</th>
-                    <th>22</th>
-                    <th>23</th>
-                    <th>24</th>
-                    <th>25</th>
-                    <th>26</th>
-                    <th>27</th>
-                    <th>28</th>
-                    <th>29</th>
-                    <th>30</th>
-                    <th>31</th>
+                    <?php for ($day = 1; $day <= 31; $day++): ?>
+                        <th><?= $day ?></th>
+                    <?php endfor; ?>
                 </tr>
             </thead>
             <tbody>
-                <!-- Dummy data mesin -->
-                <tr>
-                    <td>Mesin A</td>
-                    <td>001</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Mesin B</td>
-                    <td>002</td>
-                    <td></td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>✓</td>
-                </tr>
-                <tr>
-                    <td>Mesin C</td>
-                    <td>003</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                    <td>✓</td>
-                </tr>
+                <?php foreach ($machineData as $machine): ?>
+                    <tr>
+                        <td><?= $machine['mesin'] ?></td>
+                        <td><?= $machine['id_machine'] ?></td>
+                        <?php for ($day = 1; $day <= 31; $day++): ?>
+                            <td>
+                                <?php if (isset($machine['days'][$day])): ?>
+                                    <?php if ($machine['days'][$day] == 'OK'): ?>
+                                        <span class="badge bg-success">OK</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">NG</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
