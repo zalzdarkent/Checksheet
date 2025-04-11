@@ -56,7 +56,9 @@ class DashboardV3Controller extends BaseController
 
         // Apply machine filter if provided
         if (!empty($filterMesin)) {
-            $query->where('preuse_tb_checksheet.id_machine', $filterMesin);
+            // Extract the middle part of the machine ID (e.g., UTY from D-UTY-SCB-003)
+            $machineType = $filterMesin;
+            $query->where('preuse_tb_checksheet.id_machine LIKE', "%$machineType%");
         }
 
         $results = $query->findAll();
@@ -71,15 +73,35 @@ class DashboardV3Controller extends BaseController
             $machineData[$key]['days'][$day] = $row['status'];
         }
 
-        // Get unique machines for the filter dropdown using SQL Server syntax
+        // Get unique machines for the filter dropdown
         $db = \Config\Database::connect();
         $machines = $db->query(
             "
-        SELECT DISTINCT id_machine, mesin 
-        FROM preuse_tb_checksheet 
-        WHERE bulan = ?",
+            SELECT DISTINCT 
+                id_machine,
+                mesin 
+            FROM preuse_tb_checksheet 
+            WHERE bulan = ?
+            ORDER BY id_machine",
             [$filterMonthFormatted]
         )->getResultArray();
+
+        // Process the machines array to extract machine types
+        $processedMachines = [];
+        foreach ($machines as $machine) {
+            // Extract the middle part (e.g., UTY from D-UTY-SCB-003)
+            $parts = explode('-', $machine['id_machine']);
+            if (count($parts) >= 3) {
+                $machineType = $parts[1]; // Get the middle part (UTY, PR1, PR2)
+                if (!isset($processedMachines[$machineType])) {
+                    $processedMachines[$machineType] = [
+                        'id_machine' => $machineType,
+                        'mesin' => $machine['mesin']
+                    ];
+                }
+            }
+        }
+        $machines = array_values($processedMachines);
 
         $data = [
             'title' => 'Dashboard V3',
