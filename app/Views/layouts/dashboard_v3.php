@@ -355,13 +355,8 @@
     });
 
     function showNGDetails(machineId, machineName, day) {
-        // Format tanggal
-        const date = new Date(2024, 0, day); // 2024-01-day
-        const formattedDate = date.toLocaleDateString('id-ID', { 
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
+        // Format tanggal sesuai dengan format di database (YYYY-MM-DD)
+        const formattedDate = `<?= $bulan ?>-${day.toString().padStart(2, '0')}`;
 
         // Update modal header
         document.getElementById('modalMachineName').textContent = machineName;
@@ -369,7 +364,7 @@
         document.getElementById('modalDate').textContent = formattedDate;
 
         // Kirim request untuk mendapatkan data NG
-        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${day}`)
+        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -424,9 +419,9 @@
 
 <?= $this->section('scripts') ?>
 <!-- jQuery UI CSS -->
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<!-- <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"> -->
 <!-- jQuery UI JS -->
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<!-- <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script> -->
 
 <script>
     // Initialize tooltips
@@ -493,13 +488,8 @@
     });
 
     function showNGDetails(machineId, machineName, day) {
-        // Format tanggal
-        const date = new Date(2024, 0, day); // 2024-01-day
-        const formattedDate = date.toLocaleDateString('id-ID', { 
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
+        // Format tanggal sesuai dengan format di database (YYYY-MM-DD)
+        const formattedDate = `<?= $bulan ?>-${day.toString().padStart(2, '0')}`;
 
         // Update modal header
         document.getElementById('modalMachineName').textContent = machineName;
@@ -507,7 +497,7 @@
         document.getElementById('modalDate').textContent = formattedDate;
 
         // Kirim request untuk mendapatkan data NG
-        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${day}`)
+        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

@@ -11,6 +11,8 @@
     <link rel="shortcut icon" href="<?= base_url('logo/CBI_logo.png') ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/icon/bootstrap-icons.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/icon/bootstrap-icons.min.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/jquery/jquery-ui.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/jquery/jquery-ui.min.js') ?>">
     <title><?= $this->renderSection('title') ?></title>
     <style>
         .custom-header {
