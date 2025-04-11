@@ -6,12 +6,19 @@ use App\Controllers\BaseController;
 use App\Models\DetailChecksheet;
 use App\Models\Checksheet;
 use App\Models\DetailMaster;
-use App\Models\Npk;
+use App\Models\Karyawan;
 use App\Models\StatusChangeLog;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class DetailChecksheetController extends BaseController
 {
+    protected $karyawanModel;
+
+    public function __construct()
+    {
+        $this->karyawanModel = new Karyawan();
+    }
+
     public function saveStatus()
     {
         $model = new DetailChecksheet();
@@ -32,12 +39,15 @@ class DetailChecksheetController extends BaseController
 
         $today = date('j');
         $hasChanges = false;
+        $isSubmitted = ($action == 'submit') ? 1 : 0;
 
         // Process NPK updates first
-        foreach ($npkData as $colIndex => $npk) {
-            if (!empty($npk)) {
-                if (!ctype_digit($npk)) {
-                    return redirect()->back()->with('error', 'NPK hanya boleh berisi angka!');
+        foreach ($npkData as $colIndex => $karyawanId) {
+            if (!empty($karyawanId)) {
+                // Get karyawan data
+                $karyawan = $this->karyawanModel->find($karyawanId);
+                if (!$karyawan) {
+                    return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
                 }
 
                 $existingData = $model->where([
@@ -50,15 +60,17 @@ class DetailChecksheetController extends BaseController
                     continue; // Skip if already submitted
                 }
 
-                $existing = $model->where([
+                // Update all rows for this column
+                $model->where([
                     'checksheet_id' => $checksheetId,
-                    'kolom' => intval($colIndex),
-                ])->first();
+                    'kolom' => intval($colIndex)
+                ])->set([
+                    'npk' => $karyawan['npk'],
+                    'id_karyawan' => $karyawan['id'],
+                    'is_submitted' => $isSubmitted
+                ])->update();
 
-                if ($existing) {
-                    $model->update($existing['id'], ['npk' => $npk]);
-                    $hasChanges = true;
-                }
+                $hasChanges = true;
             }
         }
 
@@ -90,10 +102,16 @@ class DetailChecksheetController extends BaseController
                         'checksheet_id' => $checksheetId,
                         'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
                         'kolom' => intval($colIndex),
-                    ])->first();
+                    ])->select('id, checksheet_id, kolom, item_check, status, npk, id_karyawan, is_submitted')
+                      ->first();
 
-                    $isSubmitted = ($action == 'submit') ? 1 : 0;
                     $fullDate = date('Y-m-d', strtotime($checksheet['bulan'] . '-' . $colIndex));
+
+                    // Get karyawan data for this column
+                    $karyawan = $this->karyawanModel->find($npkData[$colIndex]);
+                    if (!$karyawan) {
+                        return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
+                    }
 
                     if (!$existing) {
                         $model->insert([
@@ -104,7 +122,8 @@ class DetailChecksheetController extends BaseController
                             'inspeksi' => $inspeksiData[$rowIndex] ?? '',
                             'standar' => $standarData[$rowIndex] ?? '',
                             'status' => $status,
-                            'npk' => $npkData[$colIndex],
+                            'npk' => $karyawan['npk'],
+                            'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
                         $detailId = $model->getInsertID();
@@ -118,7 +137,8 @@ class DetailChecksheetController extends BaseController
                     } else {
                         $model->update($existing['id'], [
                             'status' => $status,
-                            'npk' => $npkData[$colIndex],
+                            'npk' => $karyawan['npk'],
+                            'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
                         if ($status === 'NG') {

@@ -5,17 +5,20 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\Checksheet;
 use App\Models\Master;
+use App\Models\Karyawan;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class AppController extends BaseController
 {
     protected $checksheetModel;
     protected $db;
+    protected $karyawanModel;
 
     public function __construct()
     {
         $this->checksheetModel = new Checksheet();
         $this->db = \Config\Database::connect();
+        $this->karyawanModel = new Karyawan();
     }
     public function checksheet()
     {
@@ -168,10 +171,13 @@ class AppController extends BaseController
 
         /// Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('*')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
+
+        // Ambil data karyawan untuk dropdown NPK
+        $karyawanList = $this->karyawanModel->findAll();
 
         // Buat array status berdasarkan item_check dan tanggal
         $statusArray = [];
@@ -186,15 +192,21 @@ class AppController extends BaseController
             }
         }
 
-
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
-            // Simpan status dan npk ke array
+            // Simpan status dan id_karyawan ke array
             $statusArray[$row['item_check']][$row['kolom']] = $row['status'];
-            if (!empty($row['npk'])) {
-                $npkArray[$row['kolom']] = $row['npk'];
+            if (!empty($row['id_karyawan'])) {
+                $npkArray[$row['kolom']] = $row['id_karyawan'];
             }
         }
+
+        // Debug data
+        // dd([
+        //     'detailChecksheet' => $detailChecksheet,
+        //     'npkArray' => $npkArray,
+        //     'karyawanList' => $karyawanList
+        // ]);
 
         $data = [
             'title' => 'Detail Checksheet',
@@ -205,6 +217,7 @@ class AppController extends BaseController
             'statusArray' => $statusArray,
             'npkArray' => $npkArray,
             'isSubmitted' => $isSubmitted,
+            'karyawanList' => $karyawanList,
         ];
 
         return view('checksheet/tabel', $data);
