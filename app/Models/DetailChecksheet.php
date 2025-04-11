@@ -20,7 +20,7 @@ class DetailChecksheet extends Model
         'inspeksi',
         'standar',
         'status',
-        'npk',
+        'id_karyawan',
         'is_submitted',
         'is_resolved',  // Menambahkan field untuk menandai status yang sudah resolved
         'created_at', 
@@ -50,5 +50,11 @@ class DetailChecksheet extends Model
         return $this->where('status', 'NG')
                     ->where('is_resolved', 0)
                     ->countAllResults();
+    }
+
+    // Fungsi untuk mendapatkan data karyawan yang terkait
+    public function getKaryawan()
+    {
+        return $this->belongsTo('App\Models\Karyawan', 'id_karyawan', 'id');
     }
 }

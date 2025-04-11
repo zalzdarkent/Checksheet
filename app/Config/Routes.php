@@ -7,6 +7,7 @@ use App\Controllers\DetailChecksheetController;
 use App\Controllers\MasterController;
 use App\Controllers\UserController;
 use App\Controllers\ApiController;
+use App\Controllers\DashboardV3Controller;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -15,22 +16,21 @@ use CodeIgniter\Router\RouteCollection;
 
 // Dashboard
 $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->get('/', 'DashboardController::index');
-    $routes->get('/dashboard-v2', 'DashboardV2Controller::index');
-    $routes->get('/dashboard-v3', 'DashboardV3Controller::index');
-    $routes->get('/dashboard-v3/ng-details', 'DashboardV3Controller::getNGDetails');
+    $routes->get('/', [DashboardController::class, 'index']);
+    $routes->get('/dashboard-v2', [DashboardV2Controller::class, 'index']);
+    $routes->get('/dashboard-v3', [DashboardV3Controller::class, 'index']);
+    $routes->get('/dashboard-v3/ng-details', [DashboardV3Controller::class, 'getNGDetails']);
 });
-// $routes->get('/dashboard/ng-details', [DashboardController::class, 'getNGDetails']);
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
     $routes->get('/', [AppController::class, 'checksheet']);
-    $routes->get('table/(:num)', 'AppController::detail/$1');
+    $routes->get('table/(:num)', [AppController::class, 'detail/$1']);
     $routes->get('create', [AppController::class, 'checksheetCreate']);
     $routes->post('store', [AppController::class, 'store']);
-    $routes->delete('delete/(:num)', 'AppController::destroy/$1');
-    $routes->get('edit/(:num)', 'AppController::edit/$1');
-    $routes->post('update/(:num)', 'AppController::update/$1');
+    $routes->delete('delete/(:num)', [AppController::class, 'destroy/$1']);
+    $routes->get('edit/(:num)', [AppController::class, 'edit/$1']);
+    $routes->post('update/(:num)', [AppController::class, 'update/$1']);
     $routes->post('save-status', [DetailChecksheetController::class, 'saveStatus']);
     $routes->post('detail-checksheet/update-ng-to-ok', [DetailChecksheetController::class, 'updateNGtoOK']);
 });
@@ -40,9 +40,9 @@ $routes->group('master', function ($routes) {
     $routes->get('/', [MasterController::class, 'index']);
     $routes->get('create', [MasterController::class, 'create']);
     $routes->post('store', [MasterController::class, 'store']);
-    $routes->get('edit/(:num)', 'MasterController::edit/$1');
-    $routes->post('update/(:num)', 'MasterController::update/$1');
-    $routes->get('delete/(:num)', 'MasterController::delete/$1');
+    $routes->get('edit/(:num)', [MasterController::class, 'edit/$1']);
+    $routes->post('update/(:num)', [MasterController::class, 'update/$1']);
+    $routes->get('delete/(:num)', [MasterController::class, 'delete/$1']);
 });
 
 // Open Ticket Routes
