@@ -233,7 +233,9 @@
                                             <i class="bi bi-check-circle-fill"></i>
                                         </div>
                                     <?php else: ?>
-                                        <div class="status-badge status-ng" data-bs-toggle="tooltip" title="Status NG">
+                                        <div class="status-badge status-ng" data-bs-toggle="tooltip" title="Status NG" 
+                                            onclick="showNGDetails('<?= $machine['id_machine'] ?>', '<?= $machine['mesin'] ?>', <?= $day ?>)"
+                                            style="cursor: pointer;">
                                             <i class="bi bi-x-circle-fill"></i>
                                         </div>
                                     <?php endif; ?>
@@ -250,6 +252,43 @@
         </table>
     </div>
 </main>
+
+<!-- Modal untuk menampilkan detail NG -->
+<div class="modal fade" id="ngDetailsModal" tabindex="-1" aria-labelledby="ngDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="ngDetailsModalLabel">Detail Status NG</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6 class="text-primary">Mesin: <span id="modalMachineName" class="fw-normal"></span></h6>
+                    <h6 class="text-primary">ID Mesin: <span id="modalMachineId" class="fw-normal"></span></h6>
+                    <h6 class="text-primary">Tanggal: <span id="modalDate" class="fw-normal"></span></h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item Check</th>
+                                <th>Inspeksi</th>
+                                <th>Standar</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ngDetailsTableBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     // Initialize tooltips
@@ -314,6 +353,72 @@
             }
         });
     });
+
+    function showNGDetails(machineId, machineName, day) {
+        // Format tanggal
+        const date = new Date(2024, 0, day); // 2024-01-day
+        const formattedDate = date.toLocaleDateString('id-ID', { 
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // Update modal header
+        document.getElementById('modalMachineName').textContent = machineName;
+        document.getElementById('modalMachineId').textContent = machineId;
+        document.getElementById('modalDate').textContent = formattedDate;
+
+        // Kirim request untuk mendapatkan data NG
+        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${day}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Debug log
+                const tbody = document.getElementById('ngDetailsTableBody');
+                tbody.innerHTML = ''; // Clear existing data
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.item_check || '-'}</td>
+                            <td>${item.inspeksi || '-'}</td>
+                            <td>${item.standar || '-'}</td>
+                            <td><span class="badge bg-danger">NG</span></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    // Jika tidak ada data, tampilkan pesan
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="4" class="text-center">Tidak ada data NG untuk tanggal ini</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const tbody = document.getElementById('ngDetailsTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-danger">
+                            Terjadi kesalahan saat mengambil data NG
+                        </td>
+                    </tr>
+                `;
+                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
+                modal.show();
+            });
+    }
 </script>
 <?= $this->endSection() ?>
 
@@ -386,5 +491,71 @@
             }
         });
     });
+
+    function showNGDetails(machineId, machineName, day) {
+        // Format tanggal
+        const date = new Date(2024, 0, day); // 2024-01-day
+        const formattedDate = date.toLocaleDateString('id-ID', { 
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // Update modal header
+        document.getElementById('modalMachineName').textContent = machineName;
+        document.getElementById('modalMachineId').textContent = machineId;
+        document.getElementById('modalDate').textContent = formattedDate;
+
+        // Kirim request untuk mendapatkan data NG
+        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${day}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Debug log
+                const tbody = document.getElementById('ngDetailsTableBody');
+                tbody.innerHTML = ''; // Clear existing data
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.item_check || '-'}</td>
+                            <td>${item.inspeksi || '-'}</td>
+                            <td>${item.standar || '-'}</td>
+                            <td><span class="badge bg-danger">NG</span></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    // Jika tidak ada data, tampilkan pesan
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="4" class="text-center">Tidak ada data NG untuk tanggal ini</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const tbody = document.getElementById('ngDetailsTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-danger">
+                            Terjadi kesalahan saat mengambil data NG
+                        </td>
+                    </tr>
+                `;
+                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
+                modal.show();
+            });
+    }
 </script>
 <?= $this->endSection() ?>

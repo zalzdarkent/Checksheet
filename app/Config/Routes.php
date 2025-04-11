@@ -18,6 +18,7 @@ $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('/', 'DashboardController::index');
     $routes->get('/dashboard-v2', 'DashboardV2Controller::index');
     $routes->get('/dashboard-v3', 'DashboardV3Controller::index');
+    $routes->get('/dashboard-v3/ng-details', 'DashboardV3Controller::getNGDetails');
 });
 // $routes->get('/dashboard/ng-details', [DashboardController::class, 'getNGDetails']);
 

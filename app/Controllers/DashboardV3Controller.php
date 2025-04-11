@@ -11,11 +11,13 @@ class DashboardV3Controller extends BaseController
 {
     protected $checksheetModel;
     protected $detailChecksheetModel;
+    protected $db;
 
     public function __construct()
     {
         $this->checksheetModel = new Checksheet();
         $this->detailChecksheetModel = new DetailChecksheet();
+        $this->db = \Config\Database::connect();
     }
 
     public function index()
@@ -74,8 +76,7 @@ class DashboardV3Controller extends BaseController
         }
 
         // Get unique machines for the filter dropdown
-        $db = \Config\Database::connect();
-        $machines = $db->query(
+        $machines = $this->db->query(
             "
             SELECT DISTINCT 
                 id_machine,
@@ -114,5 +115,34 @@ class DashboardV3Controller extends BaseController
         ];
 
         return view('layouts/dashboard_v3', $data);
+    }
+
+    public function getNGDetails()
+    {
+        $machineId = $this->request->getGet('machine_id');
+        $date = $this->request->getGet('date');
+        
+        // Pastikan parameter yang diperlukan ada
+        if (!$machineId || !$date) {
+            return $this->response->setJSON([]);
+        }
+
+        // Query untuk mendapatkan data NG
+        $db = \Config\Database::connect();
+        $builder = $db->table('preuse_tb_detail_checksheet dc');
+        $builder->select('dc.item_check, dc.inspeksi, dc.standar, dc.status');
+        $builder->join('preuse_tb_checksheet cs', 'dc.checksheet_id = cs.id');
+        $builder->where('cs.id_machine', $machineId);
+        $builder->where('dc.kolom', $date); // Gunakan kolom untuk tanggal
+        $builder->where('dc.status', 'NG');
+        
+        $query = $builder->get();
+        $result = $query->getResultArray();
+
+        // Debug log
+        log_message('debug', 'NG Details Query: ' . $builder->getCompiledSelect());
+        log_message('debug', 'NG Details Result: ' . json_encode($result));
+
+        return $this->response->setJSON($result);
     }
 }
