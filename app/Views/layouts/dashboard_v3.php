@@ -77,8 +77,8 @@
     }
 
     .status-ng {
-        background-color: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
     }
 
     .status-empty {
@@ -409,7 +409,7 @@
                 const tbody = document.getElementById('ngDetailsTableBody');
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="text-center text-danger">
+                        <td colspan="4" class="text-center text-warning">
                             Terjadi kesalahan saat mengambil data NG
                         </td>
                     </tr>

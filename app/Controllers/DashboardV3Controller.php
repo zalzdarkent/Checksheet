@@ -47,14 +47,15 @@ class DashboardV3Controller extends BaseController
         $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $filterMonth, $filterYear);
 
         // Build query to get machine status data
-        $query = $this->checksheetModel->select('
+        $query = $this->checksheetModel->select("
         preuse_tb_checksheet.mesin,
         preuse_tb_checksheet.id_machine,
         preuse_tb_detail_checksheet.tanggal,
-        preuse_tb_detail_checksheet.status
-        ')
+        MAX(CASE WHEN preuse_tb_detail_checksheet.status = 'NG' THEN 1 ELSE 0 END) as has_ng
+        ")
         ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id')
-        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted);
+        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted)
+        ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');
 
         if (!empty($filterMesin)) {
             $query->where('preuse_tb_checksheet.id_machine LIKE', "%$filterMesin%");
@@ -76,7 +77,8 @@ class DashboardV3Controller extends BaseController
 
             // Extract day from tanggal
             $day = date('j', strtotime($row['tanggal']));
-            $machineData[$machineId]['days'][$day] = $row['status'];
+            // Set status to NG if has_ng is 1, otherwise OK
+            $machineData[$machineId]['days'][$day] = $row['has_ng'] ? 'NG' : 'OK';
         }
 
         // Get unique machines for filter dropdown

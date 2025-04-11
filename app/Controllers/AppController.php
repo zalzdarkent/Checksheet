@@ -56,13 +56,7 @@ class AppController extends BaseController
 
         return view('checksheet/index', $data);
     }
-
-    public function tableChecksheet()
-    {
-        $data['title'] = 'Tabel Checksheet';
-        return view('checksheet/tabel', $data);
-    }
-
+    
     public function dashboard()
     {
         $data['title'] = 'Dashboard ';
