@@ -1,0 +1,421 @@
+[33mcommit 10a918abb6afa5704eb2a5b6eee28f9b69180a5c[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Apr 14 08:00:18 2025 +0700
+
+    fix bug filter at dashboard v3
+
+[33mcommit 970718f6d3cbe81694eec844538e3bcfcdfa94b3[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Apr 14 07:50:16 2025 +0700
+
+    update: update dashboard v3 to fetch all mesin
+
+[33mcommit a9077659ac993163d8148c2e43945cb3aa2d12b1[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Apr 14 07:16:31 2025 +0700
+
+    fix error autocomplete on dashboard_v3.php
+
+[33mcommit 199681fd5f7f2d839ad0b2f9b3422ccbf2b99bed[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Apr 14 07:07:05 2025 +0700
+
+    fix submit at daily check
+
+[33mcommit 96e8599189c2a2c1c7fc31bc3318bb147d649cef[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 13:47:20 2025 +0700
+
+    add: npk data succes to import
+    - bug crash save or submit at daily check tabel.php
+    - bug at dashboard global V3 cannot find some data with searching feature
+
+[33mcommit 2346041aac9897e8bde958636b06c18aa47b9233[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 11:21:28 2025 +0700
+
+    fix: fix bug on dashboard global (v3)
+
+[33mcommit 74deaea934466bd242a35c2cdb3f2012b1d088c3[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 09:15:41 2025 +0700
+
+    add: model Karyawan
+
+[33mcommit 5b3520d71bc068347e64dd8623790e0028d3cf14[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 08:31:46 2025 +0700
+
+    fix data tanggal on modal data dashboard global
+
+[33mcommit 3ecbfa2bc15878e31ad602426e25beee5bab2249[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 07:57:35 2025 +0700
+
+    add: modal data NG on dashboard global
+
+[33mcommit aa1131c46cbf12c83a7cde9371e3f5ccdd83eaf3[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Apr 11 07:16:20 2025 +0700
+
+    add: filter by id machine at dashboard global format
+
+[33mcommit 442ba8cfd54c7417c235c9d22c18efe608b0bb05[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 15:00:05 2025 +0700
+
+    add: error 404 page
+
+[33mcommit 0c5e19dc230bff43a701253391e88fdaa875c567[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 14:38:57 2025 +0700
+
+    add: reset button on dashboard v2 and global
+
+[33mcommit 7e1000b61fcf2e0f4c0b0c03d6578525822d8cd9[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 14:08:21 2025 +0700
+
+    feat: redesign form filter on dashboard
+
+[33mcommit bcac1b48947bc465c2f1eac39f8b9dafdc7a6c82[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 13:25:12 2025 +0700
+
+    add: fix the title issue
+
+[33mcommit ab508dfc225c2fa03fd9ca2b4df00bc866b0c1eb[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 11:20:00 2025 +0700
+
+    add: dashboard global 50%
+    - Baru bisa menampilkan data aja, filter nya belum sempurna
+
+[33mcommit 4c110b072623b4b450b15d05ce8ecc8e85423afc[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 09:52:01 2025 +0700
+
+    add: menambahkan badge counter untuk notifikasi open ticket
+
+[33mcommit b15dbf0ab7d67b62d4b5739bf652f11e0fb1bb74[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 09:16:34 2025 +0700
+
+    feat: validasi saat mesin duplikat
+
+[33mcommit 3bcb65d3b781ce27385339a07fdab2375f5fe0fb[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 09:05:24 2025 +0700
+
+    feat: fix bug gabisa klik icon x di master-form.php
+
+[33mcommit 5c53c2428def53662faa3518400ce43ba871df7a[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 08:48:23 2025 +0700
+
+    feat: modifikasi proses menyimpan dan mengedit data pada model Checksheet
+    - Agar dapat mendukung dashboard global
+
+[33mcommit a84c005cc2c80223f984691f8a4be5b2026e5045[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Apr 10 08:31:16 2025 +0700
+
+    feat: menambahkan id_machine pada Master
+    - Untuk kebutuhan dashboard global
+
+[33mcommit 2e718b2ef534452a7416cf84c66cad8eaa7f3580[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Apr 9 11:35:23 2025 +0700
+
+    add: slicing dashboard v3
+
+[33mcommit 9a2af06d4ad6924563b07e46c56ef7057fa9e7bb[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Apr 9 11:19:50 2025 +0700
+
+    feat: berhasil import data mesin
+    - tinggal bikin dashboard v3 untuk format general
+
+[33mcommit 965ae53c597a9ea24d1b2955f1cd847c762d2bac[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Apr 9 08:18:39 2025 +0700
+
+    feat: icon bootstrap sudah bisa diakses secara local
+    - akses ke database production_control_v2 belum berhasil
+
+[33mcommit 73a4553376b751918d433f7e253b26a1225f1742[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Apr 9 07:29:37 2025 +0700
+
+    feat: fix bug changed_at in open ticket
+    - data belum ditampilkan dengan baik
+
+[33mcommit db59d71a3c82382e1c36533b42bfd2b7d087f0fa[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Apr 8 16:06:55 2025 +0700
+
+    update: detail ticket
+    - Masih belum bisa terhubung dengan db production_control_v2
+
+[33mcommit 438c91d17b729d7e7df392235bc276cbb7d2ef33[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 27 09:28:19 2025 +0700
+
+    feat: Rapihin UI Fitur Open Ticket
+    - Masalah masih sama seperti sebelumnya
+
+[33mcommit b4132a20d7bdc6dcc973b7912a769bf7397d0101[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 27 08:13:36 2025 +0700
+
+    feat: sudah bisa mengubah status NG menjadi OK
+    - NPK masih belum dropdown
+    - Item check yg sudah dihapus belum bisa ditampilkan
+
+[33mcommit b7ca06b1cebdbb0598cf225b2dbdd19af6b18df8[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 27 07:57:25 2025 +0700
+
+    add: fitur open tiket
+    - Baru menampilkan, belum ke mengubah status
+
+[33mcommit 3246068b45afc8a6268f52912b9029cc72c9348a[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 26 14:40:54 2025 +0700
+
+    add: 90% selesai
+
+[33mcommit 7240f3d045d20e5a0f12911fee3e06c2e236ff7e[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 26 11:55:39 2025 +0700
+
+    add: menambahkan interaktif kolom pada tabel dashboard
+
+[33mcommit f26d389a998a5f3425581b7c20ade9170673ac14[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 26 09:14:37 2025 +0700
+
+    update: mengubah tampilan status dari dashboard v1 khususnya data pada table
+
+[33mcommit 6f37ed600bc3d55868c9bc2605445f59fb39727e[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 26 08:41:32 2025 +0700
+
+    update: menambahkan filter by mesin
+
+[33mcommit 22e135fdf9aa03628b6f5d59a4758ffa939ac7ec[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 25 19:08:33 2025 +0700
+
+    add: dashboard v2 sudah dinamis
+    - Tinggal 2 milestone lagi
+
+[33mcommit f32cba42593a5d6e8a061b5a09cbc2d35d2bc77c[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 25 12:18:01 2025 +0700
+
+    feat: mengunduh semua cdn (kecuali bootstrap icon)
+
+[33mcommit 03eef2463f4916380cf5997d6d18054e92848d70[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 11:40:46 2025 +0700
+
+    Update milestone di README.md
+
+[33mcommit 470419e64ff9bcb7de57afff8fb78b43163aba22[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 11:37:18 2025 +0700
+
+    add: dashboard v1 sudah bisa
+    - Item check yg dihapus pertengahan bulan masih belum bisa tampil
+
+[33mcommit c2e49b6540973c20811534d6246572fcac89c2b8[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 09:41:08 2025 +0700
+
+    add: mencoba menampilkan item yg dihapus secara soft delete tapi masih error
+
+[33mcommit 8094b54dfb3a330d9103fd644008ebc622879df7[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 08:39:09 2025 +0700
+
+    feat: merubah inputan mesin pada master checksheet
+
+[33mcommit 186224e102b4da4d7351db746a29cd6a0dc2d819[m
+Merge: 25c797e aa0566a
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 08:25:34 2025 +0700
+
+    Merge branch 'main' of https://github.com/zalzdarkent/Checksheet
+
+[33mcommit 25c797ec342c6f895b0158c15bb1f0e31e933006[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 24 08:24:38 2025 +0700
+
+    feat: slicing ui dashboard v2
+    - Datatable belum bisa
+
+[33mcommit aa0566ad75b1ddc413744deee6ee5679f9cda723[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 14:46:40 2025 +0700
+
+    update: give a yellow color
+
+[33mcommit da0f17175f230bff2f6057421410925927d187de[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 14:10:18 2025 +0700
+
+    fix: npk yg gabisa diubah kalo ok dan ng ga diubah juga (aman)
+
+[33mcommit 64de1cc0a2bc50875c45930849735af6b930c21b[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 13:22:10 2025 +0700
+
+    update: menampilkan data npk yang tersimpan
+
+[33mcommit d8a7dd18a4e3043f35959a732c6c53c678e2e79a[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 11:59:14 2025 +0700
+
+    add: dashboard v2
+
+[33mcommit 405766c9db15a0719481d66c2d15e9466ddf128c[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 11:32:21 2025 +0700
+
+    add: dashboard page
+
+[33mcommit 95678b2a69264f47a2780fbf6568f5462fc6e51e[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 10:04:17 2025 +0700
+
+    Update dashboard: remove charts and adjust Open/Close logic
+
+[33mcommit f4f847de9474d05a3316b56972235f4660f8353f[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 21 08:46:22 2025 +0700
+
+    feat: Implement soft delete for deleted items in daily checksheet
+    
+    - Add soft delete functionality in DetailChecksheet model
+    - Modify MasterController to handle soft delete when items are removed
+    - Update DetailChecksheetController to show deleted items with their status
+    - Add visual indicators for deleted items in table view
+
+[33mcommit 0c84485fcc79e740a5068ebb7833217bef2a008b[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 20 09:11:33 2025 +0700
+
+    fix: memperbaiki tampilan edit master checksheet dan pengambilan data detail
+
+[33mcommit b4de635b3e7b3a9a0f7a318a13bc39ad394f5d62[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 20 07:25:15 2025 +0700
+
+    fix: improve form validation and security
+    
+    - Add backend validation for single column submission
+    - Add validation to prevent modification of submitted data
+    - Fix route redirects in MasterController
+    - Improve form handling in master-edit.php
+
+[33mcommit d498c284d182cfb2545c589338aab47b0115294a[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Thu Mar 20 06:00:04 2025 +0700
+
+    refactor: update route structure and fix URLs
+    
+    - Group routes into checksheet and master sections
+    - Update URLs in views to match new route structure
+    - Fix back button URL in table view
+    - Improve route naming consistency
+
+[33mcommit cdc32d567425e59656ee785620d4b120f92bd998[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 19 15:09:51 2025 +0700
+
+    add: daily check sudah beres, tinggal edit checksheet pre-use, validasi checksheet pre-use, dan edit master checksheet
+
+[33mcommit 144e869a70f2836673a998d149dedd3fc95b87ca[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Wed Mar 19 13:48:04 2025 +0700
+
+    add: daily check sudah beres, tinggal edit checksheet pre-use, validasi checksheet pre-use, dan edit master checksheet
+
+[33mcommit 6d5fa601e804bd833c7ad0860c284b265295e14a[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 18 14:23:43 2025 +0700
+
+    add: validasi npk sederhana
+
+[33mcommit 7647e8bff07bad94332512ef6d9b88eeadccc026[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 18 14:06:40 2025 +0700
+
+    add: dashboard controller
+
+[33mcommit 1533a14c85e049b4293aa22ace8de7b6b045fc10[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 18 14:04:40 2025 +0700
+
+    sudah beres, tinggal benerin bug edit master checksheet
+
+[33mcommit d9cf15f58708710d1bca8388830c2b4c4289789e[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 18 11:06:04 2025 +0700
+
+    add: tanggal date
+
+[33mcommit 942941ddf32d8eb5c93be6a9ac9f8ab65d6372c3[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Tue Mar 18 09:19:47 2025 +0700
+
+    udah bisa submit data, tinggal submit tanggal
+
+[33mcommit 5fbf2c8d77714f64a4993ed7371bbce3068b0a8b[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 17 13:11:27 2025 +0700
+
+    add: manage master checksheet
+
+[33mcommit 3e2bbb608a85cd1db9bdd57d27a067b49954baac[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 17 12:16:16 2025 +0700
+
+    feat: add master checksheet, left the Update
+
+[33mcommit a978e11c2d9cd28336175fa48b32d9a9d76a126d[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Mon Mar 17 07:34:10 2025 +0700
+
+    add: add db
+
+[33mcommit a0fa576bcdd7d47268c3a6586b235db0018dbc28[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Sun Mar 16 09:22:57 2025 +0700
+
+    add: berhasil melakukan edit di master checksheet
+
+[33mcommit c50146f926bf47d7a63fe52e161f9b566bb74603[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 14 14:36:40 2025 +0700
+
+    masih belum bisa relasi
+
+[33mcommit f1cf234696020d90c93704fcd21a0498e5462517[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 14 14:06:06 2025 +0700
+
+    add: crud master checksheet
+
+[33mcommit 1f51a829fd2d1bc091635572a9d8cadbb8d3c590[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 14 10:22:20 2025 +0700
+
+    add: env
+
+[33mcommit b08bb67a8227533b95a6348d45a0943fe886d3da[m
+Author: Zalz <arszalzdarkent@gmail.com>
+Date:   Fri Mar 14 10:20:41 2025 +0700
+
+    add: checksheet and master checksheet

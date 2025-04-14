@@ -78,6 +78,7 @@
     .status-ng {
         background-color: rgba(255, 193, 7, 0.1);
         color: #ffc107;
+        cursor: pointer;
     }
     
     .status-empty {
@@ -249,6 +250,7 @@
                                 <div class="status-badge <?= $statusClass ?>" 
                                      data-machine-id="<?= $machine['id_machine'] ?>"
                                      data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
+                                     <?= $status === 'NG' ? 'onclick="showNGDetails(\'' . $machine['id_machine'] . '\', \'' . $machine['mesin'] . '\', ' . $day . ')"' : '' ?>
                                      title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
                                     <i class="bi <?= $statusIcon ?>"></i>
                                 </div>
