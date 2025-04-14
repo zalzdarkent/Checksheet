@@ -300,135 +300,9 @@
     </div>
 </div>
 
-<script>
-    // Initialize tooltips
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Initialize autocomplete
-        $("#searchMachine").autocomplete({
-            source: function(request, response) {
-                // Get all machine data from the table
-                var machines = [];
-                $("table tbody tr").each(function() {
-                    var machineName = $(this).find("td:first-child span").text().trim();
-                    var machineId = $(this).find("td:nth-child(2) .badge").text().trim();
-                    machines.push({
-                        label: machineId + " - " + machineName,
-                        value: machineId,
-                        machineName: machineName
-                    });
-                });
-
-                // Filter results
-                var results = $.ui.autocomplete.filter(machines, request.term);
-                response(results);
-            },
-            minLength: 2,
-            select: function(event, ui) {
-                // Highlight the selected row
-                $("table tbody tr").removeClass("table-primary");
-                $("table tbody tr").each(function() {
-                    var machineId = $(this).find("td:nth-child(2) .badge").text().trim();
-                    if (machineId === ui.item.value) {
-                        $(this).addClass("table-primary");
-                        // Scroll to the row
-                        $('html, body').animate({
-                            scrollTop: $(this).offset().top - 100
-                        }, 500);
-                    }
-                });
-            },
-            focus: function(event, ui) {
-                $("#searchMachine").val(ui.item.label);
-                return false;
-            }
-        }).data("ui-autocomplete")._renderItem = function(ul, item) {
-            return $("<li>")
-                .append(`<div class="d-flex align-items-center">
-                    <span class="badge bg-primary bg-opacity-10 text-primary me-2">${item.value}</span>
-                    <span>${item.machineName}</span>
-                </div>`)
-                .appendTo(ul);
-        };
-
-        // Clear search and highlighting when clicking outside
-        $(document).click(function(e) {
-            if (!$(e.target).closest("#searchMachine").length) {
-                $("#searchMachine").val("");
-                $("table tbody tr").removeClass("table-primary");
-            }
-        });
-    });
-
-    function showNGDetails(machineId, machineName, day) {
-        // Format tanggal sesuai dengan format di database (YYYY-MM-DD)
-        const formattedDate = `<?= $bulan ?>-${day.toString().padStart(2, '0')}`;
-
-        // Update modal header
-        document.getElementById('modalMachineName').textContent = machineName;
-        document.getElementById('modalMachineId').textContent = machineId;
-        document.getElementById('modalDate').textContent = formattedDate;
-
-        // Kirim request untuk mendapatkan data NG
-        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Received data:', data); // Debug log
-                const tbody = document.getElementById('ngDetailsTableBody');
-                tbody.innerHTML = ''; // Clear existing data
-
-                if (data && data.length > 0) {
-                    data.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.item_check || '-'}</td>
-                            <td>${item.inspeksi || '-'}</td>
-                            <td>${item.standar || '-'}</td>
-                            <td><span class="badge bg-danger">NG</span></td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                } else {
-                    // Jika tidak ada data, tampilkan pesan
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td colspan="4" class="text-center">Tidak ada data NG untuk tanggal ini</td>
-                    `;
-                    tbody.appendChild(row);
-                }
-
-                // Show modal
-                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const tbody = document.getElementById('ngDetailsTableBody');
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">
-                            Terjadi kesalahan saat mengambil data NG
-                        </td>
-                    </tr>
-                `;
-                const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
-                modal.show();
-            });
-    }
-</script>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-
 <script>
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
@@ -454,10 +328,26 @@
 
                 // Filter results
                 var results = $.ui.autocomplete.filter(machines, request.term);
+                
+                if (results.length === 0) {
+                    // Jika tidak ada hasil, tambahkan pesan
+                    results.push({
+                        label: "Tidak ditemukan mesin dengan kata kunci '" + request.term + "'",
+                        value: "",
+                        machineName: ""
+                    });
+                }
+                
                 response(results);
             },
             minLength: 2,
             select: function(event, ui) {
+                if (ui.item.value === "") {
+                    // Jika yang dipilih adalah pesan "tidak ditemukan", jangan lakukan apa-apa
+                    event.preventDefault();
+                    return false;
+                }
+                
                 // Highlight the selected row
                 $("table tbody tr").removeClass("table-primary");
                 $("table tbody tr").each(function() {
@@ -472,10 +362,24 @@
                 });
             },
             focus: function(event, ui) {
+                if (ui.item.value === "") {
+                    // Jika yang difokus adalah pesan "tidak ditemukan", jangan lakukan apa-apa
+                    event.preventDefault();
+                    return false;
+                }
                 $("#searchMachine").val(ui.item.label);
                 return false;
             }
         }).data("ui-autocomplete")._renderItem = function(ul, item) {
+            if (item.value === "") {
+                // Render pesan "tidak ditemukan" dengan style yang berbeda
+                return $("<li>")
+                    .append(`<div class="text-muted p-2">
+                        <i class="bi bi-search me-2"></i>${item.label}
+                    </div>`)
+                    .appendTo(ul);
+            }
+            
             return $("<li>")
                 .append(`<div class="d-flex align-items-center">
                     <span class="badge bg-primary bg-opacity-10 text-primary me-2">${item.value}</span>

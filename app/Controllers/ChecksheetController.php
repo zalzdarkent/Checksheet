@@ -8,7 +8,7 @@ use App\Models\Master;
 use App\Models\Karyawan;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class AppController extends BaseController
+class ChecksheetController extends BaseController
 {
     protected $checksheetModel;
     protected $db;

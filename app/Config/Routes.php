@@ -1,12 +1,10 @@
 <?php
 
+use App\Controllers\ChecksheetController;
 use App\Controllers\DashboardController;
-use App\Controllers\AppController;
 use App\Controllers\DashboardV2Controller;
 use App\Controllers\DetailChecksheetController;
 use App\Controllers\MasterController;
-use App\Controllers\UserController;
-use App\Controllers\ApiController;
 use App\Controllers\DashboardV3Controller;
 use CodeIgniter\Router\RouteCollection;
 
@@ -24,13 +22,13 @@ $routes->group('', ['namespace' => 'App\Controllers'], function ($routes) {
 
 // Checksheet Routes Group
 $routes->group('checksheet', function ($routes) {
-    $routes->get('/', [AppController::class, 'checksheet']);
-    $routes->get('table/(:num)', [AppController::class, 'detail/$1']);
-    $routes->get('create', [AppController::class, 'checksheetCreate']);
-    $routes->post('store', [AppController::class, 'store']);
-    $routes->delete('delete/(:num)', [AppController::class, 'destroy/$1']);
-    $routes->get('edit/(:num)', [AppController::class, 'edit/$1']);
-    $routes->post('update/(:num)', [AppController::class, 'update/$1']);
+    $routes->get('/', [ChecksheetController::class, 'checksheet']);
+    $routes->get('table/(:num)', [ChecksheetController::class, 'detail/$1']);
+    $routes->get('create', [ChecksheetController::class, 'checksheetCreate']);
+    $routes->post('store', [ChecksheetController::class, 'store']);
+    $routes->delete('delete/(:num)', [ChecksheetController::class, 'destroy/$1']);
+    $routes->get('edit/(:num)', [ChecksheetController::class, 'edit/$1']);
+    $routes->post('update/(:num)', [ChecksheetController::class, 'update/$1']);
     $routes->post('save-status', [DetailChecksheetController::class, 'saveStatus']);
     $routes->post('detail-checksheet/update-ng-to-ok', [DetailChecksheetController::class, 'updateNGtoOK']);
 });

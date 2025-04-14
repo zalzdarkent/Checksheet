@@ -107,8 +107,8 @@
                                             <?php if ($status == 'OK'): ?>
                                                 <span class="badge bg-success">OK</span>
                                             <?php elseif ($status == 'NG'): ?>
-                                                <?php if ($statusArray[$row['item_check']]['is_resolved'] ?? false): ?>
-                                                    <span class="badge bg-warning text-dark">NG</span>
+                                                <?php if (isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
+                                                    <span class="badge bg-warning">NG</span>
                                                 <?php else: ?>
                                                     <span class="badge bg-danger">NG</span>
                                                 <?php endif; ?>
@@ -118,8 +118,8 @@
                                                 <?php if ($status == 'OK'): ?>
                                                     <span class="badge bg-success">OK</span>
                                                 <?php elseif ($status == 'NG'): ?>
-                                                    <?php if ($statusArray[$row['item_check']]['is_resolved'] ?? false): ?>
-                                                        <span class="badge bg-warning text-dark">NG</span>
+                                                    <?php if (isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
+                                                        <span class="badge bg-warning">NG</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-danger">NG</span>
                                                     <?php endif; ?>
@@ -128,7 +128,7 @@
                                                 <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
                                                     data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
-                                                <?php if ($status == 'NG' && ($statusArray[$row['item_check']]['is_resolved'] ?? false)): ?>
+                                                <?php if ($status == 'NG' && isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
                                                     <button type="button" class="btn btn-outline-warning btn-sm active"
                                                         data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
                                                 <?php else: ?>
@@ -342,6 +342,14 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Create a hidden input for the action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = action;
+                document.getElementById('checksheet-form').appendChild(actionInput);
+                
+                // Submit the form
                 document.getElementById('checksheet-form').submit();
             }
         });
