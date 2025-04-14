@@ -171,7 +171,7 @@ class ChecksheetController extends BaseController
 
         /// Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -195,7 +195,10 @@ class ChecksheetController extends BaseController
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
             // Simpan status dan id_karyawan ke array
-            $statusArray[$row['item_check']][$row['kolom']] = $row['status'];
+            $statusArray[$row['item_check']][$row['kolom']] = [
+                'status' => $row['status'],
+                'is_resolved' => $row['is_resolved']
+            ];
             if (!empty($row['id_karyawan'])) {
                 $npkArray[$row['kolom']] = $row['id_karyawan'];
             }
@@ -219,6 +222,7 @@ class ChecksheetController extends BaseController
             'isSubmitted' => $isSubmitted,
             'karyawanList' => $karyawanList,
         ];
+        // dd($statusArray);
 
         return view('checksheet/tabel', $data);
     }

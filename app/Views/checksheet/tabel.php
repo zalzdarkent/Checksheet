@@ -67,7 +67,7 @@
                         <?php
                         $jumlahKolom = date('t', strtotime($checksheet['bulan']));
                         for ($i = 1; $i <= $jumlahKolom; $i++):
-                            ?>
+                        ?>
                             <th class="custom-header text-center align-middle"><?= $i ?></th>
                             <input type="hidden" name="tanggal[<?= $i ?>]" value="<?= $i ?>">
                         <?php endfor; ?>
@@ -98,7 +98,7 @@
                             $jumlahKolom = date('t', strtotime($checksheet['bulan']));
                             for ($i = 1; $i <= $jumlahKolom; $i++):
                                 $status = $statusArray[$row['item_check']][$i] ?? null;
-                                ?>
+                            ?>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
                                         <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="">
@@ -128,9 +128,30 @@
                                                 <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
                                                     data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
-                                                <?php if ($status == 'NG' && isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
-                                                    <button type="button" class="btn btn-outline-warning btn-sm active"
-                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <?php
+                                                // var_dump($statusArray[$row['item_check']]);
+                                                // echo '<br>';
+                                                // var_dump($status['is_resolved']);
+                                                // var_dump($statusArray[$row['item_check']]['is_resolved']);
+                                                // die();
+                                                ?>
+                                                <?php
+                                                if (empty($status['status'])) {
+                                                ?>
+
+                                                    <?php
+                                                } else {
+                                                    if (isset($status['status']) && $status['is_resolved'] != null && $status['status'] == 'NG'): ?>
+                                                        <button type="button" class="btn btn-outline-warning btn-sm active"
+                                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                    <?php else: ?>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm <?= ($status['is_resolved'] == null && $status['status'] == 'NG') ? 'active' : '' ?>"
+                                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <?php endif;
+                                                }
+                                                ?>
+                                                <?php if (isset($status['status']) && $status['status'] == 'NG'): ?>
+
                                                 <?php else: ?>
                                                     <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
                                                         data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
@@ -152,7 +173,7 @@
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
                             <td class="text-center">
                                 <?php if ($isSubmitted): ?>
-                                    <?php 
+                                    <?php
                                     $selectedNPK = $npkArray[$i] ?? '';
                                     $selectedKaryawan = null;
                                     if ($selectedNPK) {
@@ -269,7 +290,7 @@
                 }
 
                 // Update tampilan button
-                
+
                 const parentDiv = this.parentElement;
                 parentDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
                 this.classList.add("active");
@@ -348,7 +369,7 @@
                 actionInput.name = 'action';
                 actionInput.value = action;
                 document.getElementById('checksheet-form').appendChild(actionInput);
-                
+
                 // Submit the form
                 document.getElementById('checksheet-form').submit();
             }
