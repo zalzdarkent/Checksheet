@@ -28,34 +28,33 @@ class DashboardV3Controller extends BaseController
         $currentMonthYear = $currentYear . '-' . $currentMonth;
 
         // Get filter parameters
-        $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonthYear; // Default to current month-year
+        $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonthYear;
         $filterMesin = $this->request->getGet('filterMesin');
 
-        // Extract year and month from filterBulan if it's in 'YYYY-MM' format
+        // Extract year and month from filterBulan
         if ($filterBulan) {
-            $filterYear = substr($filterBulan, 0, 4); // Extract year
-            $filterMonth = substr($filterBulan, 5, 2); // Extract month
+            $filterYear = substr($filterBulan, 0, 4);
+            $filterMonth = substr($filterBulan, 5, 2);
         } else {
             $filterYear = $currentYear;
             $filterMonth = $currentMonth;
         }
 
-        // Build the formatted filter month-year for query (e.g., 2025-04)
+        // Build the formatted filter month-year
         $filterMonthFormatted = sprintf('%04d-%02d', $filterYear, $filterMonth);
 
         // Calculate the number of days in the selected month
         $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $filterMonth, $filterYear);
 
-        // Build query to get machine status data
+        // Get all machines for the selected month
         $query = $this->checksheetModel->select("
-        preuse_tb_checksheet.mesin,
-        preuse_tb_checksheet.id_machine,
-        preuse_tb_detail_checksheet.tanggal,
-        MAX(CASE WHEN preuse_tb_detail_checksheet.status = 'NG' THEN 1 ELSE 0 END) as has_ng
+            preuse_tb_checksheet.mesin,
+            preuse_tb_checksheet.id_machine,
+            preuse_tb_detail_checksheet.tanggal,
+            preuse_tb_detail_checksheet.status
         ")
-        ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id')
-        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted)
-        ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');
+        ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id', 'left')
+        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted);
 
         if (!empty($filterMesin)) {
             $query->where('preuse_tb_checksheet.id_machine LIKE', "%$filterMesin%");
@@ -63,33 +62,12 @@ class DashboardV3Controller extends BaseController
 
         $results = $query->findAll();
 
-        // Process results into machine data array
-        $machineData = [];
-        foreach ($results as $row) {
-            $machineId = $row['id_machine'];
-            if (!isset($machineData[$machineId])) {
-                $machineData[$machineId] = [
-                    'mesin' => $row['mesin'],
-                    'id_machine' => $machineId,
-                    'days' => []
-                ];
-            }
-
-            // Extract day from tanggal
-            $day = date('j', strtotime($row['tanggal']));
-            // Set status to NG if has_ng is 1, otherwise OK
-            $machineData[$machineId]['days'][$day] = $row['has_ng'] ? 'NG' : 'OK';
-        }
-
         // Get unique machines for filter dropdown
-        $machines = $this->db->query("
-            SELECT DISTINCT 
-                id_machine,
-                mesin 
-            FROM preuse_tb_checksheet 
-            WHERE bulan = ?
-            ORDER BY id_machine
-        ", [$filterMonthFormatted])->getResultArray();
+        $machines = $this->checksheetModel->select("id_machine, mesin")
+            ->distinct()
+            ->where('bulan', $filterMonthFormatted)
+            ->orderBy('id_machine')
+            ->findAll();
 
         // Process machines array to extract machine types
         $processedMachines = [];
@@ -106,6 +84,31 @@ class DashboardV3Controller extends BaseController
             }
         }
 
+        // Process results into machine data array
+        $machineData = [];
+        foreach ($machines as $machine) {
+            $machineId = $machine['id_machine'];
+            $machineData[$machineId] = [
+                'mesin' => $machine['mesin'],
+                'id_machine' => $machineId,
+                'days' => []
+            ];
+
+            // Initialize all days as EMPTY
+            for ($day = 1; $day <= $jumlahHari; $day++) {
+                $machineData[$machineId]['days'][$day] = 'EMPTY';
+            }
+        }
+
+        // Update status for days that have data
+        foreach ($results as $row) {
+            $machineId = $row['id_machine'];
+            if (isset($machineData[$machineId]) && !empty($row['tanggal'])) {
+                $day = date('j', strtotime($row['tanggal']));
+                $machineData[$machineId]['days'][$day] = $row['status'];
+            }
+        }
+
         $data = [
             'title' => 'Dashboard v3',
             'machineData' => array_values($machineData),
@@ -113,7 +116,7 @@ class DashboardV3Controller extends BaseController
             'filterBulan' => $filterBulan,
             'filterMesin' => $filterMesin,
             'jumlahHari' => $jumlahHari,
-            'bulan' => $filterMonthFormatted // Tambahkan data bulan ke view
+            'bulan' => $filterMonthFormatted
         ];
 
         return view('layouts/dashboard_v3', $data);

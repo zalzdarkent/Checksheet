@@ -226,24 +226,32 @@
                             </span>
                         </td>
                         <?php for ($day = 1; $day <= $jumlahHari; $day++): ?>
+                            <?php
+                            $status = $machine['days'][$day] ?? 'EMPTY';
+                            $statusClass = '';
+                            $statusIcon = '';
+                            
+                            switch ($status) {
+                                case 'OK':
+                                    $statusClass = 'status-ok';
+                                    $statusIcon = 'bi-check-circle-fill';
+                                    break;
+                                case 'NG':
+                                    $statusClass = 'status-ng';
+                                    $statusIcon = 'bi-x-circle-fill';
+                                    break;
+                                default:
+                                    $statusClass = 'status-empty';
+                                    $statusIcon = 'bi-dash-circle-fill';
+                            }
+                            ?>
                             <td class="py-3 px-4">
-                                <?php if (isset($machine['days'][$day])): ?>
-                                    <?php if ($machine['days'][$day] == 'OK'): ?>
-                                        <div class="status-badge status-ok" data-bs-toggle="tooltip" title="Status OK">
-                                            <i class="bi bi-check-circle-fill"></i>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="status-badge status-ng" data-bs-toggle="tooltip" title="Status NG" 
-                                            onclick="showNGDetails('<?= $machine['id_machine'] ?>', '<?= $machine['mesin'] ?>', <?= $day ?>)"
-                                            style="cursor: pointer;">
-                                            <i class="bi bi-x-circle-fill"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <div class="status-badge status-empty" data-bs-toggle="tooltip" title="Belum ada data">
-                                        <i class="bi bi-dash-circle"></i>
-                                    </div>
-                                <?php endif; ?>
+                                <div class="status-badge <?= $statusClass ?>" 
+                                     data-machine-id="<?= $machine['id_machine'] ?>"
+                                     data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
+                                     title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
+                                    <i class="bi <?= $statusIcon ?>"></i>
+                                </div>
                             </td>
                         <?php endfor; ?>
                     </tr>
