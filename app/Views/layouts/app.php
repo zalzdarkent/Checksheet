@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/icon/bootstrap-icons.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/icon/bootstrap-icons.min.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/jquery/jquery-ui.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/jquery/jquery-ui.min.js') ?>">
     <title><?= $this->renderSection('title') ?></title>
     <style>
         .custom-header {
@@ -36,6 +35,7 @@
     <!-- Scripts -->
     <script src="<?= base_url('assets/jquery/jquery-3.7.1.min.js') ?>"></script>
     <script src="<?= base_url('assets/jquery/jquery.dataTables.min.js') ?>"></script>
+    <script src="<?= base_url('assets/jquery/jquery-ui.min.js') ?>"></script>
 
     <!-- Additional Scripts -->
     <?= $this->renderSection('scripts') ?>
