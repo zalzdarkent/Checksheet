@@ -57,12 +57,12 @@ class DashboardV3Controller extends BaseController
         ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted);
 
         if (!empty($filterMesin)) {
-            $query->where('preuse_tb_checksheet.id_machine LIKE', "%$filterMesin%");
+            $query->where("preuse_tb_checksheet.id_machine LIKE", "%-$filterMesin-%");
         }
 
         $results = $query->findAll();
 
-        // Get unique machines for filter dropdown
+        // Get unique machines for filter dropdown (always show all types)
         $machines = $this->checksheetModel->select("id_machine, mesin")
             ->distinct()
             ->where('bulan', $filterMonthFormatted)
@@ -74,11 +74,11 @@ class DashboardV3Controller extends BaseController
         foreach ($machines as $machine) {
             $parts = explode('-', $machine['id_machine']);
             if (count($parts) >= 3) {
-                $machineType = $parts[1];
+                $machineType = $parts[1]; // Get the middle part (PR2, PR1, UTY)
                 if (!isset($processedMachines[$machineType])) {
                     $processedMachines[$machineType] = [
-                        'id_machine' => $machine['id_machine'],
-                        'mesin' => $machine['mesin']
+                        'id_machine' => $machineType,
+                        'mesin' => $machineType
                     ];
                 }
             }
@@ -88,6 +88,12 @@ class DashboardV3Controller extends BaseController
         $machineData = [];
         foreach ($machines as $machine) {
             $machineId = $machine['id_machine'];
+            
+            // Skip machines that don't match the filter
+            if (!empty($filterMesin) && strpos($machineId, "-$filterMesin-") === false) {
+                continue;
+            }
+
             $machineData[$machineId] = [
                 'mesin' => $machine['mesin'],
                 'id_machine' => $machineId,

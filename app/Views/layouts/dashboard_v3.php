@@ -151,12 +151,12 @@
 
             <!-- Filter Mesin -->
             <div class="col-md-4">
-                <label for="filterMesin" class="form-label fw-semibold text-primary">⚙️ ID Mesin</label>
+                <label for="filterMesin" class="form-label fw-semibold text-primary">⚙️ Tipe Mesin</label>
                 <select id="filterMesin" name="filterMesin" class="form-select rounded-3 shadow-sm">
-                    <option value="">Semua Mesin</option>
+                    <option value="">Semua Tipe</option>
                     <?php foreach ($machines as $machine): ?>
                         <?php 
-                        // Extract the middle part of the machine ID (e.g., UTY from D-UTY-SCB-003)
+                        // Extract the middle part of the machine ID (e.g., PR2 from D-PR2-AMB-CUTT-001)
                         $parts = explode('-', $machine['id_machine']);
                         $machineType = count($parts) >= 3 ? $parts[1] : $machine['id_machine'];
                         ?>
