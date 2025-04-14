@@ -422,6 +422,12 @@
                 if (data && data.length > 0) {
                     data.forEach(item => {
                         const row = document.createElement('tr');
+                        row.style.cursor = 'pointer';
+                        row.onclick = function() {
+                            if (item.status_change_log_id) {
+                                window.location.href = `/open-ticket/change-status/${item.status_change_log_id}`;
+                            }
+                        };
                         row.innerHTML = `
                             <td>${item.item_check || '-'}</td>
                             <td>${item.inspeksi || '-'}</td>
@@ -430,6 +436,12 @@
                         `;
                         tbody.appendChild(row);
                     });
+                    
+                    // Set the change status link
+                    const firstItem = data[0];
+                    if (firstItem && firstItem.id) {
+                        document.getElementById('changeStatusLink').href = `/open-ticket/change-status/${firstItem.id}`;
+                    }
                 } else {
                     // Jika tidak ada data, tampilkan pesan
                     const row = document.createElement('tr');

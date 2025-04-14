@@ -140,9 +140,10 @@ class DashboardV3Controller extends BaseController
 
         // Query untuk mendapatkan data NG
         $db = \Config\Database::connect();
-        $builder = $db->table('preuse_tb_detail_checksheet dc');
-        $builder->select('dc.item_check, dc.inspeksi, dc.standar, dc.status');
-        $builder->join('preuse_tb_checksheet cs', 'dc.checksheet_id = cs.id');
+        $builder = $db->table('preuse_tb_checksheet cs');
+        $builder->select('dc.id as detail_id, dc.item_check, dc.inspeksi, dc.standar, dc.status, scl.id as status_change_log_id');
+        $builder->join('preuse_tb_detail_checksheet dc', 'cs.id = dc.checksheet_id');
+        $builder->join('preuse_tb_status_change_log scl', 'dc.id = scl.detail_checksheet_id', 'left');
         $builder->where('cs.id_machine', $machineId);
         $builder->where('dc.tanggal', $date);
         $builder->where('dc.status', 'NG');
