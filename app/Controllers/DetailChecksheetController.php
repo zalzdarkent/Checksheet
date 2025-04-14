@@ -37,9 +37,27 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Data checksheet tidak ditemukan!');
         }
 
+        // Cek apakah data sudah disubmit sebelumnya
+        $existingSubmittedData = $model->where([
+            'checksheet_id' => $checksheetId,
+            'is_submitted' => 1
+        ])->first();
+
+        if ($existingSubmittedData && $action == 'submit') {
+            return redirect()->back()->with('error', 'Data sudah disubmit sebelumnya dan tidak bisa diubah!');
+        }
+
         $today = date('j');
         $hasChanges = false;
         $isSubmitted = ($action == 'submit') ? 1 : 0;
+
+        // Debug nilai action dan is_submitted
+        // dd([
+        //     'action' => $action,
+        //     'is_submitted' => $isSubmitted,
+        //     'post_data' => $this->request->getPost(),
+        //     'isSubmitted_before' => $existingSubmittedData ? true : false
+        // ]);
 
         // Process NPK updates first
         foreach ($npkData as $colIndex => $karyawanId) {
@@ -258,7 +276,6 @@ class DetailChecksheetController extends BaseController
         // Hitung total log status
         $totalLogs = $statusLogModel->countAll();
 
-        dd($totalLogs);
         // Kirim data ke view
         return view('layouts/app', ['totalLogs' => $totalLogs]);
     }

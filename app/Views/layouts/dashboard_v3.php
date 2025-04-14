@@ -39,22 +39,21 @@
     .bg-gradient-primary {
         background: linear-gradient(135deg, #273749, #4a6b8a);
     }
-
+    
     .table {
         border-collapse: separate;
         border-spacing: 0;
     }
-
+    
     .table th {
         font-weight: 600;
         letter-spacing: 0.5px;
     }
-
-    .table td,
-    .table th {
+    
+    .table td, .table th {
         vertical-align: middle;
     }
-
+    
     .status-badge {
         width: 32px;
         height: 32px;
@@ -66,74 +65,71 @@
         transition: all 0.3s ease;
         cursor: pointer;
     }
-
+    
     .status-badge:hover {
         transform: scale(1.1);
     }
-
+    
     .status-ok {
         background-color: rgba(40, 167, 69, 0.1);
         color: #28a745;
     }
-
+    
     .status-ng {
         background-color: rgba(255, 193, 7, 0.1);
         color: #ffc107;
     }
-
+    
     .status-empty {
         background-color: rgba(108, 117, 125, 0.1);
         color: #6c757d;
     }
-
+    
     .badge {
         font-weight: 500;
         letter-spacing: 0.5px;
         transition: all 0.3s ease;
     }
-
+    
     .badge:hover {
         transform: translateY(-2px);
     }
-
+    
     @media (max-width: 768px) {
         .table-responsive {
             margin: 0 -1rem;
             padding: 0 1rem;
         }
-
-        .table th,
-        .table td {
+        
+        .table th, .table td {
             padding: 0.75rem 0.5rem;
             font-size: 0.9rem;
         }
-
+        
         .status-badge {
             width: 28px;
             height: 28px;
             font-size: 1rem;
         }
-
+        
         .badge {
             padding: 0.5rem 0.75rem;
             font-size: 0.8rem;
         }
     }
-
+    
     @media (max-width: 576px) {
-
-        .table th,
-        .table td {
+        .table th, .table td {
             padding: 0.5rem 0.25rem;
             font-size: 0.85rem;
         }
-
+        
         .status-badge {
             width: 24px;
             height: 24px;
             font-size: 0.9rem;
         }
-
+        
         .badge {
             padding: 0.4rem 0.6rem;
             font-size: 0.75rem;
@@ -159,7 +155,7 @@
                 <select id="filterMesin" name="filterMesin" class="form-select rounded-3 shadow-sm">
                     <option value="">Semua Mesin</option>
                     <?php foreach ($machines as $machine): ?>
-                        <?php
+                        <?php 
                         // Extract the middle part of the machine ID (e.g., UTY from D-UTY-SCB-003)
                         $parts = explode('-', $machine['id_machine']);
                         $machineType = count($parts) >= 3 ? $parts[1] : $machine['id_machine'];
@@ -237,7 +233,7 @@
                                             <i class="bi bi-check-circle-fill"></i>
                                         </div>
                                     <?php else: ?>
-                                        <div class="status-badge status-ng" data-bs-toggle="tooltip" title="Status NG"
+                                        <div class="status-badge status-ng" data-bs-toggle="tooltip" title="Status NG" 
                                             onclick="showNGDetails('<?= $machine['id_machine'] ?>', '<?= $machine['mesin'] ?>', <?= $day ?>)"
                                             style="cursor: pointer;">
                                             <i class="bi bi-x-circle-fill"></i>
@@ -298,7 +294,7 @@
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
@@ -409,7 +405,7 @@
                 const tbody = document.getElementById('ngDetailsTableBody');
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="text-center text-warning">
+                        <td colspan="4" class="text-center text-danger">
                             Terjadi kesalahan saat mengambil data NG
                         </td>
                     </tr>
@@ -418,11 +414,20 @@
                 modal.show();
             });
     }
+</script>
+<?= $this->endSection() ?>
 
+<?= $this->section('scripts') ?>
+<!-- jQuery UI CSS -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<!-- jQuery UI JS -->
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 

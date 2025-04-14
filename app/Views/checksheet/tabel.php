@@ -114,15 +114,27 @@
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
-                                                data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
-
-                                            <?php if ($status == 'NG' && ($statusArray[$row['item_check']]['is_resolved'] ?? false)): ?>
-                                                <button type="button" class="btn btn-outline-warning btn-sm active"
-                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                            <?php if ($isSubmitted): ?>
+                                                <?php if ($status == 'OK'): ?>
+                                                    <span class="badge bg-success">OK</span>
+                                                <?php elseif ($status == 'NG'): ?>
+                                                    <?php if ($statusArray[$row['item_check']]['is_resolved'] ?? false): ?>
+                                                        <span class="badge bg-warning text-dark">NG</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-danger">NG</span>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
                                             <?php else: ?>
-                                                <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
-                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
+                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
+
+                                                <?php if ($status == 'NG' && ($statusArray[$row['item_check']]['is_resolved'] ?? false)): ?>
+                                                    <button type="button" class="btn btn-outline-warning btn-sm active"
+                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
+                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
@@ -139,14 +151,36 @@
                                     data-bs-title="Pilih NPK yang sesuai">(?)</span></label></td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
                             <td class="text-center">
-                                <select class="form-select" name="npk[<?= $i ?>]" <?= $isSubmitted ? 'disabled' : '' ?>>
-                                    <option value="">Pilih NPK</option>
-                                    <?php foreach ($karyawanList as $karyawan): ?>
-                                        <option value="<?= $karyawan['id'] ?>" <?= ($npkArray[$i] ?? '') == $karyawan['id'] ? 'selected' : '' ?>>
-                                            <?= $karyawan['npk'] ?> - <?= $karyawan['nama'] ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <?php if ($isSubmitted): ?>
+                                    <?php 
+                                    $selectedNPK = $npkArray[$i] ?? '';
+                                    $selectedKaryawan = null;
+                                    if ($selectedNPK) {
+                                        foreach ($karyawanList as $karyawan) {
+                                            if ($karyawan['id'] == $selectedNPK) {
+                                                $selectedKaryawan = $karyawan;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <?php if ($selectedKaryawan): ?>
+                                        <span class="badge bg-info">
+                                            <?= $selectedKaryawan['npk'] ?> - <?= $selectedKaryawan['nama'] ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Belum diisi</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <select class="form-select" name="npk[<?= $i ?>]">
+                                        <option value="">Pilih NPK</option>
+                                        <?php foreach ($karyawanList as $karyawan): ?>
+                                            <option value="<?= $karyawan['id'] ?>" <?= ($npkArray[$i] ?? '') == $karyawan['id'] ? 'selected' : '' ?>>
+                                                <?= $karyawan['npk'] ?> - <?= $karyawan['nama'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php endif; ?>
                             </td>
                         <?php endfor; ?>
                     </tr>
@@ -158,8 +192,8 @@
             <button type="submit" class="btn btn-primary mt-3" disabled>Simpan</button>
             <button type="submit" class="btn btn-success mt-3" disabled>Kirim</button>
         <?php else: ?>
-            <button type="submit" name="action" value="save" class="btn btn-primary mt-3">Simpan</button>
-            <button type="submit" name="action" value="submit" class="btn btn-success mt-3">Kirim</button>
+            <button type="submit" name="action" value="save" class="btn btn-primary mt-3" id="btn-save">Simpan</button>
+            <button type="submit" name="action" value="submit" class="btn btn-success mt-3" id="btn-submit">Kirim</button>
         <?php endif; ?>
     </form>
 </main>
@@ -172,8 +206,33 @@
         const buttons = document.querySelectorAll(".btn-outline-success, .btn-outline-danger, .btn-outline-warning");
         let filledColumns = [];
 
+        // Cek apakah form sudah disubmit sebelumnya
+        const isSubmitted = <?= $isSubmitted ? 'true' : 'false' ?>;
+        if (isSubmitted) {
+            document.querySelectorAll('select[name^="npk"]').forEach(select => {
+                select.disabled = true;
+            });
+            document.querySelectorAll('.btn-outline-success, .btn-outline-danger, .btn-outline-warning').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        // Set status aktif berdasarkan data yang tersimpan
+        document.querySelectorAll('input[name^="status"]').forEach(input => {
+            const status = input.value;
+            if (status) {
+                const index = input.name.match(/\[(\d+)\]\[(\d+)\]/)[1];
+                const col = input.name.match(/\[(\d+)\]\[(\d+)\]/)[2];
+                const button = document.querySelector(`button[data-index="${index}"][data-col="${col}"][data-value="${status}"]`);
+                if (button) {
+                    button.classList.add('active');
+                }
+            }
+        });
+
         buttons.forEach(button => {
             button.addEventListener("click", function() {
+                if (isSubmitted) return; // Jangan izinkan perubahan jika sudah disubmit
                 const index = this.dataset.index;
                 const col = this.dataset.col;
                 const value = this.dataset.value;
@@ -210,6 +269,7 @@
                 }
 
                 // Update tampilan button
+                
                 const parentDiv = this.parentElement;
                 parentDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
                 this.classList.add("active");
