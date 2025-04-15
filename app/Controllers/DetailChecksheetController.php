@@ -146,11 +146,21 @@ class DetailChecksheetController extends BaseController
                         ]);
                         $detailId = $model->getInsertID();
                         if ($status === 'NG') {
-                            $statusLogModel = new StatusChangeLog();
-                            $statusLogModel->insert([
-                                'detail_checksheet_id' => $detailId,
-                                'previous_status' => 'NG',
-                            ]);
+                            // Cek apakah item yang sama masih NG di kolom sebelumnya
+                            $previousNG = $model->where([
+                                'checksheet_id' => $checksheetId,
+                                'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                                'kolom' => intval($colIndex) - 1,
+                                'status' => 'NG'
+                            ])->first();
+
+                            if (!$previousNG) {
+                                $statusLogModel = new StatusChangeLog();
+                                $statusLogModel->insert([
+                                    'detail_checksheet_id' => $detailId,
+                                    'previous_status' => 'NG',
+                                ]);
+                            }
                         }
                     } else {
                         $model->update($existing['id'], [
@@ -160,11 +170,21 @@ class DetailChecksheetController extends BaseController
                             'is_submitted' => $isSubmitted
                         ]);
                         if ($status === 'NG') {
-                            $statusLogModel = new StatusChangeLog();
-                            $statusLogModel->insert([
-                                'detail_checksheet_id' => $existing['id'],
-                                'previous_status' => 'NG',
-                            ]);
+                            // Cek apakah item yang sama masih NG di kolom sebelumnya
+                            $previousNG = $model->where([
+                                'checksheet_id' => $checksheetId,
+                                'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                                'kolom' => intval($colIndex) - 1,
+                                'status' => 'NG'
+                            ])->first();
+
+                            if (!$previousNG) {
+                                $statusLogModel = new StatusChangeLog();
+                                $statusLogModel->insert([
+                                    'detail_checksheet_id' => $existing['id'],
+                                    'previous_status' => 'NG',
+                                ]);
+                            }
                         }
                     }
                     $hasChanges = true;
@@ -354,11 +374,19 @@ class DetailChecksheetController extends BaseController
             'changed_at' => date('Y-m-d H:i:s')
         ]);
 
-        // Jika status diubah menjadi OK, tandai detail checksheet sebagai resolved
+        // Jika status diubah menjadi OK, tandai semua detail checksheet yang terkait sebagai resolved
         if ($newStatus === 'OK') {
-            $detailChecksheetModel->where('id', $log['detail_checksheet_id'])
-                ->set(['is_resolved' => 1])
-                ->update();
+            // Ambil detail checksheet yang terkait dengan log ini
+            $detailChecksheet = $detailChecksheetModel->find($log['detail_checksheet_id']);
+            
+            if ($detailChecksheet) {
+                // Update semua detail checksheet dengan item_check yang sama dan status NG
+                $detailChecksheetModel->where([
+                    'checksheet_id' => $detailChecksheet['checksheet_id'],
+                    'item_check' => $detailChecksheet['item_check'],
+                    'status' => 'NG'
+                ])->set(['is_resolved' => 1])->update();
+            }
         }
 
         return redirect()->to('open-ticket')->with('success', 'Status berhasil diupdate');

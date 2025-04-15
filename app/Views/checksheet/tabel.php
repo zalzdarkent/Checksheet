@@ -125,21 +125,15 @@
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                             <?php else: ?>
-                                                <button type="button" class="btn btn-outline-success btn-sm <?= ($status == 'OK') ? 'active' : '' ?>"
+                                                <button type="button" class="btn btn-outline-success btn-sm <?= (isset($status['status']) && $status['status'] == 'OK') ? 'active' : '' ?>"
                                                     data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
                                                 <?php
-                                                // var_dump($statusArray[$row['item_check']]);
-                                                // echo '<br>';
-                                                // var_dump($status['is_resolved']);
-                                                // var_dump($statusArray[$row['item_check']]['is_resolved']);
-                                                // die();
-                                                ?>
-                                                <?php
                                                 if (empty($status['status'])) {
                                                 ?>
-
-                                                    <?php
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                <?php
                                                 } else {
                                                     if (isset($status['status']) && $status['is_resolved'] != null && $status['status'] == 'NG'): ?>
                                                         <button type="button" class="btn btn-outline-warning btn-sm active"
@@ -150,12 +144,6 @@
                                                 <?php endif;
                                                 }
                                                 ?>
-                                                <?php if (isset($status['status']) && $status['status'] == 'NG'): ?>
-
-                                                <?php else: ?>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm <?= ($status == 'NG') ? 'active' : '' ?>"
-                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
-                                                <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
