@@ -51,14 +51,6 @@ class DetailChecksheetController extends BaseController
         $hasChanges = false;
         $isSubmitted = ($action == 'submit') ? 1 : 0;
 
-        // Debug nilai action dan is_submitted
-        // dd([
-        //     'action' => $action,
-        //     'is_submitted' => $isSubmitted,
-        //     'post_data' => $this->request->getPost(),
-        //     'isSubmitted_before' => $existingSubmittedData ? true : false
-        // ]);
-
         // Process NPK updates first
         foreach ($npkData as $colIndex => $karyawanId) {
             if (!empty($karyawanId)) {

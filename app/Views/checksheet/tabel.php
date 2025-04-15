@@ -101,7 +101,7 @@
                             ?>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="">
+                                        <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="<?= isset($status['status']) ? $status['status'] : '' ?>">
 
                                         <?php if ($isDeleted): ?>
                                             <?php if ($status == 'OK'): ?>
@@ -115,10 +115,10 @@
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <?php if ($isSubmitted): ?>
-                                                <?php if ($status == 'OK'): ?>
+                                                <?php if (isset($statusArray[$row['item_check']][$i]['status']) && $statusArray[$row['item_check']][$i]['status'] == 'OK'): ?>
                                                     <span class="badge bg-success">OK</span>
-                                                <?php elseif ($status == 'NG'): ?>
-                                                    <?php if (isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
+                                                <?php elseif (isset($statusArray[$row['item_check']][$i]['status']) && $statusArray[$row['item_check']][$i]['status'] == 'NG'): ?>
+                                                    <?php if (isset($statusArray[$row['item_check']][$i]['is_resolved']) && $statusArray[$row['item_check']][$i]['is_resolved'] !== null): ?>
                                                         <span class="badge bg-warning">NG</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-danger">NG</span>
@@ -226,19 +226,6 @@
             });
         }
 
-        // Set status aktif berdasarkan data yang tersimpan
-        document.querySelectorAll('input[name^="status"]').forEach(input => {
-            const status = input.value;
-            if (status) {
-                const index = input.name.match(/\[(\d+)\]\[(\d+)\]/)[1];
-                const col = input.name.match(/\[(\d+)\]\[(\d+)\]/)[2];
-                const button = document.querySelector(`button[data-index="${index}"][data-col="${col}"][data-value="${status}"]`);
-                if (button) {
-                    button.classList.add('active');
-                }
-            }
-        });
-
         buttons.forEach(button => {
             button.addEventListener("click", function() {
                 if (isSubmitted) return; // Jangan izinkan perubahan jika sudah disubmit
@@ -246,46 +233,20 @@
                 const col = this.dataset.col;
                 const value = this.dataset.value;
 
-                // Cek apakah sudah ada kolom lain yang diisi
-                if (filledColumns.length > 0 && !filledColumns.includes(col)) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Perhatian!',
-                        text: 'Anda hanya dapat mengisi satu kolom pada satu waktu. Silakan simpan data terlebih dahulu sebelum mengisi kolom berikutnya.',
-                    });
-                    return;
-                }
-
                 // Set nilai OK/NG di input hidden
                 const inputStatus = document.querySelector(`#status_${index}_${col}`);
                 inputStatus.value = value;
 
-                // Tambahkan kolom yang diisi ke array
-                if (!filledColumns.includes(col) && value !== "") {
-                    filledColumns.push(col);
-                    let filledInput = document.querySelector("#filled_columns");
-                    if (!filledInput) {
-                        filledInput = document.createElement("input");
-                        filledInput.type = "hidden";
-                        filledInput.id = "filled_columns";
-                        filledInput.name = "filled_columns";
-                        document.getElementById("checksheet-form").appendChild(filledInput);
-                    }
-                    filledInput.value = filledColumns.join(",");
-                } else if (value === "" && filledColumns.includes(col)) {
-                    filledColumns = filledColumns.filter(item => item !== col);
-                    document.querySelector("#filled_columns").value = filledColumns.join(",");
-                }
-
                 // Update tampilan button
-
                 const parentDiv = this.parentElement;
                 parentDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
                 this.classList.add("active");
 
                 // Wajib isi NPK
-                const npkInput = document.querySelector(`input[name='npk[${col}]']`);
-                npkInput.setAttribute("required", "required");
+                const npkInput = document.querySelector(`select[name='npk[${col}]']`);
+                if (npkInput) {
+                    npkInput.setAttribute("required", "required");
+                }
             });
         });
 
@@ -303,14 +264,22 @@
         let npkMissing = false;
         let action = event.submitter.value;
 
+        // Debug data form sebelum submit
+        console.log('Form Data:');
+        const formData = new FormData(document.getElementById('checksheet-form'));
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
         // Cek NPK untuk kolom yang diisi
-        document.querySelectorAll("input[name^='npk']").forEach(input => {
+        document.querySelectorAll("select[name^='npk']").forEach(input => {
             const col = input.name.match(/\d+/)[0];
             let isChecked = false;
 
             document.querySelectorAll(`input[name^='status'][name*='[${col}]']`).forEach(statusInput => {
                 if (statusInput.value !== "") {
                     isChecked = true;
+                    console.log(`Status found for column ${col}:`, statusInput.value);
                 }
             });
 
