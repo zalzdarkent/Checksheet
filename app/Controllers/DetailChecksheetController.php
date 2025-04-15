@@ -23,6 +23,7 @@ class DetailChecksheetController extends BaseController
     {
         $model = new DetailChecksheet();
         $checksheetModel = new Checksheet();
+        $statusLogModel = new StatusChangeLog();
 
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
@@ -60,16 +61,6 @@ class DetailChecksheetController extends BaseController
                     return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
                 }
 
-                $existingData = $model->where([
-                    'checksheet_id' => $checksheetId,
-                    'kolom' => intval($colIndex),
-                    'is_submitted' => 1
-                ])->first();
-
-                if ($existingData) {
-                    continue; // Skip if already submitted
-                }
-
                 // Update all rows for this column
                 $model->where([
                     'checksheet_id' => $checksheetId,
@@ -98,23 +89,6 @@ class DetailChecksheetController extends BaseController
                         return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
                     }
 
-                    $existingData = $model->where([
-                        'checksheet_id' => $checksheetId,
-                        'kolom' => intval($colIndex),
-                        'is_submitted' => 1
-                    ])->first();
-
-                    if ($existingData) {
-                        return redirect()->back()->with('error', 'Data untuk tanggal ' . $colIndex . ' sudah disubmit dan tidak bisa diubah!');
-                    }
-
-                    $existing = $model->where([
-                        'checksheet_id' => $checksheetId,
-                        'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                        'kolom' => intval($colIndex),
-                    ])->select('id, checksheet_id, kolom, item_check, status, npk, id_karyawan, is_submitted')
-                      ->first();
-
                     $fullDate = date('Y-m-d', strtotime($checksheet['bulan'] . '-' . $colIndex));
 
                     // Get karyawan data for this column
@@ -123,30 +97,47 @@ class DetailChecksheetController extends BaseController
                         return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
                     }
 
+                    // Check if record exists
+                    $existing = $model->where([
+                        'checksheet_id' => $checksheetId,
+                        'item_check' => $itemCheckData[$rowIndex],
+                        'kolom' => intval($colIndex)
+                    ])->first();
+
                     if (!$existing) {
+                        // Insert new record
                         $model->insert([
                             'checksheet_id' => $checksheetId,
                             'tanggal' => $fullDate,
                             'kolom' => intval($colIndex),
-                            'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
-                            'inspeksi' => $inspeksiData[$rowIndex] ?? '',
-                            'standar' => $standarData[$rowIndex] ?? '',
+                            'item_check' => $itemCheckData[$rowIndex],
+                            'inspeksi' => $inspeksiData[$rowIndex],
+                            'standar' => $standarData[$rowIndex],
                             'status' => $status,
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
                         $detailId = $model->getInsertID();
+                        
                         if ($status === 'NG') {
                             // Cek apakah item yang sama masih NG di kolom sebelumnya
                             $previousNG = $model->where([
                                 'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                                'item_check' => $itemCheckData[$rowIndex],
                                 'kolom' => intval($colIndex) - 1,
                                 'status' => 'NG'
                             ])->first();
 
-                            if (!$previousNG) {
+                            // Cek apakah sudah ada tiket yang belum diselesaikan untuk item ini
+                            $existingTicket = $statusLogModel->select('preuse_tb_status_change_log.*')
+                                ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
+                                ->where('preuse_tb_detail_checksheet.checksheet_id', $checksheetId)
+                                ->where('preuse_tb_detail_checksheet.item_check', $itemCheckData[$rowIndex])
+                                ->where('preuse_tb_status_change_log.new_status', null)
+                                ->first();
+
+                            if (!$previousNG && !$existingTicket) {
                                 $statusLogModel = new StatusChangeLog();
                                 $statusLogModel->insert([
                                     'detail_checksheet_id' => $detailId,
@@ -155,22 +146,32 @@ class DetailChecksheetController extends BaseController
                             }
                         }
                     } else {
+                        // Update existing record
                         $model->update($existing['id'], [
                             'status' => $status,
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
+                        
                         if ($status === 'NG') {
                             // Cek apakah item yang sama masih NG di kolom sebelumnya
                             $previousNG = $model->where([
                                 'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex] ?? 'UNKNOWN',
+                                'item_check' => $itemCheckData[$rowIndex],
                                 'kolom' => intval($colIndex) - 1,
                                 'status' => 'NG'
                             ])->first();
 
-                            if (!$previousNG) {
+                            // Cek apakah sudah ada tiket yang belum diselesaikan untuk item ini
+                            $existingTicket = $statusLogModel->select('preuse_tb_status_change_log.*')
+                                ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
+                                ->where('preuse_tb_detail_checksheet.checksheet_id', $checksheetId)
+                                ->where('preuse_tb_detail_checksheet.item_check', $itemCheckData[$rowIndex])
+                                ->where('preuse_tb_status_change_log.new_status', null)
+                                ->first();
+
+                            if (!$previousNG && !$existingTicket) {
                                 $statusLogModel = new StatusChangeLog();
                                 $statusLogModel->insert([
                                     'detail_checksheet_id' => $existing['id'],
