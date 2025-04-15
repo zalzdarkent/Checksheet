@@ -169,12 +169,15 @@ class ChecksheetController extends BaseController
             ->get()
             ->getResultArray();
 
-        /// Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
+        // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
+
+        // Debug data detailChecksheet
+        // dd($detailChecksheet);
 
         // Ambil data karyawan untuk dropdown NPK
         $karyawanList = $this->karyawanModel->findAll();
@@ -183,33 +186,35 @@ class ChecksheetController extends BaseController
         $statusArray = [];
         $npkArray = [];
         $isSubmitted = false;
+        $deletedItemChecks = []; // Array untuk menyimpan item_check yang dihapus
 
-        // Pertama, cek apakah ada data yang submitted
+        // Pertama, cek apakah ada data yang submitted dan kumpulkan item_check yang dihapus
         foreach ($detailChecksheet as $row) {
             if (!empty($row['is_submitted']) && $row['is_submitted'] == 1) {
                 $isSubmitted = true;
-                break;
+            }
+            
+            // Tambahkan item_check ke deletedItemChecks jika memiliki deleted_at
+            if (!empty($row['deleted_at'])) {
+                $deletedItemChecks[] = $row['item_check'];
             }
         }
+
+        // Debug deletedItemChecks
+        // dd($deletedItemChecks);
 
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
             // Simpan status dan id_karyawan ke array
             $statusArray[$row['item_check']][$row['kolom']] = [
                 'status' => $row['status'],
-                'is_resolved' => $row['is_resolved']
+                'is_resolved' => $row['is_resolved'],
+                'deleted_at' => $row['deleted_at'] // Tambahkan deleted_at ke statusArray
             ];
             if (!empty($row['id_karyawan'])) {
                 $npkArray[$row['kolom']] = $row['id_karyawan'];
             }
         }
-
-        // Debug data
-        // dd([
-        //     'detailChecksheet' => $detailChecksheet,
-        //     'npkArray' => $npkArray,
-        //     'karyawanList' => $karyawanList
-        // ]);
 
         $data = [
             'title' => 'Detail Checksheet',
@@ -221,8 +226,11 @@ class ChecksheetController extends BaseController
             'npkArray' => $npkArray,
             'isSubmitted' => $isSubmitted,
             'karyawanList' => $karyawanList,
+            'deletedItemChecks' => $deletedItemChecks // Tambahkan data yang dihapus ke view
         ];
-        // dd($statusArray);
+
+        // Debug data yang dikirim ke view
+        // dd($data);
 
         return view('checksheet/tabel', $data);
     }

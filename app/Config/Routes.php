@@ -30,7 +30,6 @@ $routes->group('checksheet', function ($routes) {
     $routes->get('edit/(:num)', [ChecksheetController::class, 'edit/$1']);
     $routes->post('update/(:num)', [ChecksheetController::class, 'update/$1']);
     $routes->post('save-status', [DetailChecksheetController::class, 'saveStatus']);
-    $routes->post('detail-checksheet/update-ng-to-ok', [DetailChecksheetController::class, 'updateNGtoOK']);
 });
 
 // Master Checksheet Routes Group
