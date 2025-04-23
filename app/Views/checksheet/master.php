@@ -10,7 +10,7 @@
         <div class="card-header bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="m-0 font-weight-bold">Master Checksheet Pre-Use</h5>
-                <a href="/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
+                <a href="<?=base_url()?>/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
             </div>
@@ -68,10 +68,10 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <a href="/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3">
+                                        <a href="<?=base_url()?>/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-                                        <a href="/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm rounded-pill px-3 ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        <a href="<?=base_url()?>/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm rounded-pill px-3 ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>

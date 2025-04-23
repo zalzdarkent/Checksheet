@@ -10,7 +10,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="/checksheet/update/<?= $checksheet['id'] ?>" method="post">
+            <form action="<?=base_url()?>/checksheet/update/<?= $checksheet['id'] ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="_method" value="POST">
 

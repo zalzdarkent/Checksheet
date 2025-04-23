@@ -38,7 +38,7 @@
     ?>
 
     <h2 class="text-center">Checksheet <?= esc($master['judul_checksheet']) ?></h2>
-    <a href="/checksheet" class="btn btn-secondary mb-3">Kembali</a>
+    <a href="<?=base_url()?>/checksheet" class="btn btn-secondary mb-3">Kembali</a>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>

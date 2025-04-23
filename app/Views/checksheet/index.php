@@ -73,13 +73,13 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href="/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm rounded-pill px-3">
+                                            <a href="<?=base_url()?>/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm rounded-pill px-3">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a href="/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
+                                            <a href="<?=base_url()?>/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form action="/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                            <form action="<?=base_url()?>/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="_method" value="DELETE">
                                                 <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 ms-1">
@@ -117,7 +117,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/checksheet/store" method="post" class="needs-validation" novalidate>
+                <form action="<?=base_url()?>/checksheet/store" method="post" class="needs-validation" novalidate>
                     <?= csrf_field() ?>
                     <div class="mb-3">
                         <label for="mesin" class="form-label">Mesin</label>

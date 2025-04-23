@@ -14,7 +14,7 @@ use App\Models\StatusChangeLog;
 <div class="offcanvas offcanvas-start sidebar-bg text-white d-md-none" id="offcanvasSidebar">
     <div class="offcanvas-header border-bottom border-secondary">
         <div class="text-center w-100">
-            <a href="/">
+            <a href="<?=base_url()?>/">
                 <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
             </a>
         </div>
@@ -22,27 +22,27 @@ use App\Models\StatusChangeLog;
     </div>
     <div class="offcanvas-body p-0">
         <div class="nav flex-column py-3">
-            <a href="/" class="nav-link sidebar-link" data-route="/">
+            <a href="<?=base_url()?>/" class="nav-link sidebar-link" data-route="/">
                 <i class="bi bi-speedometer2 me-2"></i>
                 Dashboard
             </a>
-            <a href="/dashboard-v2" class="nav-link sidebar-link" data-route="dashboard-v2">
+            <a href="<?=base_url()?>/dashboard-v2" class="nav-link sidebar-link" data-route="dashboard-v2">
                 <i class="bi bi-graph-up me-2"></i>
                 Dashboard v2
             </a>
-            <a href="/dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
+            <a href="<?=base_url()?>/dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
                 <i class="bi bi-globe2 me-2"></i>
                 Dashboard v3
             </a>
-            <a href="/master" class="nav-link sidebar-link" data-route="master">
+            <a href="<?=base_url()?>/master" class="nav-link sidebar-link" data-route="master">
                 <i class="bi bi-card-checklist me-2"></i>
                 Master Checksheet
             </a>
-            <a href="/checksheet" class="nav-link sidebar-link" data-route="checksheet">
+            <a href="<?=base_url()?>/checksheet" class="nav-link sidebar-link" data-route="checksheet">
                 <i class="bi bi-clipboard-check me-2"></i>
                 Checksheet
             </a>
-            <a href="/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
+            <a href="<?=base_url()?>/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
                 <i class="bi bi-ticket-detailed me-2"></i>
                 Open Ticket
                 <?php 
@@ -61,8 +61,8 @@ use App\Models\StatusChangeLog;
 
 <nav class="col-md-3 col-lg-2 d-none d-md-block sidebar-bg text-white min-vh-100 p-0">
     <div class="text-center py-4 border-bottom border-secondary">
-        <a href="/">
-            <img src="/logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
+        <a href="<?=base_url()?>/">
+            <img src="<?=base_url()?>logo/CBI_logo.png" alt="CBI Logo" class="img-fluid mb-2" style="max-width: 130px;">
         </a>
     </div>
     <div class="nav flex-column py-3">
@@ -74,30 +74,30 @@ use App\Models\StatusChangeLog;
             </a>
             <div class="collapse" id="dashboardSubmenu">
                 <div class="nav flex-column ms-3">
-                    <a href="/" class="nav-link sidebar-link" data-route="/">
+                    <a href="<?=base_url()?>" class="nav-link sidebar-link" data-route="/">
                         <i class="bi bi-speedometer2 me-2"></i>
                         Dashboard v1
                     </a>
-                    <a href="/dashboard-v2" class="nav-link sidebar-link" data-route="dashboard-v2">
+                    <a href="<?=base_url()?>dashboard-v2" class="nav-link sidebar-link" data-route="dashboard-v2">
                         <i class="bi bi-graph-up me-2"></i>
                         Dashboard v2
                     </a>
-                    <a href="/dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
+                    <a href="<?=base_url()?>dashboard-v3" class="nav-link sidebar-link" data-route="dashboard-v3">
                         <i class="bi bi-globe2 me-2"></i>
                         Dashboard v3
                     </a>
                 </div>
             </div>
         </div>
-        <a href="/master" class="nav-link sidebar-link" data-route="master">
+        <a href="<?=base_url()?>/master" class="nav-link sidebar-link" data-route="master">
             <i class="bi bi-card-checklist me-2"></i>
             Master Checksheet
         </a>
-        <a href="/checksheet" class="nav-link sidebar-link" data-route="checksheet">
+        <a href="<?=base_url()?>/checksheet" class="nav-link sidebar-link" data-route="checksheet">
             <i class="bi bi-clipboard-check me-2"></i>
             Checksheet
         </a>
-        <a href="/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
+        <a href="<?=base_url()?>/open-ticket" class="nav-link sidebar-link position-relative" data-route="open-ticket">
             <i class="bi bi-ticket-detailed me-2"></i>
             Open Ticket
             <?php 
