@@ -6,39 +6,8 @@
 
 <?= $this->section('content') ?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
-    <?php 
-    // Debug semua data yang diterima
-    // echo "Debug Data yang Diterima di View:<br>";
-    // echo "1. Checksheet Data:<br>";
-    // // dd($checksheet);
-    
-    // echo "2. Master Data:<br>";
-    // // dd($master);
-    
-    // echo "3. Detail Masters Data:<br>";
-    // // dd($detailMasters);
-    
-    // echo "4. Detail Checksheet Data:<br>";
-    // // dd($detailChecksheet);
-    
-    // echo "5. Status Array Data:<br>";
-    // dd($statusArray);
-    
-    // echo "6. NPK Array Data:<br>";
-    // dd($npkArray);
-    
-    // echo "7. Is Submitted:<br>";
-    // dd($isSubmitted);
-    
-    // echo "8. Karyawan List:<br>";
-    // dd($karyawanList);
-    
-    // echo "9. Deleted Item Checks:<br>";
-    // dd($deletedItemChecks);
-    ?>
-
     <h2 class="text-center">Checksheet <?= esc($master['judul_checksheet']) ?></h2>
-    <a href="<?=base_url()?>/checksheet" class="btn btn-secondary mb-3">Kembali</a>
+    <a href="/checksheet" class="btn btn-secondary mb-3">Kembali</a>
     <div class="card p-2 mt-3">
         <table class="table table-borderless" id="dataTable">
             <tbody>
@@ -105,59 +74,40 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    // Kelompokkan data berdasarkan item_check
-                    $groupedData = [];
-                    foreach ($detailChecksheet as $detail) {
-                        $itemCheck = $detail['item_check'];
-                        if (!isset($groupedData[$itemCheck])) {
-                            $groupedData[$itemCheck] = [
-                                'isDeleted' => !empty($detail['deleted_at']),
-                                'status' => [],
-                                'detail' => $detail
-                            ];
-                        }
-                        $groupedData[$itemCheck]['status'][$detail['kolom']] = [
-                            'status' => $detail['status'],
-                            'is_resolved' => $detail['is_resolved'],
-                            'deleted_at' => $detail['deleted_at']
-                        ];
-                    }
-                    
-                    $no = 1;
-                    foreach ($groupedData as $itemCheck => $data):
-                    ?>
-                        <tr class="<?= $data['isDeleted'] ? 'table-secondary' : '' ?>">
+                    <?php $no = 1; ?>
+                    <?php foreach ($detailMasters as $index => $row): ?>
+                        <?php $isDeleted = in_array($row['item_check'], $deletedItemChecks ?? []); ?>
+                        <tr class="<?= $isDeleted ? 'table-secondary' : '' ?>">
                             <td><?= $no++; ?></td>
                             <td>
-                                <?= esc($itemCheck); ?>
-                                <?php if ($data['isDeleted']): ?>
+                                <?= esc($row['item_check']); ?>
+                                <?php if ($isDeleted): ?>
                                     <span class="badge bg-secondary">Dihapus</span>
                                 <?php endif; ?>
-                                <input type="hidden" name="item_check[]" value="<?= esc($itemCheck); ?>">
+                                <input type="hidden" name="item_check[<?= $index ?>]" value="<?= esc($row['item_check']); ?>">
                             </td>
                             <td>
-                                <?= esc($data['detail']['inspeksi']); ?>
-                                <input type="hidden" name="inspeksi[]" value="<?= esc($data['detail']['inspeksi']); ?>">
+                                <?= esc($row['inspeksi']); ?>
+                                <input type="hidden" name="inspeksi[<?= $index ?>]" value="<?= esc($row['inspeksi']); ?>">
                             </td>
                             <td>
-                                <?= esc($data['detail']['standar']); ?>
-                                <input type="hidden" name="standar[]" value="<?= esc($data['detail']['standar']); ?>">
+                                <?= esc($row['standar']); ?>
+                                <input type="hidden" name="standar[<?= $index ?>]" value="<?= esc($row['standar']); ?>">
                             </td>
                             <?php
                             $jumlahKolom = date('t', strtotime($checksheet['bulan']));
                             for ($i = 1; $i <= $jumlahKolom; $i++):
-                                $status = $data['status'][$i] ?? null;
+                                $status = $statusArray[$row['item_check']][$i] ?? null;
                             ?>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <input type="hidden" name="status[<?= $itemCheck ?>][<?= $i ?>]" id="status_<?= $itemCheck ?>_<?= $i ?>" value="<?= isset($status['status']) ? $status['status'] : '' ?>">
+                                        <input type="hidden" name="status[<?= $index ?>][<?= $i ?>]" id="status_<?= $index ?>_<?= $i ?>" value="<?= isset($status['status']) ? $status['status'] : '' ?>">
 
-                                        <?php if ($data['isDeleted']): ?>
-                                            <?php if (isset($status['status']) && $status['status'] == 'OK'): ?>
+                                        <?php if ($isDeleted): ?>
+                                            <?php if ($status == 'OK'): ?>
                                                 <span class="badge bg-success">OK</span>
-                                            <?php elseif (isset($status['status']) && $status['status'] == 'NG'): ?>
-                                                <?php if (isset($status['is_resolved']) && $status['is_resolved'] !== null): ?>
+                                            <?php elseif ($status == 'NG'): ?>
+                                                <?php if (isset($statusArray[$row['item_check']]['is_resolved']) && $statusArray[$row['item_check']]['is_resolved'] !== null): ?>
                                                     <span class="badge bg-warning">NG</span>
                                                 <?php else: ?>
                                                     <span class="badge bg-danger">NG</span>
@@ -165,10 +115,10 @@
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <?php if ($isSubmitted): ?>
-                                                <?php if (isset($status['status']) && $status['status'] == 'OK'): ?>
+                                                <?php if (isset($statusArray[$row['item_check']][$i]['status']) && $statusArray[$row['item_check']][$i]['status'] == 'OK'): ?>
                                                     <span class="badge bg-success">OK</span>
-                                                <?php elseif (isset($status['status']) && $status['status'] == 'NG'): ?>
-                                                    <?php if (isset($status['is_resolved']) && $status['is_resolved'] !== null): ?>
+                                                <?php elseif (isset($statusArray[$row['item_check']][$i]['status']) && $statusArray[$row['item_check']][$i]['status'] == 'NG'): ?>
+                                                    <?php if (isset($statusArray[$row['item_check']][$i]['is_resolved']) && $statusArray[$row['item_check']][$i]['is_resolved'] !== null): ?>
                                                         <span class="badge bg-warning">NG</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-danger">NG</span>
@@ -176,21 +126,21 @@
                                                 <?php endif; ?>
                                             <?php else: ?>
                                                 <button type="button" class="btn btn-outline-success btn-sm <?= (isset($status['status']) && $status['status'] == 'OK') ? 'active' : '' ?>"
-                                                    data-item="<?= $itemCheck ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
+                                                    data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="OK">OK</button>
 
                                                 <?php
                                                 if (empty($status['status'])) {
                                                 ?>
                                                     <button type="button" class="btn btn-outline-danger btn-sm"
-                                                        data-item="<?= $itemCheck ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                        data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
                                                 <?php
                                                 } else {
                                                     if (isset($status['status']) && $status['is_resolved'] != null && $status['status'] == 'NG'): ?>
                                                         <button type="button" class="btn btn-outline-warning btn-sm active"
-                                                            data-item="<?= $itemCheck ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
                                                     <?php else: ?>
                                                         <button type="button" class="btn btn-outline-danger btn-sm <?= ($status['is_resolved'] == null && $status['status'] == 'NG') ? 'active' : '' ?>"
-                                                            data-item="<?= $itemCheck ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
+                                                            data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
                                                 <?php endif;
                                                 }
                                                 ?>
