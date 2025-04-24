@@ -137,7 +137,15 @@ class DetailChecksheetController extends BaseController
                                 ->where('preuse_tb_status_change_log.new_status', null)
                                 ->first();
 
-                            if (!$previousNG && !$existingTicket) {
+                            // Cek apakah ada status OK di antara NG sebelumnya
+                            $hasOKBetween = $model->where([
+                                'checksheet_id' => $checksheetId,
+                                'item_check' => $itemCheckData[$rowIndex],
+                                'kolom <' => intval($colIndex),
+                                'status' => 'OK'
+                            ])->first();
+
+                            if ((!$previousNG || $hasOKBetween) && !$existingTicket) {
                                 $statusLogModel = new StatusChangeLog();
                                 $statusLogModel->insert([
                                     'detail_checksheet_id' => $detailId,
@@ -153,6 +161,13 @@ class DetailChecksheetController extends BaseController
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
+                        
+                        // Jika status diubah dari NG menjadi OK, hapus tiket yang terkait
+                        if ($existing['status'] === 'NG' && $status === 'OK') {
+                            $statusLogModel->where('detail_checksheet_id', $existing['id'])
+                                         ->where('new_status', null)
+                                         ->delete();
+                        }
                         
                         if ($status === 'NG') {
                             // Cek apakah item yang sama masih NG di kolom sebelumnya
@@ -171,7 +186,15 @@ class DetailChecksheetController extends BaseController
                                 ->where('preuse_tb_status_change_log.new_status', null)
                                 ->first();
 
-                            if (!$previousNG && !$existingTicket) {
+                            // Cek apakah ada status OK di antara NG sebelumnya
+                            $hasOKBetween = $model->where([
+                                'checksheet_id' => $checksheetId,
+                                'item_check' => $itemCheckData[$rowIndex],
+                                'kolom <' => intval($colIndex),
+                                'status' => 'OK'
+                            ])->first();
+
+                            if ((!$previousNG || $hasOKBetween) && !$existingTicket) {
                                 $statusLogModel = new StatusChangeLog();
                                 $statusLogModel->insert([
                                     'detail_checksheet_id' => $existing['id'],

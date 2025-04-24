@@ -432,7 +432,10 @@
                             <td>${item.item_check || '-'}</td>
                             <td>${item.inspeksi || '-'}</td>
                             <td>${item.standar || '-'}</td>
-                            <td><span class="badge bg-danger">NG</span></td>
+                            <td>
+                                <span class="badge bg-danger">NG</span>
+                                ${item.is_resolved ? '<span class="badge bg-success ms-2">Solved</span>' : ''}
+                            </td>
                         `;
                         tbody.appendChild(row);
                     });

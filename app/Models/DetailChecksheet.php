@@ -58,4 +58,18 @@ class DetailChecksheet extends Model
     {
         return $this->belongsTo('App\Models\Karyawan', 'id_karyawan', 'id');
     }
+
+    // Fungsi untuk mendapatkan detail NG berdasarkan mesin dan tanggal
+    public function getNGDetailsByDateAndMachine($machineId, $date)
+    {
+        return $this->select('preuse_tb_detail_checksheet.*, preuse_tb_status_change_log.id as status_change_log_id')
+            ->join('preuse_tb_checksheet', 'preuse_tb_checksheet.id = preuse_tb_detail_checksheet.checksheet_id')
+            ->join('preuse_tb_status_change_log', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id', 'left')
+            ->where('preuse_tb_checksheet.id_machine', $machineId)
+            ->where('DATE(preuse_tb_detail_checksheet.tanggal)', $date)
+            ->where('preuse_tb_detail_checksheet.status', 'NG')
+            ->where('preuse_tb_detail_checksheet.deleted_at IS NULL')
+            ->orderBy('preuse_tb_detail_checksheet.created_at', 'DESC')
+            ->findAll();
+    }
 }

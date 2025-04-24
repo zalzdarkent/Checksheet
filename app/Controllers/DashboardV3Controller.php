@@ -51,10 +51,15 @@ class DashboardV3Controller extends BaseController
             preuse_tb_checksheet.mesin,
             preuse_tb_checksheet.id_machine,
             preuse_tb_detail_checksheet.tanggal,
-            preuse_tb_detail_checksheet.status
+            CASE 
+                WHEN COUNT(CASE WHEN preuse_tb_detail_checksheet.status = 'NG' THEN 1 END) > 0 THEN 'NG'
+                WHEN COUNT(CASE WHEN preuse_tb_detail_checksheet.status = 'OK' THEN 1 END) > 0 THEN 'OK'
+                ELSE 'EMPTY'
+            END as status
         ")
         ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id', 'left')
-        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted);
+        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted)
+        ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');
 
         if (!empty($filterMesin)) {
             $query->where("preuse_tb_checksheet.id_machine LIKE", "%-$filterMesin-%");
@@ -141,12 +146,13 @@ class DashboardV3Controller extends BaseController
         // Query untuk mendapatkan data NG
         $db = \Config\Database::connect();
         $builder = $db->table('preuse_tb_checksheet cs');
-        $builder->select('dc.id as detail_id, dc.item_check, dc.inspeksi, dc.standar, dc.status, scl.id as status_change_log_id');
+        $builder->select('dc.id as detail_id, dc.item_check, dc.inspeksi, dc.standar, dc.status, dc.is_resolved, scl.id as status_change_log_id');
         $builder->join('preuse_tb_detail_checksheet dc', 'cs.id = dc.checksheet_id');
         $builder->join('preuse_tb_status_change_log scl', 'dc.id = scl.detail_checksheet_id', 'left');
         $builder->where('cs.id_machine', $machineId);
         $builder->where('dc.tanggal', $date);
         $builder->where('dc.status', 'NG');
+        $builder->orderBy('dc.created_at', 'DESC');
         
         $query = $builder->get();
         $result = $query->getResultArray();
