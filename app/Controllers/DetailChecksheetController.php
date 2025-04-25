@@ -284,7 +284,7 @@ class DetailChecksheetController extends BaseController
     {
         $statusLogModel = new StatusChangeLog();
         $log = $statusLogModel
-            ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check')
+            ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check, preuse_tb_detail_checksheet.inspeksi, preuse_tb_detail_checksheet.standar, preuse_tb_detail_checksheet.tanggal')
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
             ->where('preuse_tb_status_change_log.id', $logId)
             ->first();
