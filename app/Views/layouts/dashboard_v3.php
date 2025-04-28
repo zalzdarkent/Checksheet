@@ -39,21 +39,22 @@
     .bg-gradient-primary {
         background: linear-gradient(135deg, #273749, #4a6b8a);
     }
-    
+
     .table {
         border-collapse: separate;
         border-spacing: 0;
     }
-    
+
     .table th {
         font-weight: 600;
         letter-spacing: 0.5px;
     }
-    
-    .table td, .table th {
+
+    .table td,
+    .table th {
         vertical-align: middle;
     }
-    
+
     .status-badge {
         width: 32px;
         height: 32px;
@@ -65,72 +66,75 @@
         transition: all 0.3s ease;
         cursor: pointer;
     }
-    
+
     .status-badge:hover {
         transform: scale(1.1);
     }
-    
+
     .status-ok {
         background-color: rgba(40, 167, 69, 0.1);
         color: #28a745;
     }
-    
+
     .status-ng {
         background-color: rgba(255, 193, 7, 0.1);
         color: #ffc107;
         cursor: pointer;
     }
-    
+
     .status-empty {
         background-color: rgba(108, 117, 125, 0.1);
         color: #6c757d;
     }
-    
+
     .badge {
         font-weight: 500;
         letter-spacing: 0.5px;
         transition: all 0.3s ease;
     }
-    
+
     .badge:hover {
         transform: translateY(-2px);
     }
-    
+
     @media (max-width: 768px) {
         .table-responsive {
             margin: 0 -1rem;
             padding: 0 1rem;
         }
-        
-        .table th, .table td {
+
+        .table th,
+        .table td {
             padding: 0.75rem 0.5rem;
             font-size: 0.9rem;
         }
-        
+
         .status-badge {
             width: 28px;
             height: 28px;
             font-size: 1rem;
         }
-        
+
         .badge {
             padding: 0.5rem 0.75rem;
             font-size: 0.8rem;
         }
     }
-    
+
     @media (max-width: 576px) {
-        .table th, .table td {
+
+        .table th,
+        .table td {
             padding: 0.5rem 0.25rem;
             font-size: 0.85rem;
         }
-        
+
         .status-badge {
             width: 24px;
             height: 24px;
             font-size: 0.9rem;
         }
-        
+
         .badge {
             padding: 0.4rem 0.6rem;
             font-size: 0.75rem;
@@ -156,7 +160,7 @@
                 <select id="filterMesin" name="filterMesin" class="form-select rounded-3 shadow-sm">
                     <option value="">Semua Tipe</option>
                     <?php foreach ($machines as $machine): ?>
-                        <?php 
+                        <?php
                         // Extract the middle part of the machine ID (e.g., PR2 from D-PR2-AMB-CUTT-001)
                         $parts = explode('-', $machine['id_machine']);
                         $machineType = count($parts) >= 3 ? $parts[1] : $machine['id_machine'];
@@ -202,11 +206,18 @@
                 <tr class="bg-gradient-primary text-white">
                     <th class="py-3 px-4 rounded-start-4">Mesin</th>
                     <th class="py-3 px-4">ID Mesin</th>
-                    <?php for ($day = 1; $day <= $jumlahHari; $day++): ?>
+                    <?php
+                    // Ambil bulan dan tahun dari filterBulan
+                    list($filterYear, $filterMonth) = explode('-', $filterBulan);
+
+                    for ($day = 1; $day <= $jumlahHari; $day++):
+                        // Buat tanggal dinamis berdasarkan bulan dan tahun yang dipilih
+                        $currentDate = sprintf('%s-%02d-%02d', $filterYear, $filterMonth, $day);
+                    ?>
                         <th class="py-3 px-4 <?= $day === $jumlahHari ? 'rounded-end-4' : '' ?>">
                             <div class="d-flex flex-column align-items-center">
                                 <span class="fw-normal"><?= $day ?></span>
-                                <small class="text-white-50"><?= date('D', strtotime("2024-01-$day")) ?></small>
+                                <small class="text-primary-50"><?= date('D', strtotime($currentDate)) ?></small>
                             </div>
                         </th>
                     <?php endfor; ?>
@@ -231,7 +242,7 @@
                             $status = $machine['days'][$day] ?? 'EMPTY';
                             $statusClass = '';
                             $statusIcon = '';
-                            
+
                             switch ($status) {
                                 case 'OK':
                                     $statusClass = 'status-ok';
@@ -247,11 +258,11 @@
                             }
                             ?>
                             <td class="py-3 px-4">
-                                <div class="status-badge <?= $statusClass ?>" 
-                                     data-machine-id="<?= $machine['id_machine'] ?>"
-                                     data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
-                                     <?= $status === 'NG' ? 'onclick="showNGDetails(\'' . $machine['id_machine'] . '\', \'' . $machine['mesin'] . '\', ' . $day . ')"' : '' ?>
-                                     title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
+                                <div class="status-badge <?= $statusClass ?>"
+                                    data-machine-id="<?= $machine['id_machine'] ?>"
+                                    data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
+                                    <?= $status === 'NG' ? 'onclick="showNGDetails(\'' . $machine['id_machine'] . '\', \'' . $machine['mesin'] . '\', ' . $day . ')"' : '' ?>
+                                    title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
                                     <i class="bi <?= $statusIcon ?>"></i>
                                 </div>
                             </td>
@@ -307,7 +318,7 @@
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
@@ -328,7 +339,7 @@
 
                 // Filter results
                 var results = $.ui.autocomplete.filter(machines, request.term);
-                
+
                 if (results.length === 0) {
                     // Jika tidak ada hasil, tambahkan pesan
                     results.push({
@@ -337,7 +348,7 @@
                         machineName: ""
                     });
                 }
-                
+
                 response(results);
             },
             minLength: 2,
@@ -347,7 +358,7 @@
                     event.preventDefault();
                     return false;
                 }
-                
+
                 // Highlight the selected row
                 $("table tbody tr").removeClass("table-primary");
                 $("table tbody tr").each(function() {
@@ -379,7 +390,7 @@
                     </div>`)
                     .appendTo(ul);
             }
-            
+
             return $("<li>")
                 .append(`<div class="d-flex align-items-center">
                     <span class="badge bg-primary bg-opacity-10 text-primary me-2">${item.value}</span>
@@ -424,33 +435,36 @@
                         const row = document.createElement('tr');
                         row.style.cursor = 'pointer';
                         row.onclick = function() {
-                            if (item.status_change_log_id) {
+                            if (item.is_resolved) {
+                                // Tampilkan pesan error menggunakan SweetAlert jika sudah disolved
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Tidak Dapat Diubah',
+                                    text: 'Data ini sudah disolved dan tidak dapat diubah lagi.',
+                                    confirmButtonText: 'OK'
+                                });
+                            } else if (item.status_change_log_id) {
+                                // Arahkan ke halaman ubah status jika belum disolved
                                 window.location.href = `/open-ticket/change-status/${item.status_change_log_id}`;
                             }
                         };
                         row.innerHTML = `
-                            <td>${item.item_check || '-'}</td>
-                            <td>${item.inspeksi || '-'}</td>
-                            <td>${item.standar || '-'}</td>
-                            <td>
-                                <span class="badge bg-danger">NG</span>
-                                ${item.is_resolved ? '<span class="badge bg-success ms-2">Solved</span>' : ''}
-                            </td>
-                        `;
+                        <td>${item.item_check || '-'}</td>
+                        <td>${item.inspeksi || '-'}</td>
+                        <td>${item.standar || '-'}</td>
+                        <td>
+                            <span class="badge bg-danger">NG</span>
+                            ${item.is_resolved ? '<span class="badge bg-success ms-2">Solved</span>' : ''}
+                        </td>
+                    `;
                         tbody.appendChild(row);
                     });
-                    
-                    // Set the change status link
-                    const firstItem = data[0];
-                    if (firstItem && firstItem.id) {
-                        document.getElementById('changeStatusLink').href = `/open-ticket/change-status/${firstItem.id}`;
-                    }
                 } else {
                     // Jika tidak ada data, tampilkan pesan
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td colspan="4" class="text-center">Tidak ada data NG untuk tanggal ini</td>
-                    `;
+                    <td colspan="4" class="text-center">Tidak ada data NG untuk tanggal ini</td>
+                `;
                     tbody.appendChild(row);
                 }
 
@@ -462,12 +476,12 @@
                 console.error('Error:', error);
                 const tbody = document.getElementById('ngDetailsTableBody');
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center text-danger">
-                            Terjadi kesalahan saat mengambil data NG
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        Terjadi kesalahan saat mengambil data NG
+                    </td>
+                </tr>
+            `;
                 const modal = new bootstrap.Modal(document.getElementById('ngDetailsModal'));
                 modal.show();
             });

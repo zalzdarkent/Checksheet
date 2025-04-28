@@ -5,6 +5,21 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #273749, #4a6b8a);
+    }
+
+    .btn-cbi {
+        background: linear-gradient(135deg, #273749, #4a6b8a);
+    }
+
+    .btn-cbi:hover {
+        background: linear-gradient(135deg, #4a6b8a, #273749);
+        color: #ffffff;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+</style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white py-3">
@@ -73,13 +88,13 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href="<?=base_url()?>/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm rounded-pill px-3">
+                                            <a href="<?= base_url() ?>/checksheet/table/<?= $row['id'] ?>" class="btn btn-info btn-sm rounded-pill px-3">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a href="<?=base_url()?>/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
+                                            <a href="<?= base_url() ?>/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form action="<?=base_url()?>/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                            <form action="<?= base_url() ?>/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="_method" value="DELETE">
                                                 <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 ms-1">
@@ -112,21 +127,21 @@
 <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-gradient-primary text-white">
                 <h5 class="modal-title" id="tambahModalLabel">Tambah Checksheet</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="<?=base_url()?>/checksheet/store" method="post" class="needs-validation" novalidate>
+                <form action="<?= base_url() ?>/checksheet/store" method="post" class="needs-validation" novalidate>
                     <?= csrf_field() ?>
                     <div class="mb-3">
                         <label for="mesin" class="form-label">Mesin</label>
                         <select class="form-select" id="mesin" name="mesin" required onchange="updateIdMachine(this)">
                             <option value="" selected>Pilih Mesin</option>
                             <?php foreach ($masters as $master): ?>
-                                <?php 
-                                    $mesinList = json_decode($master['mesin'], true);
-                                    $idMachineList = json_decode($master['id_machine'], true);
+                                <?php
+                                $mesinList = json_decode($master['mesin'], true);
+                                $idMachineList = json_decode($master['id_machine'], true);
                                 ?>
                                 <?php foreach ($mesinList as $index => $mesin): ?>
                                     <option value="<?= $master['id'] . '|' . $index; ?>" data-id-machine="<?= $idMachineList[$index] ?? '' ?>">
@@ -142,11 +157,11 @@
                         <label class="form-label">ID Mesin</label>
                         <div class="input-group">
                             <input type="text" class="form-control bg-light" id="idMachineInput" name="id_machine" readonly>
-                            <span class="input-group-text bg-primary text-white">
+                            <span class="input-group-text bg-gradient-primary text-white">
                                 <i class="bi bi-tag"></i>
                             </span>
                         </div>
-                        <small class="text-muted">ID mesin akan otomatis terisi saat memilih mesin</small>
+                        <small class="badge bg-success text-white">ID mesin akan otomatis terisi saat mesin dipilih</small>
                     </div>
 
                     <div class="mb-3">
@@ -188,9 +203,10 @@
                         <div class="invalid-feedback">Silakan pilih seksi</div>
                     </div>
 
-                    <div class="modal-footer px-0 pb-0">
+                    <!-- Modal Tambah Data -->
+                    <div class="modal-footer px-0 pb-0 d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-cbi text-white">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -293,7 +309,7 @@
         const idMachine = selectedOption.getAttribute('data-id-machine');
         const idMachineInput = document.getElementById('idMachineInput');
         const idMachineBadge = document.getElementById('idMachineBadge');
-        
+
         if (idMachine) {
             idMachineInput.value = idMachine;
             idMachineBadge.innerHTML = `<i class="bi bi-tag"></i> ${idMachine}`;

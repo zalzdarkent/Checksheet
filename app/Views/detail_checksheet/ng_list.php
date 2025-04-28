@@ -75,14 +75,13 @@
                                     <td>
                                         <?php if ($item['new_status'] !== 'OK'): ?>
                                             <a href="<?= base_url('open-ticket/change-status/' . $item['id']); ?>" class="btn btn-primary btn-sm" title="Ubah Status">
-                                                Ubah Status
+                                                <i class="bi bi-pencil-square"></i>
                                             </a>
                                         <?php else: ?>
-                                            <span class="badge bg-success">Resolved</span>
+                                            <a href="<?= base_url('open-ticket/change-log/' . $item['id']); ?>" class="btn btn-info btn-sm" title="Lihat Detail">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
                                         <?php endif; ?>
-                                        <a href="<?= base_url('open-ticket/change-log/' . $item['id']); ?>" class="btn btn-info btn-sm" title="Lihat Detail">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

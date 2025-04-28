@@ -12,7 +12,7 @@
 </style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="container-fluid">
-        <h1 class="h3 mb-4 text-gray-800">Ubah Status Item</h1>
+        <h1 class="h3 mb-4 text-gray-800">Ubah Status Tiket</h1>
 
         <?php if (session()->getFlashdata('error')) : ?>
             <div class="alert alert-danger" role="alert">
@@ -22,7 +22,10 @@
 
         <div class="card shadow mb-4">
             <div class="card-header bg-gradient-primary text-white py-3">
-                <h5 class="card-title mb-0">Form Perubahan Status</h5>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-ui-checks-grid fs-4 me-2"></i>
+                    <h5 class="card-title mb-0">Form Perubahan Status</h5>
+                </div>
             </div>
             <div class="card-body">
                 <form action="<?= base_url('open-ticket/update-status/' . $log['id']); ?>" method="post">

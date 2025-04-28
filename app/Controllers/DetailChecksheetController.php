@@ -254,7 +254,7 @@ class DetailChecksheetController extends BaseController
         $data = [
             'title' => 'Change Ticket',
             'log' => $log,
-            'mesin' => $mesin['mesin'] ?? 'Tidak ditemukan' 
+            'mesin' => $mesin['mesin'] ?? 'Tidak ditemukan'
         ];
 
         return view('detail_checksheet/change_status_form', $data);
@@ -290,13 +290,32 @@ class DetailChecksheetController extends BaseController
 
         if ($newStatus === 'OK') {
             $detailChecksheet = $detailChecksheetModel->find($log['detail_checksheet_id']);
-
+        
             if ($detailChecksheet) {
-                $detailChecksheetModel->where([
+                // Ambil semua tiket NG untuk item_check yang sama dan checksheet_id yang sama
+                $ngTickets = $detailChecksheetModel->where([
                     'checksheet_id' => $detailChecksheet['checksheet_id'],
                     'item_check' => $detailChecksheet['item_check'],
                     'status' => 'NG'
-                ])->set(['is_resolved' => 1])->update();
+                ])->orderBy('tanggal', 'ASC')->findAll();
+        
+                // Ubah tiket pada tanggal yang sama atau sebelumnya menjadi resolved
+                foreach ($ngTickets as $ticket) {
+                    if ($ticket['tanggal'] <= $detailChecksheet['tanggal']) {
+                        // Update is_resolved pada detail_checksheet
+                        $detailChecksheetModel->update($ticket['id'], ['is_resolved' => 1]);
+        
+                        // Perbarui log status menjadi resolved dan tambahkan reason, changed_by, dan changed_at
+                        $statusLogModel->where('detail_checksheet_id', $ticket['id'])
+                            ->set([
+                                'new_status' => 'OK',
+                                'reason' => $reason,
+                                'changed_by' => $npk,
+                                'changed_at' => date('Y-m-d H:i:s')
+                            ])
+                            ->update();
+                    }
+                }
             }
         }
 

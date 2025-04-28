@@ -11,7 +11,7 @@
             <div class="card-header bg-gradient-primary text-white py-3 rounded-top-4">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-file-earmark-text-fill fs-4 me-2"></i>
-                    <h5 class="mb-0 fw-semibold">Detail Change Log</h5>
+                    <h5 class="mb-0 fw-semibold">Detail Tiket</h5>
                 </div>
             </div>
             <div class="card-body p-4">
