@@ -21,17 +21,20 @@
     </div>
 
     <!-- Card untuk Input Mesin -->
+    <!-- filepath: d:\Aplikasi-Codeigniter\new-checksheet\app\Views\checksheet\master-form.php -->
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
             <label class="form-label">Mesin</label>
             <div class="input-group">
-                <input type="text" id="mesinInput" class="form-control" list="mesinList" placeholder="Ketik atau pilih mesin...">
+                <input type="text" id="mesinInput" class="form-control" list="mesinList" placeholder="Ketik ID atau nama mesin...">
                 <button type="button" class="btn btn-primary" onclick="addMesin()">Tambah</button>
             </div>
             <datalist id="mesinList">
                 <?php foreach ($mesinList as $mesin): ?>
                     <option value="<?= esc($mesin['name_machine']) ?>" data-id="<?= esc($mesin['id_machine']) ?>">
-                    <?php endforeach; ?>
+                        <?= esc($mesin['id_machine']) ?> - <?= esc($mesin['name_machine']) ?>
+                    </option>
+                <?php endforeach; ?>
             </datalist>
             <div id="selectedMesin" class="mt-2"></div>
             <div id="selectedIdMesin" class="mt-2"></div>
@@ -42,7 +45,7 @@
     <!-- Card untuk Form Utama -->
     <div class="card ms-3 ms-md-5" style="max-width: 800px;">
         <div class="card-body">
-            <form id="dynamicForm" action="<?=base_url()?>/master/store" method="post">
+            <form id="dynamicForm" action="<?= base_url() ?>/master/store" method="post">
                 <?= csrf_field() ?>
                 <div id="formContainer">
                     <input type="hidden" name="judul_checksheet" id="judul_checksheet_hidden">
@@ -95,20 +98,21 @@
 
     function addMesin() {
         let input = document.getElementById("mesinInput");
-        let mesinNama = input.value.trim();
+        let mesinInput = input.value.trim();
         let errorEl = document.getElementById("mesinError");
 
-        // Cari mesin dari list
-        let mesinObj = mesinList.find(m => m.name_machine === mesinNama);
+        // Cari mesin berdasarkan name_machine atau id_machine
+        let mesinObj = mesinList.find(m => m.name_machine === mesinInput || m.id_machine === mesinInput);
 
         if (!mesinObj) {
-            errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
+            // Tampilkan pesan error jika mesin tidak ditemukan
+            errorEl.textContent = "Mesin tidak ditemukan. Pastikan ID atau nama mesin sesuai dengan daftar.";
             errorEl.classList.remove("d-none");
             return;
         }
 
         // Cek apakah mesin sudah dipilih sebelumnya
-        if (selectedMesin.find(m => m.name_machine === mesinNama)) {
+        if (selectedMesin.find(m => m.id_machine === mesinObj.id_machine)) {
             errorEl.textContent = "Mesin ini sudah dipilih sebelumnya. Silakan pilih mesin lain.";
             errorEl.classList.remove("d-none");
             return;
@@ -123,8 +127,8 @@
         errorEl.classList.add("d-none");
     }
 
-    function removeMesin(mesinNama) {
-        selectedMesin = selectedMesin.filter(item => item.name_machine !== mesinNama);
+    function removeMesin(idMachine) {
+        selectedMesin = selectedMesin.filter(item => item.id_machine !== idMachine);
         updateMesinDisplay();
     }
 
@@ -141,7 +145,7 @@
             // Badge nama mesin
             let badge = document.createElement("span");
             badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
-            badge.innerHTML = `${mesin.name_machine} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin.name_machine}')"></button>`;
+            badge.innerHTML = `${mesin.name_machine} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin.id_machine}')"></button>`;
             mesinContainer.appendChild(badge);
 
             // Badge ID mesin

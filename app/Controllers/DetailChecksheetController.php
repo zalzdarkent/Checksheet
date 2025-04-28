@@ -119,41 +119,19 @@ class DetailChecksheetController extends BaseController
                             'is_submitted' => $isSubmitted
                         ]);
                         $detailId = $model->getInsertID();
-                        
+
+                        // Hanya tambahkan log untuk status "NG" dengan previous_status juga "NG"
                         if ($status === 'NG') {
-                            // Cek apakah item yang sama masih NG di kolom sebelumnya
-                            $previousNG = $model->where([
-                                'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex],
-                                'kolom' => intval($colIndex) - 1,
-                                'status' => 'NG'
-                            ])->first();
-
-                            // Cek apakah sudah ada tiket yang belum diselesaikan untuk item ini
-                            $existingTicket = $statusLogModel->select('preuse_tb_status_change_log.*')
-                                ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
-                                ->where('preuse_tb_detail_checksheet.checksheet_id', $checksheetId)
-                                ->where('preuse_tb_detail_checksheet.item_check', $itemCheckData[$rowIndex])
-                                ->where('preuse_tb_status_change_log.new_status', null)
-                                ->first();
-
-                            // Cek apakah ada status OK di antara NG sebelumnya
-                            $hasOKBetween = $model->where([
-                                'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex],
-                                'kolom <' => intval($colIndex),
-                                'status' => 'OK'
-                            ])->first();
-
-                            if ((!$previousNG || $hasOKBetween) && !$existingTicket) {
-                                $statusLogModel = new StatusChangeLog();
-                                $statusLogModel->insert([
-                                    'detail_checksheet_id' => $detailId,
-                                    'previous_status' => 'NG',
-                                ]);
-                            }
+                            $statusLogModel->insert([
+                                'detail_checksheet_id' => $detailId,
+                                'previous_status' => 'NG', // Untuk data baru, default previous status adalah 'NG'
+                                'created_at' => date('Y-m-d H:i:s')
+                            ]);
                         }
                     } else {
+                        // Periksa apakah status berubah sebelum mencatat log
+                        $previousStatus = $existing['status'] ?? 'NG'; // Default ke 'NG' jika tidak ada status sebelumnya
+
                         // Update existing record
                         $model->update($existing['id'], [
                             'status' => $status,
@@ -161,46 +139,19 @@ class DetailChecksheetController extends BaseController
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
-                        
-                        // Jika status diubah dari NG menjadi OK, hapus tiket yang terkait
                         if ($existing['status'] === 'NG' && $status === 'OK') {
                             $statusLogModel->where('detail_checksheet_id', $existing['id'])
-                                         ->where('new_status', null)
-                                         ->delete();
+                                ->where('new_status', null)
+                                ->delete();
                         }
-                        
-                        if ($status === 'NG') {
-                            // Cek apakah item yang sama masih NG di kolom sebelumnya
-                            $previousNG = $model->where([
-                                'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex],
-                                'kolom' => intval($colIndex) - 1,
-                                'status' => 'NG'
-                            ])->first();
 
-                            // Cek apakah sudah ada tiket yang belum diselesaikan untuk item ini
-                            $existingTicket = $statusLogModel->select('preuse_tb_status_change_log.*')
-                                ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
-                                ->where('preuse_tb_detail_checksheet.checksheet_id', $checksheetId)
-                                ->where('preuse_tb_detail_checksheet.item_check', $itemCheckData[$rowIndex])
-                                ->where('preuse_tb_status_change_log.new_status', null)
-                                ->first();
-
-                            // Cek apakah ada status OK di antara NG sebelumnya
-                            $hasOKBetween = $model->where([
-                                'checksheet_id' => $checksheetId,
-                                'item_check' => $itemCheckData[$rowIndex],
-                                'kolom <' => intval($colIndex),
-                                'status' => 'OK'
-                            ])->first();
-
-                            if ((!$previousNG || $hasOKBetween) && !$existingTicket) {
-                                $statusLogModel = new StatusChangeLog();
-                                $statusLogModel->insert([
-                                    'detail_checksheet_id' => $existing['id'],
-                                    'previous_status' => 'NG',
-                                ]);
-                            }
+                        // Tambahkan log hanya jika status berubah menjadi "NG"
+                        if ($status === 'NG' && $status !== $previousStatus) {
+                            $statusLogModel->insert([
+                                'detail_checksheet_id' => $existing['id'],
+                                'previous_status' => $previousStatus ?: 'NG', // Pastikan tidak ada nilai NULL
+                                'created_at' => date('Y-m-d H:i:s')
+                            ]);
                         }
                     }
                     $hasChanges = true;
@@ -235,7 +186,7 @@ class DetailChecksheetController extends BaseController
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
             ->join('preuse_tb_checksheet c', 'preuse_tb_detail_checksheet.checksheet_id = c.id')
             ->findAll();
-        
+
         $data = [
             'title' => 'Open Ticket',
             'ngItems' => $ngItems
@@ -283,8 +234,10 @@ class DetailChecksheetController extends BaseController
     public function changeStatusForm($logId)
     {
         $statusLogModel = new StatusChangeLog();
+        $checksheetModel = new Checksheet();
+
         $log = $statusLogModel
-            ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check, preuse_tb_detail_checksheet.inspeksi, preuse_tb_detail_checksheet.standar, preuse_tb_detail_checksheet.tanggal')
+            ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check, preuse_tb_detail_checksheet.inspeksi, preuse_tb_detail_checksheet.standar, preuse_tb_detail_checksheet.tanggal, preuse_tb_detail_checksheet.checksheet_id')
             ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.id = preuse_tb_status_change_log.detail_checksheet_id')
             ->where('preuse_tb_status_change_log.id', $logId)
             ->first();
@@ -293,9 +246,15 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Log tidak ditemukan');
         }
 
+        $mesin = $checksheetModel
+            ->select('mesin')
+            ->where('id', $log['checksheet_id'])
+            ->first();
+
         $data = [
             'title' => 'Change Ticket',
-            'log' => $log
+            'log' => $log,
+            'mesin' => $mesin['mesin'] ?? 'Tidak ditemukan' 
         ];
 
         return view('detail_checksheet/change_status_form', $data);
@@ -329,13 +288,10 @@ class DetailChecksheetController extends BaseController
             'changed_at' => date('Y-m-d H:i:s')
         ]);
 
-        // Jika status diubah menjadi OK, tandai semua detail checksheet yang terkait sebagai resolved
         if ($newStatus === 'OK') {
-            // Ambil detail checksheet yang terkait dengan log ini
             $detailChecksheet = $detailChecksheetModel->find($log['detail_checksheet_id']);
-            
+
             if ($detailChecksheet) {
-                // Update semua detail checksheet dengan item_check yang sama dan status NG
                 $detailChecksheetModel->where([
                     'checksheet_id' => $detailChecksheet['checksheet_id'],
                     'item_check' => $detailChecksheet['item_check'],

@@ -16,6 +16,7 @@ class StatusChangeLog extends Model
         'detail_checksheet_id',
         'previous_status',
         'new_status',
+        'group_id',
         'reason',
         'changed_by',
         'changed_at'

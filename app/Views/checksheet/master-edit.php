@@ -45,6 +45,8 @@
             <datalist id="mesinList">
                 <?php foreach ($mesinList as $mesin): ?>
                     <option value="<?= esc($mesin['name_machine']) ?>" data-id="<?= esc($mesin['id_machine']) ?>">
+                        <?= esc($mesin['id_machine']) ?> - <?= esc($mesin['name_machine']) ?>
+                    </option>
                 <?php endforeach; ?>
             </datalist>
             <div id="selectedMesin" class="mt-2">
@@ -59,7 +61,7 @@
                 <?php endforeach; ?>
             </div>
             <div id="selectedIdMesin" class="mt-2">
-            <?php
+                <?php
                 $selectedIdMesin = json_decode($item['id_machine'] ?? '[]', true);
                 foreach ($selectedIdMesin as $id_mesin) :
                 ?>
