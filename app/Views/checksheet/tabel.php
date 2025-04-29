@@ -133,7 +133,7 @@
                                                 ?>
                                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                                         data-index="<?= $index ?>" data-col="<?= $i ?>" data-value="NG">NG</button>
-                                                <?php
+                                                    <?php
                                                 } else {
                                                     if (isset($status['status']) && $status['is_resolved'] != null && $status['status'] == 'NG'): ?>
                                                         <button type="button" class="btn btn-outline-warning btn-sm active"
@@ -190,6 +190,17 @@
                                         <?php endforeach; ?>
                                     </select>
                                 <?php endif; ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><label class="fw-bold">Run Hour: <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-title="Hanya angka">(?)</span></label></td>
+                        <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
+                            <td class="text-center">
+                                <input type="number" class="form-control form-control-sm" name="run_hour[<?= $i ?>]" value="<?= $runHourArray[$i] ?? '' ?>">
                             </td>
                         <?php endfor; ?>
                     </tr>

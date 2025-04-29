@@ -418,7 +418,7 @@
         document.getElementById('modalDate').textContent = formattedDate;
 
         // Kirim request untuk mendapatkan data NG
-        fetch(`/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
+        fetch(`<?=base_url()?>/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -445,7 +445,7 @@
                                 });
                             } else if (item.status_change_log_id) {
                                 // Arahkan ke halaman ubah status jika belum disolved
-                                window.location.href = `/open-ticket/change-status/${item.status_change_log_id}`;
+                                window.location.href = `<?=base_url()?>/open-ticket/change-status/${item.status_change_log_id}`;
                             }
                         };
                         row.innerHTML = `
@@ -453,8 +453,7 @@
                         <td>${item.inspeksi || '-'}</td>
                         <td>${item.standar || '-'}</td>
                         <td>
-                            <span class="badge bg-danger">NG</span>
-                            ${item.is_resolved ? '<span class="badge bg-success ms-2">Solved</span>' : ''}
+                            ${item.is_resolved ? '<span class="badge bg-warning">NG</span>' : '<span class="badge bg-danger">NG</span>'}
                         </td>
                     `;
                         tbody.appendChild(row);
