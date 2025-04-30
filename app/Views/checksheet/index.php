@@ -20,6 +20,9 @@
         transition: background-color 0.3s ease, color 0.3s ease;
     }
 </style>
+<?php
+$hideMenus = isset($_GET['line']);
+?>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4 min-vh-100">
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white py-3">
@@ -94,13 +97,15 @@
                                             <a href="<?= base_url() ?>/checksheet/edit/<?= $row['id'] ?>" class="btn btn-warning btn-sm rounded-pill px-3 ms-1">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form action="<?= base_url() ?>/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="_method" value="DELETE">
-                                                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 ms-1">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
+                                            <?php if (!$hideMenus): ?>
+                                                <form action="<?= base_url() ?>/checksheet/delete/<?= $row['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 ms-1">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>

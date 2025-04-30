@@ -28,17 +28,27 @@ class ChecksheetController extends BaseController
         // Set jumlah item per halaman
         $perPage = 10;
 
-        // Hitung total records untuk pagination
-        $totalRecords = $db->table('preuse_tb_checksheet')
-            ->countAllResults();
+        // Ambil parameter line dari URL, kalau tidak ada default-nya null
+        $line = $this->request->getGet('line');
+
+        // Hitung total records untuk pagination, sesuaikan dengan filter line
+        $builder = $db->table('preuse_tb_checksheet')
+            ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id_machine as master_id_machine, preuse_tb_master.id as master_id')
+            ->join('preuse_tb_master', 'preuse_tb_checksheet.master_id = preuse_tb_master.id', 'left');
+
+        // Filter berdasarkan parameter line jika ada
+        if ($line) {
+            $builder->where('preuse_tb_checksheet.line', $line);
+        }
+
+        // Hitung total records dengan filter line
+        $totalRecords = $builder->countAllResults(false);
 
         // Ambil nomor halaman dari URL, default ke halaman 1
         $page = $this->request->getGet('page') ?? 1;
 
-        // Query dengan pagination
-        $checksheets = $db->table('preuse_tb_checksheet')
-            ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id_machine as master_id_machine, preuse_tb_master.id as master_id')
-            ->join('preuse_tb_master', 'preuse_tb_checksheet.master_id = preuse_tb_master.id', 'left')
+        // Query dengan pagination dan filter line
+        $checksheets = $builder
             ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
@@ -59,7 +69,7 @@ class ChecksheetController extends BaseController
 
         return view('checksheet/index', $data);
     }
-    
+
     public function dashboard()
     {
         $data['title'] = 'Dashboard ';
@@ -193,7 +203,7 @@ class ChecksheetController extends BaseController
             if (!empty($row['is_submitted']) && $row['is_submitted'] == 1) {
                 $isSubmitted = true;
             }
-            
+
             // Tambahkan item_check ke deletedItemChecks jika memiliki deleted_at
             if (!empty($row['deleted_at'])) {
                 $deletedItemChecks[] = $row['item_check'];
