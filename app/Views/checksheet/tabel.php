@@ -204,9 +204,18 @@
                         </td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
                             <td class="text-center">
-                                <input type="number" class="form-control form-control-sm"
-                                    name="run_hour[<?= $i ?>]"
-                                    value="<?= isset($runHourArray[$row['item_check']][$i]) ? $runHourArray[$row['item_check']][$i] : '' ?>">
+                                <?php if ($isSubmitted): ?>
+                                    <?php
+                                    $runHourValue = $runHourArray[$row['item_check']][$i] ?? 'Belum diisi';
+                                    ?>
+                                    <span class="badge <?= $runHourValue !== 'Belum diisi' ? 'bg-info' : 'bg-secondary' ?>">
+                                        <?= $runHourValue ?>
+                                    </span>
+                                <?php else: ?>
+                                    <input type="number" class="form-control form-control-sm"
+                                        name="run_hour[<?= $i ?>]"
+                                        value="<?= isset($runHourArray[$row['item_check']][$i]) ? $runHourArray[$row['item_check']][$i] : '' ?>">
+                                <?php endif; ?>
                             </td>
                         <?php endfor; ?>
                     </tr>
