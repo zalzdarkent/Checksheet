@@ -90,13 +90,12 @@
 
                                     <div class="form-group mb-3">
                                         <label for="npk" class="form-label fw-semibold">NPK <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="npk" name="npk" required>
+                                        <!-- filepath: d:\Aplikasi-Codeigniter\new-checksheet\app\Views\detail_checksheet\change_status_form.php -->
+                                        <select name="npk" class="form-select" required>
                                             <option value="">Pilih NPK</option>
-                                            <option value="12345">12345 - Operator 1</option>
-                                            <option value="23456">23456 - Operator 2</option>
-                                            <option value="34567">34567 - Operator 3</option>
-                                            <option value="45678">45678 - Operator 4</option>
-                                            <option value="56789">56789 - Operator 5</option>
+                                            <?php foreach ($karyawanList as $karyawan): ?>
+                                                <option value="<?= $karyawan['npk']; ?>"><?= $karyawan['npk']; ?> - <?= $karyawan['nama']; ?></option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
                                 </div>

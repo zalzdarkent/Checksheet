@@ -17,6 +17,7 @@ class StatusChangeLog extends Model
         'previous_status',
         'new_status',
         'reason',
+        'id_karyawan',
         'changed_by',
         'changed_at'
     ];

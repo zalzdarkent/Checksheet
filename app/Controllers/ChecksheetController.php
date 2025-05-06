@@ -181,7 +181,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -226,6 +226,11 @@ class ChecksheetController extends BaseController
             }
         }
 
+        $runHourArray = [];
+        foreach ($detailChecksheet as $row) {
+            $runHourArray[$row['item_check']][$row['kolom']] = $row['run_hour'];
+        }
+
         $data = [
             'title' => 'Detail Checksheet',
             'checksheet' => $checksheet,
@@ -236,7 +241,8 @@ class ChecksheetController extends BaseController
             'npkArray' => $npkArray,
             'isSubmitted' => $isSubmitted,
             'karyawanList' => $karyawanList,
-            'deletedItemChecks' => $deletedItemChecks // Tambahkan data yang dihapus ke view
+            'deletedItemChecks' => $deletedItemChecks, // Tambahkan data yang dihapus ke view
+            'runHourArray' => $runHourArray, // Kirim data run_hour ke view
         ];
 
         // Debug data yang dikirim ke view

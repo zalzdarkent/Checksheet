@@ -24,6 +24,7 @@ class DetailChecksheetController extends BaseController
         $model = new DetailChecksheet();
         $checksheetModel = new Checksheet();
         $statusLogModel = new StatusChangeLog();
+        // dd($this->request->getPost('run_hour'));
 
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
@@ -32,6 +33,7 @@ class DetailChecksheetController extends BaseController
         $itemCheckData = $this->request->getPost('item_check');
         $inspeksiData = $this->request->getPost('inspeksi');
         $standarData = $this->request->getPost('standar');
+        $runHourData = $this->request->getPost('run_hour'); // Ambil data run_hour dari input
 
         $checksheet = $checksheetModel->find($checksheetId);
         if (!$checksheetId || !$checksheet) {
@@ -52,30 +54,32 @@ class DetailChecksheetController extends BaseController
         $hasChanges = false;
         $isSubmitted = ($action == 'submit') ? 1 : 0;
 
-        // Process NPK updates first
         foreach ($npkData as $colIndex => $karyawanId) {
             if (!empty($karyawanId)) {
-                // Get karyawan data
                 $karyawan = $this->karyawanModel->find($karyawanId);
                 if (!$karyawan) {
                     return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
                 }
 
-                // Update all rows for this column
+                $updateData = [
+                    'npk' => $karyawan['npk'],
+                    'id_karyawan' => $karyawan['id'],
+                    'is_submitted' => $isSubmitted,
+                ];
+
+                if (!empty($runHourData[$colIndex])) {
+                    $updateData['run_hour'] = $runHourData[$colIndex];
+                }
+
                 $model->where([
                     'checksheet_id' => $checksheetId,
                     'kolom' => intval($colIndex)
-                ])->set([
-                    'npk' => $karyawan['npk'],
-                    'id_karyawan' => $karyawan['id'],
-                    'is_submitted' => $isSubmitted
-                ])->update();
+                ])->set($updateData)->update();
 
                 $hasChanges = true;
             }
         }
 
-        // Process status updates
         if (!empty($statusData)) {
             foreach ($statusData as $rowIndex => $statuses) {
                 foreach ($statuses as $colIndex => $status) {
@@ -104,19 +108,24 @@ class DetailChecksheetController extends BaseController
                         'kolom' => intval($colIndex)
                     ])->first();
 
+                    // Get run_hour value if applicable
+                    $itemCheckId = $itemCheckData[$rowIndex];
+                    $runHourValue = $runHourData[$colIndex] ?? null;
+
                     if (!$existing) {
                         // Insert new record
                         $model->insert([
                             'checksheet_id' => $checksheetId,
                             'tanggal' => $fullDate,
                             'kolom' => intval($colIndex),
-                            'item_check' => $itemCheckData[$rowIndex],
+                            'item_check' => $itemCheckId,
                             'inspeksi' => $inspeksiData[$rowIndex],
                             'standar' => $standarData[$rowIndex],
                             'status' => $status,
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
-                            'is_submitted' => $isSubmitted
+                            'is_submitted' => $isSubmitted,
+                            'run_hour' => $runHourValue
                         ]);
                         $detailId = $model->getInsertID();
 
@@ -132,13 +141,15 @@ class DetailChecksheetController extends BaseController
                         // Periksa apakah status berubah sebelum mencatat log
                         $previousStatus = $existing['status'] ?? 'NG'; // Default ke 'NG' jika tidak ada status sebelumnya
 
-                        // Update existing record
+                        // Update existing record - but don't update run_hour here
+                        // since we already updated it separately above
                         $model->update($existing['id'], [
                             'status' => $status,
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
+
                         if ($existing['status'] === 'NG' && $status === 'OK') {
                             $statusLogModel->where('detail_checksheet_id', $existing['id'])
                                 ->where('new_status', null)
@@ -235,6 +246,7 @@ class DetailChecksheetController extends BaseController
     {
         $statusLogModel = new StatusChangeLog();
         $checksheetModel = new Checksheet();
+        $karyawanModel = new Karyawan();
 
         $log = $statusLogModel
             ->select('preuse_tb_status_change_log.*, preuse_tb_detail_checksheet.item_check, preuse_tb_detail_checksheet.inspeksi, preuse_tb_detail_checksheet.standar, preuse_tb_detail_checksheet.tanggal, preuse_tb_detail_checksheet.checksheet_id')
@@ -251,10 +263,13 @@ class DetailChecksheetController extends BaseController
             ->where('id', $log['checksheet_id'])
             ->first();
 
+        $karyawanList = $karyawanModel->findAll();
+
         $data = [
             'title' => 'Change Ticket',
             'log' => $log,
-            'mesin' => $mesin['mesin'] ?? 'Tidak ditemukan'
+            'mesin' => $mesin['mesin'] ?? 'Tidak ditemukan',
+            'karyawanList' => $karyawanList
         ];
 
         return view('detail_checksheet/change_status_form', $data);
@@ -265,6 +280,7 @@ class DetailChecksheetController extends BaseController
         date_default_timezone_set('Asia/Jakarta');
         $statusLogModel = new StatusChangeLog();
         $detailChecksheetModel = new DetailChecksheet();
+        $karyawanModel = new Karyawan(); // Tambahkan model Karyawan
 
         $log = $statusLogModel->find($logId);
 
@@ -280,17 +296,24 @@ class DetailChecksheetController extends BaseController
             return redirect()->back()->with('error', 'Semua field harus diisi');
         }
 
+        // Cari karyawan berdasarkan NPK
+        $karyawan = $karyawanModel->where('npk', $npk)->first();
+        if (!$karyawan) {
+            return redirect()->back()->with('error', 'Karyawan dengan NPK tersebut tidak ditemukan');
+        }
+
         // Update status di log
         $statusLogModel->update($logId, [
             'new_status' => $newStatus,
             'reason' => $reason,
-            'changed_by' => $npk,
+            'changed_by' => $npk, // Simpan NPK
+            'id_karyawan' => $karyawan['id'], // Simpan ID Karyawan
             'changed_at' => date('Y-m-d H:i:s')
         ]);
 
         if ($newStatus === 'OK') {
             $detailChecksheet = $detailChecksheetModel->find($log['detail_checksheet_id']);
-        
+
             if ($detailChecksheet) {
                 // Ambil semua tiket NG untuk item_check yang sama dan checksheet_id yang sama
                 $ngTickets = $detailChecksheetModel->where([
@@ -298,19 +321,20 @@ class DetailChecksheetController extends BaseController
                     'item_check' => $detailChecksheet['item_check'],
                     'status' => 'NG'
                 ])->orderBy('tanggal', 'ASC')->findAll();
-        
+
                 // Ubah tiket pada tanggal yang sama atau sebelumnya menjadi resolved
                 foreach ($ngTickets as $ticket) {
                     if ($ticket['tanggal'] <= $detailChecksheet['tanggal']) {
                         // Update is_resolved pada detail_checksheet
                         $detailChecksheetModel->update($ticket['id'], ['is_resolved' => 1]);
-        
+
                         // Perbarui log status menjadi resolved dan tambahkan reason, changed_by, dan changed_at
                         $statusLogModel->where('detail_checksheet_id', $ticket['id'])
                             ->set([
                                 'new_status' => 'OK',
                                 'reason' => $reason,
                                 'changed_by' => $npk,
+                                'id_karyawan' => $karyawan['id'], // Tambahkan ID Karyawan
                                 'changed_at' => date('Y-m-d H:i:s')
                             ])
                             ->update();

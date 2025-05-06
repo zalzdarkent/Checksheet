@@ -194,13 +194,19 @@
                         <?php endfor; ?>
                     </tr>
                     <tr>
-                        <td colspan="4"><label class="fw-bold">Run Hour: <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                        <td colspan="4">
+                            <label class="fw-bold">Run Hour:
+                                <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    data-bs-title="Hanya angka">(?)</span></label></td>
+                                    data-bs-title="Hanya angka">(?)</span>
+                            </label>
+                        </td>
                         <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
                             <td class="text-center">
-                                <input type="number" class="form-control form-control-sm" name="run_hour[<?= $i ?>]" value="<?= $runHourArray[$i] ?? '' ?>">
+                                <input type="number" class="form-control form-control-sm"
+                                    name="run_hour[<?= $i ?>]"
+                                    value="<?= isset($runHourArray[$row['item_check']][$i]) ? $runHourArray[$row['item_check']][$i] : '' ?>">
                             </td>
                         <?php endfor; ?>
                     </tr>
