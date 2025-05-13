@@ -42,11 +42,46 @@
         </div>
     </div>
 
+    <!-- Card untuk Input Checkbox Horizontal -->
+
     <!-- Card untuk Form Utama -->
     <div class="card ms-3 ms-md-5" style="max-width: 800px;">
         <div class="card-body">
             <form id="dynamicForm" action="<?= base_url() ?>/master/store" method="post">
                 <?= csrf_field() ?>
+
+                <div class="card mb-3" style="max-width: 800px;">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">Tipe Pengecekan</h6>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex gap-4">
+                                    <!-- Run Hour Checkbox -->
+                                    <div class="form-check">
+                                        <input type="hidden" name="run_hour" value="0">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="run_hour" value="1"
+                                            id="checkboxRunHour">
+                                        <label class="form-check-label" for="checkboxRunHour">
+                                            Run Hour
+                                        </label>
+                                    </div>
+
+                                    <!-- Temperature Checkbox -->
+                                    <div class="form-check">
+                                        <input type="hidden" name="temperature" value="0">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="temperature" value="1"
+                                            id="checkboxTemperature">
+                                        <label class="form-check-label" for="checkboxTemperature">
+                                            Temperature
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div id="formContainer">
                     <input type="hidden" name="judul_checksheet" id="judul_checksheet_hidden">
                     <input type="hidden" name="mesin" id="mesinData">

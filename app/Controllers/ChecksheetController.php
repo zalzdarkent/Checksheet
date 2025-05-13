@@ -167,7 +167,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data master berdasarkan master_id di preuse_tb_checksheet
         $master = $db->table('preuse_tb_master')
-            ->select('*')
+            ->select('*, COALESCE(run_hour, 0) as run_hour, COALESCE(temperature, 0) as temperature') // Tambahkan kolom run_hour dan temperature
             ->where('id', $checksheet['master_id'])
             ->get()
             ->getRowArray();
@@ -181,7 +181,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -227,8 +227,10 @@ class ChecksheetController extends BaseController
         }
 
         $runHourArray = [];
+        $temperatureArray = [];
         foreach ($detailChecksheet as $row) {
             $runHourArray[$row['item_check']][$row['kolom']] = $row['run_hour'];
+            $temperatureArray[$row['item_check']][$row['kolom']] = $row['temperature'];
         }
 
         $data = [
@@ -243,6 +245,9 @@ class ChecksheetController extends BaseController
             'karyawanList' => $karyawanList,
             'deletedItemChecks' => $deletedItemChecks, // Tambahkan data yang dihapus ke view
             'runHourArray' => $runHourArray, // Kirim data run_hour ke view
+            'temperatureArray' => $temperatureArray, // Kirim data temperature ke view
+            'showRunHour' => (bool)$master['run_hour'],     // Tambahkan flag untuk run_hour
+            'showTemperature' => (bool)$master['temperature']
         ];
 
         // Debug data yang dikirim ke view

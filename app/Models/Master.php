@@ -16,7 +16,9 @@ class Master extends Model
         'mesin',
         'id_machine',
         'judul_checksheet',
-        'created_at'
+        'created_at',
+        'run_hour',
+        'temperature'
     ];
     protected $useTimestamps = false;
 

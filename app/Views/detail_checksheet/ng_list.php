@@ -74,7 +74,7 @@
                                     </td>
                                     <td>
                                         <?php if ($item['new_status'] !== 'OK'): ?>
-                                            <a href="<?= base_url('open-ticket/change-status/' . $item['id']); ?>" class="btn btn-primary btn-sm" title="Ubah Status">
+                                            <a href="<?= base_url('open-ticket/change-status/' . $item['id']); ?>" class="btn btn-warning btn-sm" title="Ubah Status">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
                                         <?php else: ?>

@@ -34,6 +34,7 @@ class DetailChecksheetController extends BaseController
         $inspeksiData = $this->request->getPost('inspeksi');
         $standarData = $this->request->getPost('standar');
         $runHourData = $this->request->getPost('run_hour'); // Ambil data run_hour dari input
+        $temperaturData = $this->request->getPost('temperature'); // Ambil data run_hour dari input
 
         $checksheet = $checksheetModel->find($checksheetId);
         if (!$checksheetId || !$checksheet) {
@@ -69,6 +70,10 @@ class DetailChecksheetController extends BaseController
 
                 if (!empty($runHourData[$colIndex])) {
                     $updateData['run_hour'] = $runHourData[$colIndex];
+                }
+
+                if (!empty($temperaturData[$colIndex])) {
+                    $updateData['temperature'] = $temperaturData[$colIndex];
                 }
 
                 $model->where([
@@ -111,6 +116,7 @@ class DetailChecksheetController extends BaseController
                     // Get run_hour value if applicable
                     $itemCheckId = $itemCheckData[$rowIndex];
                     $runHourValue = $runHourData[$colIndex] ?? null;
+                    $temperatureValue = $temperaturData[$colIndex] ?? null;
 
                     if (!$existing) {
                         // Insert new record
@@ -125,24 +131,21 @@ class DetailChecksheetController extends BaseController
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted,
-                            'run_hour' => $runHourValue
+                            'run_hour' => $runHourValue,
+                            'temperature' => $temperatureValue
                         ]);
-                        $detailId = $model->getInsertID();
 
-                        // Hanya tambahkan log untuk status "NG" dengan previous_status juga "NG"
+                        // Hanya tambahkan log jika status baru adalah NG
                         if ($status === 'NG') {
+                            $detailId = $model->getInsertID();
                             $statusLogModel->insert([
                                 'detail_checksheet_id' => $detailId,
-                                'previous_status' => 'NG', // Untuk data baru, default previous status adalah 'NG'
+                                'previous_status' => 'NG',
                                 'created_at' => date('Y-m-d H:i:s')
                             ]);
                         }
                     } else {
-                        // Periksa apakah status berubah sebelum mencatat log
-                        $previousStatus = $existing['status'] ?? 'NG'; // Default ke 'NG' jika tidak ada status sebelumnya
-
-                        // Update existing record - but don't update run_hour here
-                        // since we already updated it separately above
+                        // Update existing record
                         $model->update($existing['id'], [
                             'status' => $status,
                             'npk' => $karyawan['npk'],
@@ -150,19 +153,21 @@ class DetailChecksheetController extends BaseController
                             'is_submitted' => $isSubmitted
                         ]);
 
-                        if ($existing['status'] === 'NG' && $status === 'OK') {
-                            $statusLogModel->where('detail_checksheet_id', $existing['id'])
-                                ->where('new_status', null)
-                                ->delete();
-                        }
+                        // Jika status baru adalah NG
+                        if ($status === 'NG') {
+                            // Hapus log sebelumnya jika ada
+                            $statusLogModel->where('detail_checksheet_id', $existing['id'])->delete();
 
-                        // Tambahkan log hanya jika status berubah menjadi "NG"
-                        if ($status === 'NG' && $status !== $previousStatus) {
+                            // Buat log baru dengan previous_status NG
                             $statusLogModel->insert([
                                 'detail_checksheet_id' => $existing['id'],
-                                'previous_status' => $previousStatus ?: 'NG', // Pastikan tidak ada nilai NULL
+                                'previous_status' => 'NG',
                                 'created_at' => date('Y-m-d H:i:s')
                             ]);
+                        }
+                        // Jika status berubah menjadi OK, hapus semua log
+                        else if ($status === 'OK') {
+                            $statusLogModel->where('detail_checksheet_id', $existing['id'])->delete();
                         }
                     }
                     $hasChanges = true;

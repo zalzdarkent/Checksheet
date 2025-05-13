@@ -59,15 +59,19 @@ class MasterController extends BaseController
         $masterModel = new Master(); // Model untuk tb_master
         $detailMasterModel = new DetailMaster(); // Model untuk tb_detail_master
 
+        $runHour = $this->request->getPost('run_hour') === '1' ? true : false;
+        $temperature = $this->request->getPost('temperature') === '1' ? true : false; // Akan bernilai 1 jika dicentang, 0 jika tidak
         // Validasi input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'judul_checksheet' => 'required',
-            'mesin'            => 'required',
-            'id_machine'       => 'required',
-            'item_check'       => 'required',
-            'inspeksi'         => 'required',
-            'standar'          => 'required',
+            'judul_checksheet'  => 'required',
+            'mesin'             => 'required',
+            'id_machine'        => 'required',
+            'item_check'        => 'required',
+            'run_hour'          => 'permit_empty',
+            'temperature'       => 'permit_empty',
+            'inspeksi'          => 'required',
+            'standar'           => 'required',
         ]);
 
         if (!$this->validate($validation->getRules())) {
@@ -85,10 +89,24 @@ class MasterController extends BaseController
         // Simpan ke tb_master (hanya 1 kali)
         $masterData = [
             'judul_checksheet' => $judulChecksheet,
+            'run_hour' => $runHour,
+            'temperature' => $temperature,
             'mesin'            => json_encode($mesin), // Simpan dalam bentuk JSON
             'id_machine'       => json_encode($idMachine),
             'created_at'       => date('Y-m-d H:i:s'),
         ];
+
+        // Debugging: Lihat semua data yang akan disimpan
+        // dd([
+        //     'Raw Request' => $this->request->getPost(),
+        //     'Processed Data' => [
+        //         'masterData' => $masterData,
+        //         'run_hour (processed)' => $runHour,
+        //         'temperature (processed)' => $temperature,
+        //         'mesin (decoded)' => $mesin,
+        //         'id_machine (decoded)' => $idMachine
+        //     ]
+        // ]);
 
         $masterModel->insert($masterData);
         $masterId = $masterModel->insertID(); // Ambil ID master yang baru disimpan
@@ -124,6 +142,8 @@ class MasterController extends BaseController
         // Decode JSON untuk mesin dan id_machine
         $data['mesin'] = json_decode($data['item']['mesin'], true);
         $data['id_machine'] = json_decode($data['item']['id_machine'], true);
+        $data['run_hour'] = (bool)$data['item']['run_hour'];
+        $data['temperature'] = (bool)$data['item']['temperature'];
 
         // Ambil semua data mesin dari MasterMesin
         $mesinModel = new MasterMesin();
@@ -164,6 +184,8 @@ class MasterController extends BaseController
                 'judul'   => 'permit_empty',
                 'mesin'   => 'permit_empty',
                 'mesin_id' => 'permit_empty',
+                'run_hour'          => 'permit_empty',
+                'temperature'       => 'permit_empty',
                 'item_check' => 'permit_empty',
                 'inspeksi' => 'permit_empty',
                 'standar'  => 'permit_empty',
@@ -175,7 +197,9 @@ class MasterController extends BaseController
             $masterData = [
                 'judul_checksheet' => $inputData['judul'],
                 'mesin' => $inputData['mesin'],
-                'id_machine' => $inputData['mesin_id']
+                'id_machine' => $inputData['mesin_id'],
+                'run_hour' => ($this->request->getPost('run_hour') === '1'),
+                'temperature' => ($this->request->getPost('temperature') === '1'),
             ];
             $this->masterModel->update($id, $masterData);
 

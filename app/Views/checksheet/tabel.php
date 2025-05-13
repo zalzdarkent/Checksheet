@@ -193,32 +193,59 @@
                             </td>
                         <?php endfor; ?>
                     </tr>
-                    <tr>
-                        <td colspan="4">
-                            <label class="fw-bold">Run Hour:
-                                <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    data-bs-title="Hanya angka">(?)</span>
-                            </label>
-                        </td>
-                        <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
-                            <td class="text-center">
-                                <?php if ($isSubmitted): ?>
-                                    <?php
-                                    $runHourValue = $runHourArray[$row['item_check']][$i] ?? 'Belum diisi';
-                                    ?>
-                                    <span class="badge <?= $runHourValue !== 'Belum diisi' ? 'bg-info' : 'bg-secondary' ?>">
-                                        <?= $runHourValue ?>
-                                    </span>
-                                <?php else: ?>
-                                    <input type="number" class="form-control form-control-sm"
-                                        name="run_hour[<?= $i ?>]"
-                                        value="<?= isset($runHourArray[$row['item_check']][$i]) ? $runHourArray[$row['item_check']][$i] : '' ?>">
-                                <?php endif; ?>
+                    <?php if ($showRunHour): ?>
+                        <!-- Run Hour section -->
+                        <tr>
+                            <td colspan="4">
+                                <label class="fw-bold">Run Hour:
+                                    <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        data-bs-title="Hanya angka">(?)</span>
+                                </label>
                             </td>
-                        <?php endfor; ?>
-                    </tr>
+                            <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
+                                <td class="text-center">
+                                    <?php if ($isSubmitted): ?>
+                                        <span class="badge <?= isset($runHourArray[$row['item_check']][$i]) ? 'bg-info' : 'bg-secondary' ?>">
+                                            <?= $runHourArray[$row['item_check']][$i] ?? 'Belum diisi' ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <input type="number" class="form-control form-control-sm"
+                                            name="run_hour[<?= $i ?>]"
+                                            value="<?= isset($runHourArray[$row['item_check']][$i]) ? $runHourArray[$row['item_check']][$i] : '' ?>">
+                                    <?php endif; ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endif; ?>
+
+                    <?php if ($showTemperature): ?>
+                        <!-- Temperature section -->
+                        <tr>
+                            <td colspan="4">
+                                <label class="fw-bold">Temperature:
+                                    <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        data-bs-title="Hanya angka">(?)</span>
+                                </label>
+                            </td>
+                            <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
+                                <td class="text-center">
+                                    <?php if ($isSubmitted): ?>
+                                        <span class="badge <?= isset($temperatureArray[$row['item_check']][$i]) ? 'bg-info' : 'bg-secondary' ?>">
+                                            <?= $temperatureArray[$row['item_check']][$i] ?? 'Belum diisi' ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <input type="number" class="form-control form-control-sm"
+                                            name="temperature[<?= $i ?>]"
+                                            value="<?= isset($temperatureArray[$row['item_check']][$i]) ? $temperatureArray[$row['item_check']][$i] : '' ?>">
+                                    <?php endif; ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endif; ?>
                 </tfoot>
             </table>
         </div>

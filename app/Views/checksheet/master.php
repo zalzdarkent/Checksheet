@@ -10,7 +10,7 @@
         <div class="card-header bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="m-0 font-weight-bold">Master Checksheet Pre-Use</h5>
-                <a href="<?=base_url()?>/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
+                <a href="<?= base_url() ?>/master/create" class="btn btn-primary btn-sm px-4 rounded-pill">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
             </div>
@@ -37,6 +37,8 @@
                             <th class="text-center" width="5%">No</th>
                             <th>Judul Checksheet</th>
                             <th>Mesin</th>
+                            <th>Run Hour</th>
+                            <th>Temperature</th>
                             <th class="text-center" width="15%">Aksi</th>
                         </tr>
                     </thead>
@@ -44,7 +46,9 @@
                         <?php if (empty($items)) : ?>
                             <tr>
                                 <td class="text-center"></td>
+                                <td class="text-center"></td>
                                 <td class="text-center">Tidak ada data</td>
+                                <td class="text-center"></td>
                                 <td class="text-center"></td>
                                 <td class="text-center"></td>
                             </tr>
@@ -59,7 +63,7 @@
                                         if (is_array($mesinList)) :
                                             foreach ($mesinList as $mesin) :
                                         ?>
-                                                <span class="badge bg-success rounded-pill"><?= htmlspecialchars($mesin); ?></span>
+                                                <span class="badge bg-primary rounded-pill"><?= htmlspecialchars($mesin); ?></span>
                                             <?php
                                             endforeach;
                                         else :
@@ -68,10 +72,24 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?=base_url()?>/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3">
+                                        <?php if ($item['run_hour'] == 1): ?>
+                                            <span class="badge bg-success">Yes</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">No</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($item['temperature'] == 1): ?>
+                                            <span class="badge bg-success">Yes</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">No</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="<?= base_url() ?>/master/edit/<?= $item['id']; ?>" class="btn btn-warning btn-sm rounded-pill px-3">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-                                        <a href="<?=base_url()?>/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm rounded-pill px-3 ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        <a href="<?= base_url() ?>/master/delete/<?= $item['id']; ?>" class="btn btn-danger btn-sm rounded-pill px-3 ms-1" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </td>
@@ -137,7 +155,7 @@
             ordering: true,
             responsive: true,
             columnDefs: [{
-                    orderable: false,
+                    orderable: true,
                     targets: 3
                 },
                 {
