@@ -56,26 +56,57 @@ class MasterController extends BaseController
 
     public function store()
     {
-        $masterModel = new Master(); // Model untuk tb_master
-        $detailMasterModel = new DetailMaster(); // Model untuk tb_detail_master
+        $masterModel = new Master();
+        $detailMasterModel = new DetailMaster();
 
         $runHour = $this->request->getPost('run_hour') === '1' ? true : false;
-        $temperature = $this->request->getPost('temperature') === '1' ? true : false; // Akan bernilai 1 jika dicentang, 0 jika tidak
+        $temperature = $this->request->getPost('temperature') === '1' ? true : false;
+
         // Validasi input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'judul_checksheet'  => 'required',
-            'mesin'             => 'required',
-            'id_machine'        => 'required',
-            'item_check'        => 'required',
-            'run_hour'          => 'permit_empty',
-            'temperature'       => 'permit_empty',
-            'inspeksi'          => 'required',
-            'standar'           => 'required',
+            'judul_checksheet' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Judul checksheet harus diisi'
+                ]
+            ],
+            'mesin' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Minimal satu mesin harus dipilih'
+                ]
+            ],
+            'id_machine' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'ID mesin tidak valid'
+                ]
+            ],
+            'item_check.*' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Item check harus diisi'
+                ]
+            ],
+            'inspeksi.*' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Inspeksi harus diisi'
+                ]
+            ],
+            'standar.*' => [
+                'rules' => 'required',
+                'errors' => [
+                    'required' => 'Standar harus diisi'
+                ]
+            ]
         ]);
 
-        if (!$this->validate($validation->getRules())) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $validation->getErrors());
         }
 
         // Ambil data dari request
@@ -180,17 +211,58 @@ class MasterController extends BaseController
             // Validasi data yang dikirim dari form
             $inputData = $this->request->getPost();
 
-            if (!$this->validate([
-                'judul'   => 'permit_empty',
-                'mesin'   => 'permit_empty',
-                'mesin_id' => 'permit_empty',
-                'run_hour'          => 'permit_empty',
-                'temperature'       => 'permit_empty',
-                'item_check' => 'permit_empty',
-                'inspeksi' => 'permit_empty',
-                'standar'  => 'permit_empty',
-            ])) {
-                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            // Set rules validasi
+            $validation->setRules([
+                'judul' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Judul checksheet harus diisi'
+                    ]
+                ],
+                'mesin' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Minimal satu mesin harus dipilih'
+                    ]
+                ],
+                'mesin_id' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'ID mesin tidak valid'
+                    ]
+                ],
+                'item_check.*' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Item check harus diisi'
+                    ]
+                ],
+                'inspeksi.*' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Inspeksi harus diisi'
+                    ]
+                ],
+                'standar.*' => [
+                    'rules' => 'required',
+                    'errors' => [
+                        'required' => 'Standar harus diisi'
+                    ]
+                ]
+            ]);
+
+            // Jalankan validasi
+            if (!$validation->withRequest($this->request)->run()) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', $validation->getErrors());
+            }
+
+            // Validasi tambahan untuk jumlah item
+            if (empty($inputData['item_check']) || count($inputData['item_check']) === 0) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Minimal harus ada satu item check');
             }
 
             // Update data master

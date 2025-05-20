@@ -26,11 +26,20 @@
         </div>
     <?php endif; ?>
 
+    <!-- Container untuk pesan error -->
+    <div id="errorContainer" class="ms-3 ms-md-5 mb-3" style="max-width: 800px;">
+        <!-- Pesan error akan ditampilkan di sini -->
+    </div>
+
     <!-- Card untuk Input Judul Checksheet -->
     <div class="card ms-3 ms-md-5 mb-3" style="max-width: 800px;">
         <div class="card-body">
             <label class="form-label">Judul Checksheet</label>
-            <input type="text" class="form-control" name="judul" id="judul_checksheet" value="<?= htmlspecialchars($item['judul_checksheet'] ?? '') ?>">
+            <input type="text"
+                class="form-control"
+                name="judul"
+                id="judul_checksheet"
+                value="<?= htmlspecialchars($item['judul_checksheet'] ?? '') ?>">
         </div>
     </div>
 
@@ -285,57 +294,143 @@
         container.appendChild(newRow);
     }
 
-    function confirmDeleteRow(button) {
-        if (document.querySelectorAll('.item-row').length > 1) {
-            if (confirm('Apakah Anda yakin ingin menghapus baris ini?')) {
-                button.closest('.item-row').remove();
-            }
-        } else {
-            alert('Minimal harus ada satu baris item check!');
-        }
-    }
-
+    // Ganti fungsi validateForm yang ada dengan yang baru
     function validateForm(event) {
         event.preventDefault();
+        let isValid = true;
+        let errorMessages = [];
+
+        // Reset error container
+        const errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = '';
 
         // Validasi judul
-        const judul = document.getElementById("judul_checksheet").value.trim();
-        if (!judul) {
-            alert("Judul checksheet harus diisi!");
-            return false;
+        const judul = document.getElementById("judul_checksheet");
+        if (!judul.value.trim()) {
+            judul.classList.add('is-invalid');
+            errorMessages.push("Judul checksheet harus diisi!");
+            isValid = false;
+        } else {
+            judul.classList.remove('is-invalid');
         }
 
         // Validasi mesin
+        const mesinInput = document.getElementById("mesinInput");
         if (selectedMesin.length === 0) {
-            alert("Minimal harus memilih satu mesin!");
-            return false;
+            mesinInput.classList.add('is-invalid');
+            document.getElementById("mesinError").textContent = "Minimal harus memilih satu mesin!";
+            document.getElementById("mesinError").classList.remove("d-none");
+            errorMessages.push("Minimal harus memilih satu mesin!");
+            isValid = false;
+        } else {
+            mesinInput.classList.remove('is-invalid');
+            document.getElementById("mesinError").classList.add("d-none");
         }
 
         // Validasi item check, inspeksi, dan standar
-        const itemChecks = document.getElementsByName("item_check[]");
-        const inspeksi = document.getElementsByName("inspeksi[]");
-        const standar = document.getElementsByName("standar[]");
+        const rows = document.getElementsByClassName('item-row');
+        if (rows.length === 0) {
+            errorMessages.push("Minimal harus ada satu item check!");
+            isValid = false;
+        }
 
-        for (let i = 0; i < itemChecks.length; i++) {
-            if (!itemChecks[i].value.trim()) {
-                alert("Item Check tidak boleh kosong!");
-                itemChecks[i].focus();
-                return false;
+        for (let i = 0; i < rows.length; i++) {
+            const itemCheck = rows[i].querySelector('input[name="item_check[]"]');
+            const inspeksi = rows[i].querySelector('input[name="inspeksi[]"]');
+            const standar = rows[i].querySelector('input[name="standar[]"]');
+
+            // Validasi Item Check
+            if (!itemCheck.value.trim()) {
+                itemCheck.classList.add('is-invalid');
+                errorMessages.push(`Item Check baris ke-${i + 1} harus diisi!`);
+                if (!itemCheck.nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = `Item Check baris ke-${i + 1} harus diisi!`;
+                    itemCheck.parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                itemCheck.classList.remove('is-invalid');
             }
-            if (!inspeksi[i].value.trim()) {
-                alert("Inspeksi tidak boleh kosong!");
-                inspeksi[i].focus();
-                return false;
+
+            // Validasi Inspeksi
+            if (!inspeksi.value.trim()) {
+                inspeksi.classList.add('is-invalid');
+                errorMessages.push(`Inspeksi baris ke-${i + 1} harus diisi!`);
+                if (!inspeksi.nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = `Inspeksi baris ke-${i + 1} harus diisi!`;
+                    inspeksi.parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                inspeksi.classList.remove('is-invalid');
             }
-            if (!standar[i].value.trim()) {
-                alert("Standar tidak boleh kosong!");
-                standar[i].focus();
-                return false;
+
+            // Validasi Standar
+            if (!standar.value.trim()) {
+                standar.classList.add('is-invalid');
+                errorMessages.push(`Standar baris ke-${i + 1} harus diisi!`);
+                if (!standar.nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = `Standar baris ke-${i + 1} harus diisi!`;
+                    standar.parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                standar.classList.remove('is-invalid');
             }
         }
 
-        // Jika semua validasi berhasil, submit form
+        // Tampilkan alert jika ada error
+        if (!isValid) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mb-0';
+            alertDiv.innerHTML = `
+                <strong>Mohon perbaiki kesalahan berikut:</strong>
+                <ul class="mb-0">
+                    ${errorMessages.map(msg => `<li>${msg}</li>`).join('')}
+                </ul>
+            `;
+
+            // Tampilkan error di container
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = '';
+            errorContainer.appendChild(alertDiv);
+
+            // Scroll ke error container
+            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return false;
+        }
+
+        // Submit form jika validasi berhasil
         document.getElementById("dynamicForm").submit();
+    }
+
+    // Tambahkan event listener untuk menghapus pesan error saat input berubah
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('form-control')) {
+            e.target.classList.remove('is-invalid');
+            const errorContainer = document.getElementById('errorContainer');
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
+        }
+    });
+
+    // Modifikasi fungsi confirmDeleteRow
+    function confirmDeleteRow(button) {
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+            if (confirm('Apakah Anda yakin ingin menghapus baris ini? Data yang sudah dihapus tidak dapat dikembalikan.')) {
+                button.closest('.item-row').remove();
+            }
+        } else {
+            alert('Minimal harus ada satu baris item check! Tidak dapat menghapus baris terakhir.');
+        }
     }
 </script>
 
