@@ -88,6 +88,17 @@
                                             Temperature
                                         </label>
                                     </div>
+
+                                    <!-- Running Load Checkbox -->
+                                    <div class="form-check">
+                                        <input type="hidden" name="run_load" value="0">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="run_load" value="1"
+                                            id="checkboxRunLoad">
+                                        <label class="form-check-label" for="checkboxRunLoad">
+                                            Running Load
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -158,26 +169,28 @@
         let mesinInput = input.value.trim();
         let errorEl = document.getElementById("mesinError");
 
-        // Cari mesin berdasarkan name_machine atau id_machine
-        let mesinObj = mesinList.find(m => m.name_machine === mesinInput || m.id_machine === mesinInput);
+        // Cari semua mesin yang cocok dengan name_machine atau id_machine
+        let mesinListFiltered = mesinList.filter(m => m.name_machine === mesinInput || m.id_machine === mesinInput);
 
-        if (!mesinObj) {
-            // Tampilkan pesan error jika mesin tidak ditemukan
+        if (mesinListFiltered.length === 0) {
             errorEl.textContent = "Mesin tidak ditemukan. Pastikan ID atau nama mesin sesuai dengan daftar.";
             errorEl.classList.remove("d-none");
             return;
         }
 
-        // Cek apakah mesin sudah dipilih sebelumnya
-        if (selectedMesin.find(m => m.id_machine === mesinObj.id_machine)) {
-            errorEl.textContent = "Mesin ini sudah dipilih sebelumnya. Silakan pilih mesin lain.";
+        // Cari mesin yang belum terpilih (id_machine unik)
+        let mesinToAdd = mesinListFiltered.find(m => !selectedMesin.find(s => s.id_machine === m.id_machine));
+
+        if (!mesinToAdd) {
+            errorEl.textContent = "Semua mesin dengan nama/ID ini sudah dipilih sebelumnya.";
             errorEl.classList.remove("d-none");
             return;
         }
 
+        // Tambahkan mesin
         selectedMesin.push({
-            name_machine: mesinObj.name_machine,
-            id_machine: mesinObj.id_machine
+            name_machine: mesinToAdd.name_machine,
+            id_machine: mesinToAdd.id_machine
         });
         updateMesinDisplay();
         input.value = "";
@@ -242,109 +255,109 @@
 
     // Ubah event listener submit pada form
     document.getElementById('dynamicForm').addEventListener('submit', function(e) {
-    let isValid = true;
-    
-    // Validasi judul
-    const judulInput = document.getElementById('judul_checksheet');
-    if (!judulInput.value.trim()) {
-        judulInput.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        judulInput.classList.remove('is-invalid');
-    }
+        let isValid = true;
 
-    // Validasi mesin
-    const mesinInput = document.getElementById('mesinInput');
-    const errorEl = document.getElementById('mesinError');
-    
-    if (selectedMesin.length === 0) {
-        if (mesinInput.value.trim()) {
-            // Ada text di input tapi belum di-add
-            errorEl.textContent = 'Klik tombol Tambah atau tekan Enter untuk menambahkan mesin yang dipilih';
-            errorEl.classList.remove('d-none');
-            mesinInput.classList.add('is-invalid');
+        // Validasi judul
+        const judulInput = document.getElementById('judul_checksheet');
+        if (!judulInput.value.trim()) {
+            judulInput.classList.add('is-invalid');
+            isValid = false;
         } else {
-            // Input kosong dan tidak ada mesin yang dipilih
-            errorEl.textContent = 'Minimal satu mesin harus dipilih';
-            errorEl.classList.remove('d-none');
-            mesinInput.classList.add('is-invalid');
+            judulInput.classList.remove('is-invalid');
         }
-        isValid = false;
-    } else {
-        mesinInput.classList.remove('is-invalid');
-    }
 
-    // Validasi item check, inspeksi, dan standar
-    const itemChecks = document.getElementsByName('item_check[]');
-    const inspeksi = document.getElementsByName('inspeksi[]');
-    const standar = document.getElementsByName('standar[]');
-    
-    for (let i = 0; i < itemChecks.length; i++) {
-        // Validasi Item Check
-        if (!itemChecks[i].value.trim()) {
-            itemChecks[i].classList.add('is-invalid');
-            if (!itemChecks[i].nextElementSibling) {
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Item check harus diisi';
-                itemChecks[i].parentNode.appendChild(feedback);
+        // Validasi mesin
+        const mesinInput = document.getElementById('mesinInput');
+        const errorEl = document.getElementById('mesinError');
+
+        if (selectedMesin.length === 0) {
+            if (mesinInput.value.trim()) {
+                // Ada text di input tapi belum di-add
+                errorEl.textContent = 'Klik tombol Tambah atau tekan Enter untuk menambahkan mesin yang dipilih';
+                errorEl.classList.remove('d-none');
+                mesinInput.classList.add('is-invalid');
+            } else {
+                // Input kosong dan tidak ada mesin yang dipilih
+                errorEl.textContent = 'Minimal satu mesin harus dipilih';
+                errorEl.classList.remove('d-none');
+                mesinInput.classList.add('is-invalid');
             }
             isValid = false;
         } else {
-            itemChecks[i].classList.remove('is-invalid');
+            mesinInput.classList.remove('is-invalid');
         }
 
-        // Validasi Inspeksi
-        if (!inspeksi[i].value.trim()) {
-            inspeksi[i].classList.add('is-invalid');
-            if (!inspeksi[i].nextElementSibling) {
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Inspeksi harus diisi';
-                inspeksi[i].parentNode.appendChild(feedback);
+        // Validasi item check, inspeksi, dan standar
+        const itemChecks = document.getElementsByName('item_check[]');
+        const inspeksi = document.getElementsByName('inspeksi[]');
+        const standar = document.getElementsByName('standar[]');
+
+        for (let i = 0; i < itemChecks.length; i++) {
+            // Validasi Item Check
+            if (!itemChecks[i].value.trim()) {
+                itemChecks[i].classList.add('is-invalid');
+                if (!itemChecks[i].nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Item check harus diisi';
+                    itemChecks[i].parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                itemChecks[i].classList.remove('is-invalid');
             }
-            isValid = false;
-        } else {
-            inspeksi[i].classList.remove('is-invalid');
-        }
 
-        // Validasi Standar
-        if (!standar[i].value.trim()) {
-            standar[i].classList.add('is-invalid');
-            if (!standar[i].nextElementSibling) {
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = 'Standar harus diisi';
-                standar[i].parentNode.appendChild(feedback);
+            // Validasi Inspeksi
+            if (!inspeksi[i].value.trim()) {
+                inspeksi[i].classList.add('is-invalid');
+                if (!inspeksi[i].nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Inspeksi harus diisi';
+                    inspeksi[i].parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                inspeksi[i].classList.remove('is-invalid');
             }
-            isValid = false;
-        } else {
-            standar[i].classList.remove('is-invalid');
+
+            // Validasi Standar
+            if (!standar[i].value.trim()) {
+                standar[i].classList.add('is-invalid');
+                if (!standar[i].nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Standar harus diisi';
+                    standar[i].parentNode.appendChild(feedback);
+                }
+                isValid = false;
+            } else {
+                standar[i].classList.remove('is-invalid');
+            }
         }
-    }
 
-    if (!isValid) {
-        e.preventDefault();
-    }
-});
-
-// Tambahkan event listener untuk menghapus class invalid saat input diubah
-document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('form-control')) {
-        if (e.target.value.trim()) {
-            e.target.classList.remove('is-invalid');
+        if (!isValid) {
+            e.preventDefault();
         }
-    }
-});
+    });
 
-// Tambahkan event listener untuk input mesin
-document.getElementById("mesinInput").addEventListener("input", function() {
-    // Hapus pesan error hanya jika input kosong
-    if (!this.value.trim()) {
-        document.getElementById("mesinError").classList.add("d-none");
-        this.classList.remove('is-invalid');
-    }
-});
+    // Tambahkan event listener untuk menghapus class invalid saat input diubah
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('form-control')) {
+            if (e.target.value.trim()) {
+                e.target.classList.remove('is-invalid');
+            }
+        }
+    });
+
+    // Tambahkan event listener untuk input mesin
+    document.getElementById("mesinInput").addEventListener("input", function() {
+        // Hapus pesan error hanya jika input kosong
+        if (!this.value.trim()) {
+            document.getElementById("mesinError").classList.add("d-none");
+            this.classList.remove('is-invalid');
+        }
+    });
 </script>
 
 <?= $this->endSection() ?>

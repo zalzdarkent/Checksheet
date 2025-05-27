@@ -35,6 +35,7 @@ class DetailChecksheetController extends BaseController
         $standarData = $this->request->getPost('standar');
         $runHourData = $this->request->getPost('run_hour'); // Ambil data run_hour dari input
         $temperaturData = $this->request->getPost('temperature'); // Ambil data run_hour dari input
+        $runLoadData = $this->request->getPost('run_load'); // Ambil data run_load dari input
 
         $checksheet = $checksheetModel->find($checksheetId);
         if (!$checksheetId || !$checksheet) {
@@ -74,6 +75,10 @@ class DetailChecksheetController extends BaseController
 
                 if (!empty($temperaturData[$colIndex])) {
                     $updateData['temperature'] = $temperaturData[$colIndex];
+                }
+                
+                if (!empty($runLoadData[$colIndex])) {
+                    $updateData['run_load'] = $runLoadData[$colIndex];
                 }
 
                 $model->where([
@@ -117,6 +122,7 @@ class DetailChecksheetController extends BaseController
                     $itemCheckId = $itemCheckData[$rowIndex];
                     $runHourValue = $runHourData[$colIndex] ?? null;
                     $temperatureValue = $temperaturData[$colIndex] ?? null;
+                    $runLoadValue = $runLoadData[$colIndex] ?? null;
 
                     if (!$existing) {
                         // Insert new record
@@ -132,7 +138,8 @@ class DetailChecksheetController extends BaseController
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted,
                             'run_hour' => $runHourValue,
-                            'temperature' => $temperatureValue
+                            'temperature' => $temperatureValue,
+                            'run_load' => $runLoadValue,
                         ]);
 
                         // Hanya tambahkan log jika status baru adalah NG

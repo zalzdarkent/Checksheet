@@ -18,7 +18,8 @@ class Master extends Model
         'judul_checksheet',
         'created_at',
         'run_hour',
-        'temperature'
+        'temperature',
+        'run_load',
     ];
     protected $useTimestamps = false;
 

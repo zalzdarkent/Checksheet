@@ -29,7 +29,9 @@
                 </tr>
                 <tr>
                     <th class="p-1">Line</th>
-                    <td class="p-1">: <?= esc($checksheet['line']) ?></td>
+                    <td class="p-1">
+                        : <?= isset($checksheet['line']) ? ($checksheet['line'] == 0 ? 'Non Line' : esc($checksheet['line'])) : '-' ?>
+                    </td>
                     <td class="p-1"></td>
                     <th class="p-1">Bulan</th>
                     <td class="p-1">: <?= strftime('%B %Y', strtotime($checksheet['bulan'])) ?></td>
@@ -241,6 +243,33 @@
                                         <input type="number" class="form-control form-control-sm"
                                             name="temperature[<?= $i ?>]"
                                             value="<?= isset($temperatureArray[$row['item_check']][$i]) ? $temperatureArray[$row['item_check']][$i] : '' ?>">
+                                    <?php endif; ?>
+                                </td>
+                            <?php endfor; ?>
+                        </tr>
+                    <?php endif; ?>
+                    
+                    <?php if ($showRunLoad): ?>
+                        <!-- Temperature section -->
+                        <tr>
+                            <td colspan="4">
+                                <label class="fw-bold">Run Load:
+                                    <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        data-bs-title="Hanya angka">(?)</span>
+                                </label>
+                            </td>
+                            <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
+                                <td class="text-center">
+                                    <?php if ($isSubmitted): ?>
+                                        <span class="badge <?= isset($runLoadArray[$row['item_check']][$i]) ? 'bg-info' : 'bg-secondary' ?>">
+                                            <?= $runLoadArray[$row['item_check']][$i] ?? 'Belum diisi' ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <input type="number" class="form-control form-control-sm"
+                                            name="run_load[<?= $i ?>]"
+                                            value="<?= isset($runLoadArray[$row['item_check']][$i]) ? $runLoadArray[$row['item_check']][$i] : '' ?>">
                                     <?php endif; ?>
                                 </td>
                             <?php endfor; ?>

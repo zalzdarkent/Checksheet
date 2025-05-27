@@ -94,7 +94,7 @@ class ChecksheetController extends BaseController
             'seksi'      => 'required',
             'mesin'      => 'required',
             'id_machine' => 'required',
-            'line'       => 'required|numeric|greater_than[0]|less_than[8]',
+            'line'       => 'required|integer|greater_than_equal_to[0]|less_than[8]',
         ];
 
         if (!$this->validate($rules)) {
@@ -167,7 +167,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data master berdasarkan master_id di preuse_tb_checksheet
         $master = $db->table('preuse_tb_master')
-            ->select('*, COALESCE(run_hour, 0) as run_hour, COALESCE(temperature, 0) as temperature') // Tambahkan kolom run_hour dan temperature
+            ->select('*, COALESCE(run_hour, 0) as run_hour, COALESCE(temperature, 0) as temperature, COALESCE(run_load, 0) as run_load') // Tambahkan kolom run_hour dan temperature
             ->where('id', $checksheet['master_id'])
             ->get()
             ->getRowArray();
@@ -181,7 +181,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -228,9 +228,11 @@ class ChecksheetController extends BaseController
 
         $runHourArray = [];
         $temperatureArray = [];
+        $runLoadArray = [];
         foreach ($detailChecksheet as $row) {
             $runHourArray[$row['item_check']][$row['kolom']] = $row['run_hour'];
             $temperatureArray[$row['item_check']][$row['kolom']] = $row['temperature'];
+            $runLoadArray[$row['item_check']][$row['kolom']] = $row['run_load'];
         }
 
         $data = [
@@ -245,8 +247,10 @@ class ChecksheetController extends BaseController
             'karyawanList' => $karyawanList,
             'deletedItemChecks' => $deletedItemChecks, // Tambahkan data yang dihapus ke view
             'runHourArray' => $runHourArray, // Kirim data run_hour ke view
+            'runLoadArray' => $runLoadArray, // Kirim data run_load ke view
             'temperatureArray' => $temperatureArray, // Kirim data temperature ke view
             'showRunHour' => (bool)$master['run_hour'],     // Tambahkan flag untuk run_hour
+            'showRunLoad' => (bool)$master['run_load'],     // Tambahkan flag untuk run_load
             'showTemperature' => (bool)$master['temperature']
         ];
 

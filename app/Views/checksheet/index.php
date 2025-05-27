@@ -69,7 +69,9 @@ $hideMenus = isset($_GET['line']);
                                 <tr>
                                     <td class="text-center"><?= $index + 1 ?></td>
                                     <td><?= esc($row['mesin']) ?></td>
-                                    <td class="text-center"><?= esc($row['line'] ?? '-') ?></td>
+                                    <td class="text-center">
+                                        <?= isset($row['line']) ? ($row['line'] == 0 ? 'Non Line' : esc($row['line'])) : '-' ?>
+                                    </td>
                                     <td><?= date('F Y', strtotime($row['bulan'])) ?></td>
                                     <td>
                                         <?php
@@ -86,6 +88,7 @@ $hideMenus = isset($_GET['line']);
                                         if ($row['seksi'] == 'Prod. 1') $warna = 'bg-warning';
                                         if ($row['seksi'] == 'Prod. 2') $warna = 'bg-primary';
                                         if ($row['seksi'] == 'Prod. 3') $warna = 'bg-danger';
+                                        if ($row['seksi'] == 'MTN') $warna = 'bg-success';
                                         ?>
                                         <span class="badge <?= $warna ?> rounded-pill"><?= esc($row['seksi']) ?></span>
                                     </td>
@@ -173,6 +176,7 @@ $hideMenus = isset($_GET['line']);
                         <label for="line" class="form-label">Line</label>
                         <select class="form-select" id="line" name="line" required>
                             <option value="" selected>Pilih Line</option>
+                            <option value="0">Non Line</option> <!-- Tambahin ini -->
                             <?php for ($i = 1; $i <= 7; $i++): ?>
                                 <option value="<?= $i ?>">Line <?= $i ?></option>
                             <?php endfor; ?>
@@ -204,6 +208,7 @@ $hideMenus = isset($_GET['line']);
                             <option value="Prod. 1">Prod. 1</option>
                             <option value="Prod. 2">Prod. 2</option>
                             <option value="Prod. 3">Prod. 3</option>
+                            <option value="MTN">MTN</option>
                         </select>
                         <div class="invalid-feedback">Silakan pilih seksi</div>
                     </div>

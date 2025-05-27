@@ -26,6 +26,7 @@ class DetailChecksheet extends Model
         'is_resolved',  // Menambahkan field untuk menandai status yang sudah resolved
         'run_hour',
         'temperature',
+        'run_load',
         'created_at', 
         'deleted_at'
     ];

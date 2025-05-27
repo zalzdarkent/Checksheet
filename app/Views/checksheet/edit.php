@@ -10,7 +10,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="<?=base_url()?>/checksheet/update/<?= $checksheet['id'] ?>" method="post">
+            <form action="<?= base_url() ?>/checksheet/update/<?= $checksheet['id'] ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="_method" value="POST">
 
@@ -19,14 +19,14 @@
                     <select class="form-select" id="mesin" name="mesin" required onchange="updateIdMachine(this)">
                         <option value="" selected>Pilih Mesin</option>
                         <?php foreach ($masters as $master): ?>
-                            <?php 
-                                $mesinList = json_decode($master['mesin'], true);
-                                $idMachineList = json_decode($master['id_machine'], true);
+                            <?php
+                            $mesinList = json_decode($master['mesin'], true);
+                            $idMachineList = json_decode($master['id_machine'], true);
                             ?>
                             <?php foreach ($mesinList as $index => $mesin): ?>
-                                <option value="<?= $master['id'] . '|' . $index; ?>" 
-                                        data-id-machine="<?= $idMachineList[$index] ?? '' ?>"
-                                        <?= ($mesin == $checksheet['mesin']) ? 'selected' : '' ?>>
+                                <option value="<?= $master['id'] . '|' . $index; ?>"
+                                    data-id-machine="<?= $idMachineList[$index] ?? '' ?>"
+                                    <?= ($mesin == $checksheet['mesin']) ? 'selected' : '' ?>>
                                     <?= $mesin; ?>
                                 </option>
                             <?php endforeach; ?>
@@ -49,6 +49,7 @@
                 <div class="mb-3">
                     <label for="line" class="form-label">Line</label>
                     <select class="form-select" id="line" name="line" required>
+                        <option value="0" <?= $checksheet['line'] == 0 ? 'selected' : '' ?>>Non Line</option>
                         <?php for ($i = 1; $i <= 7; $i++): ?>
                             <option value="<?= $i ?>" <?= $checksheet['line'] == $i ? 'selected' : '' ?>>Line <?= $i ?></option>
                         <?php endfor; ?>
@@ -75,6 +76,7 @@
                         <option value="Prod. 1" <?= $checksheet['seksi'] == 'Prod. 1' ? 'selected' : '' ?>>Prod. 1</option>
                         <option value="Prod. 2" <?= $checksheet['seksi'] == 'Prod. 2' ? 'selected' : '' ?>>Prod. 2</option>
                         <option value="Prod. 3" <?= $checksheet['seksi'] == 'Prod. 3' ? 'selected' : '' ?>>Prod. 3</option>
+                        <option value="MTN" <?= $checksheet['seksi'] == 'MTN' ? 'selected' : '' ?>>MTN</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Update</button>
@@ -90,7 +92,7 @@
         const idMachine = selectedOption.getAttribute('data-id-machine');
         const idMachineInput = document.getElementById('idMachineInput');
         const idMachineBadge = document.getElementById('idMachineBadge');
-        
+
         if (idMachine) {
             idMachineInput.value = idMachine;
             idMachineBadge.innerHTML = `<i class="bi bi-tag"></i> ${idMachine}`;

@@ -61,6 +61,7 @@ class MasterController extends BaseController
 
         $runHour = $this->request->getPost('run_hour') === '1' ? true : false;
         $temperature = $this->request->getPost('temperature') === '1' ? true : false;
+        $runLoad = $this->request->getPost('run_load') === '1' ? true : false;
 
         // Validasi input
         $validation = \Config\Services::validation();
@@ -122,6 +123,7 @@ class MasterController extends BaseController
             'judul_checksheet' => $judulChecksheet,
             'run_hour' => $runHour,
             'temperature' => $temperature,
+            'run_load' => $runLoad,
             'mesin'            => json_encode($mesin), // Simpan dalam bentuk JSON
             'id_machine'       => json_encode($idMachine),
             'created_at'       => date('Y-m-d H:i:s'),
@@ -133,6 +135,7 @@ class MasterController extends BaseController
         //     'Processed Data' => [
         //         'masterData' => $masterData,
         //         'run_hour (processed)' => $runHour,
+        //         'run_load (processed)' => $runLoad,
         //         'temperature (processed)' => $temperature,
         //         'mesin (decoded)' => $mesin,
         //         'id_machine (decoded)' => $idMachine
@@ -175,6 +178,7 @@ class MasterController extends BaseController
         $data['id_machine'] = json_decode($data['item']['id_machine'], true);
         $data['run_hour'] = (bool)$data['item']['run_hour'];
         $data['temperature'] = (bool)$data['item']['temperature'];
+        $data['run_load'] = (bool)$data['item']['run_load'];
 
         // Ambil semua data mesin dari MasterMesin
         $mesinModel = new MasterMesin();
@@ -271,8 +275,10 @@ class MasterController extends BaseController
                 'mesin' => $inputData['mesin'],
                 'id_machine' => $inputData['mesin_id'],
                 'run_hour' => ($this->request->getPost('run_hour') === '1'),
+                'run_load' => ($this->request->getPost('run_load') === '1'),
                 'temperature' => ($this->request->getPost('temperature') === '1'),
             ];
+
             $this->masterModel->update($id, $masterData);
 
             // Dapatkan item_check yang ada sebelumnya

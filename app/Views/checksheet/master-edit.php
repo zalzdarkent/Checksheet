@@ -118,6 +118,18 @@
                                             Temperature
                                         </label>
                                     </div>
+                                    
+                                    <!-- Temperature Checkbox -->
+                                    <div class="form-check">
+                                        <input type="hidden" name="run_load" value="0">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="run_load" value="1"
+                                            id="checkboxRunLoad"
+                                            <?= $run_load ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="checkboxRunLoad">
+                                            Running Load
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -209,36 +221,32 @@
         let mesinNama = input.value.trim();
         let errorEl = document.getElementById("mesinError");
 
-        // Cari mesin dari list
-        let mesinObj = mesinList.find(m => m.name_machine === mesinNama);
+        let mesinListFiltered = mesinList.filter(m => m.name_machine === mesinNama || m.id_machine === mesinNama);
 
-        if (!mesinObj) {
+        if (mesinListFiltered.length === 0) {
             errorEl.textContent = "Mesin tidak valid. Pilih dari daftar yang tersedia.";
             errorEl.classList.remove("d-none");
             return;
         }
 
-        // Cek apakah mesin sudah dipilih sebelumnya
-        if (selectedMesin.includes(mesinNama)) {
-            errorEl.textContent = "Mesin ini sudah dipilih sebelumnya. Silakan pilih mesin lain.";
+        let mesinToAdd = mesinListFiltered.find(m => !selectedIdMesin.includes(m.id_machine));
+
+        if (!mesinToAdd) {
+            errorEl.textContent = "Semua mesin dengan nama/ID ini sudah dipilih sebelumnya.";
             errorEl.classList.remove("d-none");
             return;
         }
 
-        selectedMesin.push(mesinNama);
-        selectedIdMesin.push(mesinObj.id_machine);
+        selectedIdMesin.push(mesinToAdd.id_machine);
+
         updateMesinDisplay();
         input.value = "";
         errorEl.classList.add("d-none");
     }
 
-    function removeMesin(mesinNama) {
-        const index = selectedMesin.indexOf(mesinNama);
-        if (index !== -1) {
-            selectedMesin.splice(index, 1);
-            selectedIdMesin.splice(index, 1);
-            updateMesinDisplay();
-        }
+    function removeMesin(id_machine) {
+        selectedIdMesin = selectedIdMesin.filter(id => id !== id_machine);
+        updateMesinDisplay();
     }
 
     function updateMesinDisplay() {
@@ -250,21 +258,29 @@
         mesinContainer.innerHTML = "";
         idMesinContainer.innerHTML = "";
 
-        selectedMesin.forEach((mesin, index) => {
+        selectedIdMesin.forEach(id => {
+            let mesin = mesinList.find(m => m.id_machine === id);
+
             // Badge nama mesin
             let badge = document.createElement("span");
             badge.classList.add("badge", "bg-primary", "me-1", "mb-1");
-            badge.innerHTML = `${mesin} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${mesin}')"></button>`;
+            badge.innerHTML = `${mesin.name_machine} <button type="button" class="btn-close btn-close-white" style="font-size: 0.5em;" onclick="removeMesin('${id}')"></button>`;
             mesinContainer.appendChild(badge);
 
             // Badge ID mesin
             let badgeId = document.createElement("span");
             badgeId.classList.add("badge", "bg-secondary", "me-1", "mb-1");
-            badgeId.textContent = selectedIdMesin[index];
+            badgeId.textContent = id;
             idMesinContainer.appendChild(badgeId);
         });
 
-        mesinDataInput.value = JSON.stringify(selectedMesin);
+        // Kirim data ke hidden input (kalau perlu simpan nama mesin juga)
+        let selectedNamaMesin = selectedIdMesin.map(id => {
+            let mesin = mesinList.find(m => m.id_machine === id);
+            return mesin ? mesin.name_machine : "";
+        });
+
+        mesinDataInput.value = JSON.stringify(selectedNamaMesin);
         idMachineDataInput.value = JSON.stringify(selectedIdMesin);
     }
 
@@ -402,7 +418,10 @@
             errorContainer.appendChild(alertDiv);
 
             // Scroll ke error container
-            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            errorContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
             return false;
         }
 

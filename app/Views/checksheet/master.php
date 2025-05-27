@@ -39,6 +39,7 @@
                             <th>Mesin</th>
                             <th>Run Hour</th>
                             <th>Temperature</th>
+                            <th>Running Load</th>
                             <th class="text-center" width="15%">Aksi</th>
                         </tr>
                     </thead>
@@ -80,6 +81,13 @@
                                     </td>
                                     <td class="text-center">
                                         <?php if ($item['temperature'] == 1): ?>
+                                            <span class="badge bg-success">Yes</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">No</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($item['run_load'] == 1): ?>
                                             <span class="badge bg-success">Yes</span>
                                         <?php else: ?>
                                             <span class="badge bg-danger">No</span>
