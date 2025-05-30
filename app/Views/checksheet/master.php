@@ -56,7 +56,7 @@
                         <?php else : ?>
                             <?php foreach ($items as $key => $item) : ?>
                                 <tr>
-                                    <td class="text-center"><?= (($currentPage - 1) * 10) + $key + 1; ?></td>
+                                    <td class="text-center"><?= $key + 1 ?></td>
                                     <td><?= $item['judul_checksheet']; ?></td>
                                     <td>
                                         <?php

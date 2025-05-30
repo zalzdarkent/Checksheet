@@ -24,22 +24,10 @@ class MasterController extends BaseController
     public function index()
     {
         $model = new Master();
-        $pager = \Config\Services::pager();
 
-        // Set jumlah item per halaman
-        $perPage = 10;
-
-        // Hitung total records untuk pagination
-        $totalRecords = $model->countAllResults();
-
-        // Ambil nomor halaman dari URL, default ke halaman 1
-        $page = $this->request->getGet('page') ?? 1;
-
-        // Query dengan pagination
-        $data['items'] = $model->findAll($perPage, ($page - 1) * $perPage);
+        // Ambil semua data tanpa batasan
+        $data['items'] = $model->findAll();
         $data['title'] = 'Master Checksheet';
-        $data['pager'] = $pager->makeLinks($page, $perPage, $totalRecords, 'bootstrap_pager');
-        $data['currentPage'] = $page;
 
         return view('checksheet/master', $data);
     }
