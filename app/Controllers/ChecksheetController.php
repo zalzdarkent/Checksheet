@@ -23,15 +23,11 @@ class ChecksheetController extends BaseController
     public function checksheet()
     {
         $db = \Config\Database::connect();
-        $pager = \Config\Services::pager();
 
-        // Set jumlah item per halaman
-        $perPage = 10;
-
-        // Ambil parameter line dari URL, kalau tidak ada default-nya null
+        // Ambil parameter line dari URL
         $line = $this->request->getGet('line');
 
-        // Hitung total records untuk pagination, sesuaikan dengan filter line
+        // Query builder
         $builder = $db->table('preuse_tb_checksheet')
             ->select('preuse_tb_checksheet.*, preuse_tb_master.mesin as master_mesin, preuse_tb_master.id_machine as master_id_machine, preuse_tb_master.id as master_id')
             ->join('preuse_tb_master', 'preuse_tb_checksheet.master_id = preuse_tb_master.id', 'left');
@@ -41,17 +37,8 @@ class ChecksheetController extends BaseController
             $builder->where('preuse_tb_checksheet.line', $line);
         }
 
-        // Hitung total records dengan filter line
-        $totalRecords = $builder->countAllResults(false);
-
-        // Ambil nomor halaman dari URL, default ke halaman 1
-        $page = $this->request->getGet('page') ?? 1;
-
-        // Query dengan pagination dan filter line
-        $checksheets = $builder
-            ->limit($perPage, ($page - 1) * $perPage)
-            ->get()
-            ->getResultArray();
+        // Ambil semua data tanpa paginasi
+        $checksheets = $builder->get()->getResultArray();
 
         foreach ($checksheets as &$checksheet) {
             $checksheet['mesin'] = $checksheet['mesin'] ?? 'Unknown';
@@ -62,9 +49,7 @@ class ChecksheetController extends BaseController
         $data = [
             'title' => 'Checksheet Pre-Use',
             'checksheets' => $checksheets,
-            'masters' => $masters,
-            'pager' => $pager->makeLinks($page, $perPage, $totalRecords, 'bootstrap_pager'),
-            'currentPage' => $page
+            'masters' => $masters
         ];
 
         return view('checksheet/index', $data);
@@ -181,7 +166,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load    ')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
