@@ -56,6 +56,7 @@ $hideMenus = isset($_GET['line']);
                         <tr>
                             <th class="text-center" width="5%">No</th>
                             <th>Mesin</th>
+                            <th>Id Mesin</th>
                             <th>Line</th>
                             <th>Bulan</th>
                             <th>Dept.</th>
@@ -69,6 +70,7 @@ $hideMenus = isset($_GET['line']);
                                 <tr>
                                     <td class="text-center"><?= $index + 1 ?></td>
                                     <td><?= esc($row['mesin']) ?></td>
+                                    <td><?= esc($row['id_machine']) ?></td>
                                     <td class="text-center">
                                         <?= isset($row['line']) ? ($row['line'] == 0 ? 'Non Line' : esc($row['line'])) : '-' ?>
                                     </td>
@@ -119,6 +121,7 @@ $hideMenus = isset($_GET['line']);
                                 <td class="text-center"></td>
                                 <td class="text-center"></td>
                                 <td class="text-center">Tidak ada data</td>
+                                <td class="text-center"></td>
                                 <td class="text-center"></td>
                                 <td class="text-center"></td>
                                 <td class="text-center"></td>

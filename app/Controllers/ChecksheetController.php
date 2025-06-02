@@ -106,7 +106,7 @@ class ChecksheetController extends BaseController
         // Cek apakah kombinasi mesin, line, dan bulan sudah ada
         $existingChecksheet = $this->db->table('preuse_tb_checksheet')
             ->where('master_id', $master_id)
-            ->where('mesin', $mesinName)
+            ->where('id_machine', $idMachine)  // Ganti mesin menjadi id_machine
             ->where('line', $line)
             ->where('bulan', $bulan)
             ->get()
@@ -115,7 +115,7 @@ class ChecksheetController extends BaseController
         if ($existingChecksheet) {
             $bulanFormatted = date('F Y', strtotime($bulan));
             return redirect()->back()->withInput()
-                ->with('error', "Checksheet untuk mesin '{$mesinName}' Line {$line} pada bulan {$bulanFormatted} sudah ada!");
+                ->with('error', "Checksheet untuk ID Machine '{$idMachine}' Line {$line} pada bulan {$bulanFormatted} sudah ada!");
         }
 
         // Data yang akan disimpan
