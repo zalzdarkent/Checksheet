@@ -23,8 +23,8 @@
                     <th class="p-1">Seksi</th>
                     <td class="p-1">: <?= esc($checksheet['seksi']) ?></td>
                     <td class="p-1"></td>
-                    <th class="p-1">No Form</th>
-                    <td class="p-1">:</td>
+                    <th class="p-1">Id Mesin</th>
+                    <td class="p-1">: <?= esc($checksheet['id_machine']) ?></td>
                     <td class="p-1"></td>
                 </tr>
                 <tr>
