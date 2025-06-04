@@ -175,7 +175,12 @@ class ChecksheetController extends BaseController
         // dd($detailChecksheet);
 
         // Ambil data karyawan untuk dropdown NPK
-        $karyawanList = $this->karyawanModel->findAll();
+        $karyawanList = $db->table('master_data_karyawan')
+                        ->select('*')
+                        ->where('status_karyawan', 'cbi')
+                        ->where('status', 1)
+                        ->get()
+                        ->getResultArray();
 
         // Buat array status berdasarkan item_check dan tanggal
         $statusArray = [];
