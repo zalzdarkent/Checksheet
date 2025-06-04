@@ -6,26 +6,26 @@ use CodeIgniter\Model;
 
 class MasterMesin extends Model
 {
-    protected $table            = 'data_master_mesin_MTN';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
-        'id_machine',
-        'name_machine',
-        'spec_unit',
-        'category',
-        'line',
-        'production',
-        'area',
-        'description',
-        'sub_assy_mc',
-        'id_sub_assy_mc',
-        'created_at',
-        'data_version'
-    ];
+    // protected $table            = 'data_master_mesin_MTN';
+    // protected $primaryKey       = 'id';
+    // protected $useAutoIncrement = true;
+    // protected $returnType       = 'array';
+    // protected $useSoftDeletes   = false;
+    // protected $protectFields    = true;
+    // protected $allowedFields    = [
+    //     'id_machine',
+    //     'name_machine',
+    //     'spec_unit',
+    //     'category',
+    //     'line',
+    //     'production',
+    //     'area',
+    //     'description',
+    //     'sub_assy_mc',
+    //     'id_sub_assy_mc',
+    //     'created_at',
+    //     'data_version'
+    // ];
 
     // protected bool $allowEmptyInserts = false;
     // protected bool $updateOnlyChanged = true;
@@ -56,4 +56,14 @@ class MasterMesin extends Model
     // protected $afterFind      = [];
     // protected $beforeDelete   = [];
     // protected $afterDelete    = [];
+
+    public function __construct()
+    {
+        $this->db = \Config\Database::connect('prodControlv2');
+    }
+
+    public function getAll()
+    {
+        return $this->db->table('data_master_mesin_MTN')->get()->getResultArray();
+    }
 }

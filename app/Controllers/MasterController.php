@@ -37,7 +37,9 @@ class MasterController extends BaseController
         $data['title'] = 'Form Master';
 
         // Ambil semua data mesin dari DB
-        $data['mesinList'] = $mesinModel->findAll();
+        // $data['mesinList'] = $mesinModel->findAll();
+        $data['mesinList'] = $mesinModel->getAll();
+        // var_dump($data['mesinList']); die;
 
         return view('checksheet/master-form', $data);
     }
@@ -170,7 +172,8 @@ class MasterController extends BaseController
 
         // Ambil semua data mesin dari MasterMesin
         $mesinModel = new MasterMesin();
-        $data['mesinList'] = $mesinModel->findAll();
+        // $data['mesinList'] = $mesinModel->findAll();
+        $data['mesinList'] = $mesinModel->getAll();
 
         // Ambil data dari tabel detail berdasarkan master_id
         $details = $this->detailMasterModel->getDetailsByMasterId($id);
