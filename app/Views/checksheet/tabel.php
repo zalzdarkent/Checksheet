@@ -59,7 +59,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            <table class="table table-bordered table-striped align-middle text-center">
+            <!-- tabel sakti -->
+            <table id="checksheet-table" class="table table-bordered table-striped align-middle text-center nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th class="custom-header">No</th>

@@ -157,6 +157,49 @@
     .table th {
         border: 1px solid #e5e7eb;
     }
+
+    /* Tambahkan style ini ke CSS yang sudah ada */
+    .dataTables_wrapper {
+        margin-top: 1rem;
+    }
+
+    .dataTables_scrollHead,
+    .dataTables_scrollBody {
+        border-radius: 0.5rem;
+    }
+
+    .DTFC_LeftWrapper {
+        border-right: 2px solid #e5e7eb;
+        background: white;
+    }
+
+    .DTFC_LeftBodyLiner {
+        background: white;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Pastikan header tetap alignment yang benar */
+    .dataTables_scrollHead th {
+        text-align: center !important;
+    }
 </style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
@@ -217,106 +260,74 @@
         </div>
     </div>
 
-    <div class="table-wrapper">
-        <div class="fixed-columns">
-            <table class="table table-hover align-middle text-center">
-                <thead>
-                    <tr class="bg-gradient-primary text-white">
-                        <th class="py-3 px-4 rounded-start-4">Mesin</th>
-                        <th class="py-3 px-4">ID Mesin</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($machineData as $machine): ?>
-                        <tr class="border-bottom">
-                            <td class="py-3 px-4">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cpu-fill text-primary me-2"></i>
-                                    <span class="fw-semibold"><?= $machine['mesin'] ?></span>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                    <i class="bi bi-tag-fill me-1"></i> <?= $machine['id_machine'] ?>
-                                </span>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="table-scroll">
-            <table class="table table-hover align-middle text-center">
-                <thead>
-                    <tr class="bg-gradient-primary text-white">
-                        <th class="py-3 px-4 rounded-start-4">Mesin</th>
-                        <th class="py-3 px-4">ID Mesin</th>
-                        <?php
-                        // Ambil bulan dan tahun dari filterBulan
-                        list($filterYear, $filterMonth) = explode('-', $filterBulan);
+    <div class="table-responsive">
+        <table id="checksheetTable" class="table table-hover align-middle text-center">
+            <thead>
+                <tr class="bg-gradient-primary text-white">
+                    <th class="py-3 px-4">Mesin</th>
+                    <th class="py-3 px-4">ID Mesin</th>
+                    <?php
+                    list($filterYear, $filterMonth) = explode('-', $filterBulan);
+                    for ($day = 1; $day <= $jumlahHari; $day++):
+                        $currentDate = sprintf('%s-%02d-%02d', $filterYear, $filterMonth, $day);
+                    ?>
+                        <th class="py-3 px-4">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="fw-normal"><?= $day ?></span>
+                                <small class="text-primary-50"><?= date('D', strtotime($currentDate)) ?></small>
+                            </div>
+                        </th>
+                    <?php endfor; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($machineData as $machine): ?>
+                    <tr>
+                        <td class="py-3 px-4">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <i class="bi bi-cpu-fill text-primary me-2"></i>
+                                <span class="fw-semibold"><?= $machine['mesin'] ?></span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                <i class="bi bi-tag-fill me-1"></i> <?= $machine['id_machine'] ?>
+                            </span>
+                        </td>
+                        <?php for ($day = 1; $day <= $jumlahHari; $day++): ?>
+                            <?php
+                            $status = $machine['days'][$day] ?? 'EMPTY';
+                            $statusClass = '';
+                            $statusIcon = '';
 
-                        for ($day = 1; $day <= $jumlahHari; $day++):
-                            // Buat tanggal dinamis berdasarkan bulan dan tahun yang dipilih
-                            $currentDate = sprintf('%s-%02d-%02d', $filterYear, $filterMonth, $day);
-                        ?>
-                            <th class="py-3 px-4 <?= $day === $jumlahHari ? 'rounded-end-4' : '' ?>">
-                                <div class="d-flex flex-column align-items-center">
-                                    <span class="fw-normal"><?= $day ?></span>
-                                    <small class="text-primary-50"><?= date('D', strtotime($currentDate)) ?></small>
+                            switch ($status) {
+                                case 'OK':
+                                    $statusClass = 'status-ok';
+                                    $statusIcon = 'bi-check-circle-fill';
+                                    break;
+                                case 'NG':
+                                    $statusClass = 'status-ng';
+                                    $statusIcon = 'bi-x-circle-fill';
+                                    break;
+                                default:
+                                    $statusClass = 'status-empty';
+                                    $statusIcon = 'bi-dash-circle-fill';
+                            }
+                            ?>
+                            <td class="py-3 px-4">
+                                <div class="status-badge <?= $statusClass ?>"
+                                    data-machine-id="<?= $machine['id_machine'] ?>"
+                                    data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
+                                    <?= $status === 'NG' ? 'onclick="showNGDetails(\'' . $machine['id_machine'] . '\', \'' . $machine['mesin'] . '\', ' . $day . ')"' : '' ?>
+                                    title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
+                                    <i class="bi <?= $statusIcon ?>"></i>
                                 </div>
-                            </th>
+                            </td>
                         <?php endfor; ?>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($machineData as $machine): ?>
-                        <tr class="border-bottom">
-                            <td class="py-3 px-4">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-cpu-fill text-primary me-2"></i>
-                                    <span class="fw-semibold"><?= $machine['mesin'] ?></span>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                    <i class="bi bi-tag-fill me-1"></i> <?= $machine['id_machine'] ?>
-                                </span>
-                            </td>
-                            <?php for ($day = 1; $day <= $jumlahHari; $day++): ?>
-                                <?php
-                                $status = $machine['days'][$day] ?? 'EMPTY';
-                                $statusClass = '';
-                                $statusIcon = '';
-
-                                switch ($status) {
-                                    case 'OK':
-                                        $statusClass = 'status-ok';
-                                        $statusIcon = 'bi-check-circle-fill';
-                                        break;
-                                    case 'NG':
-                                        $statusClass = 'status-ng';
-                                        $statusIcon = 'bi-x-circle-fill';
-                                        break;
-                                    default:
-                                        $statusClass = 'status-empty';
-                                        $statusIcon = 'bi-dash-circle-fill';
-                                }
-                                ?>
-                                <td class="py-3 px-4">
-                                    <div class="status-badge <?= $statusClass ?>"
-                                        data-machine-id="<?= $machine['id_machine'] ?>"
-                                        data-date="<?= sprintf('%s-%02d', $bulan, $day) ?>"
-                                        <?= $status === 'NG' ? 'onclick="showNGDetails(\'' . $machine['id_machine'] . '\', \'' . $machine['mesin'] . '\', ' . $day . ')"' : '' ?>
-                                        title="<?= $status === 'EMPTY' ? 'Belum diisi' : $status ?>">
-                                        <i class="bi <?= $statusIcon ?>"></i>
-                                    </div>
-                                </td>
-                            <?php endfor; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </main>
 
@@ -464,7 +475,7 @@
         document.getElementById('modalDate').textContent = formattedDate;
 
         // Kirim request untuk mendapatkan data NG
-        fetch(`<?=base_url()?>/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
+        fetch(`<?= base_url() ?>/dashboard-v3/ng-details?machine_id=${machineId}&date=${formattedDate}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -491,7 +502,7 @@
                                 });
                             } else if (item.status_change_log_id) {
                                 // Arahkan ke halaman ubah status jika belum disolved
-                                window.location.href = `<?=base_url()?>/open-ticket/change-status/${item.status_change_log_id}`;
+                                window.location.href = `<?= base_url() ?>/open-ticket/change-status/${item.status_change_log_id}`;
                             }
                         };
                         row.innerHTML = `
@@ -531,6 +542,44 @@
                 modal.show();
             });
     }
+
+    // Tambahkan ini di dalam section scripts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inisialisasi DataTable
+        let table = $('#checksheetTable').DataTable({
+            scrollX: true,
+            scrollY: '70vh',
+            scrollCollapse: true,
+            paging: false,
+            fixedColumns: {
+                left: 2
+            },
+            ordering: false,
+            info: false,
+            autoWidth: false,
+            searching: false,
+            language: {
+                search: "Cari:",
+                zeroRecords: "Data tidak ditemukan",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)"
+            },
+            initComplete: function() {
+                // Tambahkan kelas custom untuk styling
+                $('.dataTables_wrapper').addClass('bg-white rounded-4 shadow-sm p-3');
+
+                // Sesuaikan lebar kolom fixed
+                $('.DTFC_LeftWrapper').css('width', '400px');
+                $('.DTFC_LeftWrapper th, .DTFC_LeftWrapper td').css('min-width', '200px');
+            }
+        });
+
+        // Integrasi dengan search box yang sudah ada
+        $('#searchMachine').on('keyup', function() {
+            table.search(this.value).draw();
+        });
+    });
 
     // Sinkronisasi scroll vertikal antara tabel fixed dan tabel scroll
     document.addEventListener('DOMContentLoaded', function() {
