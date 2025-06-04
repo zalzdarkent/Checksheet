@@ -25,84 +25,107 @@ class Database extends Config
      * The default database connection.
      */
     public array $default = [
-        'DSN'      => '',
-        'hostname' => 'localhost',
-        'username' => 'sa',
-        'password' => '1234',
-        'database' => 'production_control_v2',
-        'DBDriver' => 'sqlsrv',
-        'DBPrefix' => '',
-        'pConnect' => false,
-        'DBDebug'  => true,
-        'charset'  => 'utf8',
-        'DBCollat' => 'utf8_general_ci',
-        'swapPre'  => '',
-        'encrypt'  => false,
-        'compress' => false,
-        'strictOn' => false,
-        'failover' => [],
-        'port'     => 1433,
-    ];
+        'DSN'          => '',
+        'hostname'     => 'localhost',
+        'username'     => 'sa',
+        'password'     => 'Saaccountalif123',
+        'database'     => 'checksheet',
+        'DBDriver'     => 'SQLSRV',
+        'DBPrefix'     => '',
+        'pConnect'     => false,
+        'DBDebug'      => (ENVIRONMENT !== 'production'),
+        'charset'      => 'utf8mb4',
+        'DBCollat'     => 'utf8mb4_general_ci',
+        'swapPre'      => '',
+        'encrypt'      => false,
+        'compress'     => false,
+        'strictOn'     => false,
+        'failover'     => [],
+        'port'         => 1433,
+        'numberNative' => false,
+        'foundRows'    => false,
+        'dateFormat'   => [
+            'date'     => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time'     => 'H:i:s',
+        ],
+    ];  
 
     public array $prodControlv2 = [
-        'DSN'      => '',
-        'hostname' => 'localhost',
-        'username' => 'sa',
-        'password' => '1234',
-        'database' => 'production_control_v2',
-        'DBDriver' => 'sqlsrv',
-        'DBPrefix' => '',
-        'pConnect' => false,
-        'DBDebug'  => true,
-        'charset'  => 'utf8',
-        'DBCollat' => 'utf8_general_ci',
-        'swapPre'  => '',
-        'encrypt'  => false,
-        'compress' => false,
-        'strictOn' => false,
-        'failover' => [],
-        'port'     => 1433,
+        'DSN'          => '',
+        'hostname'     => 'DESKTOP-LRQ27LE',
+        'username'     => 'sa',
+        'password'     => 'Saaccountalif123',
+        'database'     => 'production_control_v2',
+        'DBDriver'     => 'SQLSRV',
+        'DBPrefix'     => '',
+        'pConnect'     => false,
+        'DBDebug'      => (ENVIRONMENT !== 'production'),
+        'charset'      => 'utf8mb4',
+        'DBCollat'     => 'utf8mb4_general_ci',
+        'swapPre'      => '',
+        'encrypt'      => false,
+        'compress'     => false,
+        'strictOn'     => false,
+        'failover'     => [],
+        'port'         => 1433,
+        'numberNative' => false,
+        'foundRows'    => false,
+        'dateFormat'   => [
+            'date'     => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time'     => 'H:i:s',
+        ],
     ];
 
-    // public array $default = [
-    //     'DSN' => '',
-    //     'hostname' => 'localhost',
-    //     'username' => 'root',
-    //     'password' => '123',
-    //     'database' => 'production_control_v2',
-    //     'DBDriver' => 'sqlsrv',
-    //     'DBPrefix' => '',
-    //     'pConnect' => false,
-    //     'DBDebug' => true,
-    //     'charset' => 'utf8',
-    //     'DBCollat' => 'utf8_general_ci',
-    //     'swapPre' => '',
-    //     'encrypt' => false,
-    //     'compress' => false,
-    //     'strictOn' => false,
-    //     'failover' => [],
-    //     'port' => 1433,
-    // ];
+    //    /**
+    //     * Sample database connection for SQLite3.
+    //     *
+    //     * @var array<string, mixed>
+    //     */
+    //    public array $default = [
+    //        'database'    => 'database.db',
+    //        'DBDriver'    => 'SQLite3',
+    //        'DBPrefix'    => '',
+    //        'DBDebug'     => true,
+    //        'swapPre'     => '',
+    //        'failover'    => [],
+    //        'foreignKeys' => true,
+    //        'busyTimeout' => 1000,
+    //        'synchronous' => null,
+    //        'dateFormat'  => [
+    //            'date'     => 'Y-m-d',
+    //            'datetime' => 'Y-m-d H:i:s',
+    //            'time'     => 'H:i:s',
+    //        ],
+    //    ];
 
-    // public array $prodControlv2 = [
-    //     'DSN' => '',
-    //     'hostname' => '10.16.19.27',
-    //     'username' => 'sa',
-    //     'password' => 'User@new1',
-    //     'database' => 'production_control_v2',
-    //     'DBDriver' => 'SQLSRV',
-    //     'DBPrefix' => '',
-    //     'pConnect' => false,
-    //     'DBDebug' => true,
-    //     'charset' => 'utf8',
-    //     'DBCollat' => 'utf8_general_ci',
-    //     'swapPre' => '',
-    //     'encrypt' => false,
-    //     'compress' => false,
-    //     'strictOn' => false,
-    //     'failover' => [],
-    //     'port' => 1433,
-    // ];
+    //    /**
+    //     * Sample database connection for Postgre.
+    //     *
+    //     * @var array<string, mixed>
+    //     */
+    //    public array $default = [
+    //        'DSN'        => '',
+    //        'hostname'   => 'localhost',
+    //        'username'   => 'root',
+    //        'password'   => 'root',
+    //        'database'   => 'ci4',
+    //        'schema'     => 'public',
+    //        'DBDriver'   => 'Postgre',
+    //        'DBPrefix'   => '',
+    //        'pConnect'   => false,
+    //        'DBDebug'    => true,
+    //        'charset'    => 'utf8',
+    //        'swapPre'    => '',
+    //        'failover'   => [],
+    //        'port'       => 5432,
+    //        'dateFormat' => [
+    //            'date'     => 'Y-m-d',
+    //            'datetime' => 'Y-m-d H:i:s',
+    //            'time'     => 'H:i:s',
+    //        ],
+    //    ];
 
     public function __construct()
     {
