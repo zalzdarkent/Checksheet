@@ -285,13 +285,26 @@
             <button type="submit" class="btn btn-success mt-3" disabled>Kirim</button>
         <?php else: ?>
             <button type="submit" name="action" value="save" class="btn btn-primary mt-3" id="btn-save">Simpan</button>
-            <button type="submit" name="action" value="submit" class="btn btn-success mt-3" id="btn-submit">Kirim</button>
+            <button type="submit" name="action" value="submit" class="btn btn-success mt-3" id="btn-submit" disabled>Kirim</button>
         <?php endif; ?>
     </form>
 </main>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Fungsi untuk mengecek apakah hari ini adalah akhir bulan
+        function isEndOfMonth() {
+            const today = new Date();
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            return today.getDate() >= lastDayOfMonth;
+        }
+
+        // Mengatur status enabled/disabled tombol Kirim
+        const submitButton = document.getElementById('btn-submit');
+        if (submitButton) {
+            submitButton.disabled = !isEndOfMonth();
+        }
+
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 

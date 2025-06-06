@@ -34,6 +34,7 @@ $hideMenus = isset($_GET['line']);
             </div>
         </div>
         <div class="card-body">
+            <!-- Flash messages -->
             <?php if (session()->getFlashdata('success')) : ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-check-circle me-1"></i>
@@ -49,6 +50,74 @@ $hideMenus = isset($_GET['line']);
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
+
+            <!-- Add Filter Form -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form id="filterForm" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Mesin</label>
+                            <select class="form-select form-select-sm" id="filterMesin">
+                                <option value="">Semua Mesin</option>
+                                <?php
+                                $uniqueMesin = array_unique(array_column($checksheets, 'mesin'));
+                                foreach ($uniqueMesin as $mesin):
+                                ?>
+                                    <option value="<?= $mesin ?>"><?= $mesin ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ID Mesin</label>
+                            <select class="form-select form-select-sm" id="filterIdMesin">
+                                <option value="">Semua ID Mesin</option>
+                                <?php
+                                $uniqueIdMachine = array_unique(array_column($checksheets, 'id_machine'));
+                                foreach ($uniqueIdMachine as $id):
+                                ?>
+                                    <option value="<?= $id ?>"><?= $id ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Line</label>
+                            <select class="form-select form-select-sm" id="filterLine">
+                                <option value="">Semua Line</option>
+                                <option value="0">Non Line</option>
+                                <?php for ($i = 1; $i <= 7; $i++): ?>
+                                    <option value="<?= $i ?>">Line <?= $i ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Bulan</label>
+                            <input type="month" class="form-control form-control-sm" id="filterBulan">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Departemen</label>
+                            <select class="form-select form-select-sm" id="filterDept">
+                                <option value="">Semua Dept</option>
+                                <option value="MTN">MTN</option>
+                                <option value="PRD">PRD</option>
+                                <option value="QA">QA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Seksi</label>
+                            <select class="form-select form-select-sm" id="filterSeksi">
+                                <option value="">Semua Seksi</option>
+                                <option value="Prod. 1">Prod. 1</option>
+                                <option value="Prod. 2">Prod. 2</option>
+                                <option value="Prod. 3">Prod. 3</option>
+                                <option value="MTN">MTN</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-secondary btn-sm" id="resetFilter">Reset Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <div class="table-responsive">
                 <table id="myTable" class="table table-hover align-middle text-nowrap mb-0">
@@ -273,21 +342,58 @@ $hideMenus = isset($_GET['line']);
     }
 </style>
 <!-- DataTables JS -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#myTable').DataTable({
+        // Fungsi untuk memperbarui opsi filter
+        function updateFilterOptions() {
+            // Update filter Mesin
+            var uniqueMesin = [...new Set($('#myTable tbody tr td:nth-child(2)').map(function() {
+                return $(this).text();
+            }).get())];
+            var currentMesin = $('#filterMesin').val();
+            $('#filterMesin').empty().append('<option value="">Semua Mesin</option>');
+            uniqueMesin.forEach(function(mesin) {
+                $('#filterMesin').append(`<option value="${mesin}">${mesin}</option>`);
+            });
+            $('#filterMesin').val(currentMesin);
+
+            // Update filter ID Mesin
+            var uniqueIdMesin = [...new Set($('#myTable tbody tr td:nth-child(3)').map(function() {
+                return $(this).text();
+            }).get())];
+            var currentIdMesin = $('#filterIdMesin').val();
+            $('#filterIdMesin').empty().append('<option value="">Semua ID Mesin</option>');
+            uniqueIdMesin.forEach(function(id) {
+                $('#filterIdMesin').append(`<option value="${id}">${id}</option>`);
+            });
+            $('#filterIdMesin').val(currentIdMesin);
+
+            // Simpan nilai filter yang aktif
+            var activeFilters = {
+                mesin: $('#filterMesin').val(),
+                idMesin: $('#filterIdMesin').val(),
+                line: $('#filterLine').val(),
+                bulan: $('#filterBulan').val(),
+                dept: $('#filterDept').val(),
+                seksi: $('#filterSeksi').val()
+            };
+
+            return activeFilters;
+        }
+
+        // Initialize DataTable
+        var table = $('#myTable').DataTable({
             pageLength: 10,
             ordering: true,
             responsive: true,
             columnDefs: [{
-                    orderable: false,
-                    targets: 6
-                }, // Kolom aksi
-                {
-                    type: 'date',
-                    targets: 3
-                } // Kolom bulan
-            ],
+                orderable: false,
+                targets: 7 // Ubah ke 7 karena kolom aksi adalah kolom ke-8
+            }, {
+                type: 'date',
+                targets: 4 // Ubah ke 4 karena kolom bulan adalah kolom ke-5
+            }],
             dom: '<"row align-items-center mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
                 '<"row"<"col-sm-12"tr>>' +
                 '<"row align-items-center mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -297,7 +403,84 @@ $hideMenus = isset($_GET['line']);
             ],
             order: [
                 [0, 'asc']
-            ]
+            ],
+            drawCallback: function() {
+                updateFilterOptions();
+            }
+        });
+
+        // Custom filtering function yang diperbaiki
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            var mesin = $('#filterMesin').val();
+            var idMesin = $('#filterIdMesin').val();
+            var line = $('#filterLine').val();
+            var bulan = $('#filterBulan').val();
+            var dept = $('#filterDept').val();
+            var seksi = $('#filterSeksi').val();
+
+            var $row = $(table.row(dataIndex).node());
+            var rowMesin = data[1]; // Mesin
+            var rowIdMesin = data[2]; // ID Mesin
+            var rowLine = data[3].replace('Non Line', '0'); // Line
+            var rowBulan = data[4]; // Bulan
+            
+            // Mengambil teks dari badge dengan cara yang lebih baik
+            var rowDept = $($row.find('td:eq(5)').html()).text().trim();
+            var rowSeksi = $($row.find('td:eq(6)').html()).text().trim();
+
+            // Debug untuk memeriksa nilai yang diambil
+            /*
+            console.log('Filter Values:', {
+                dept: dept,
+                rowDept: rowDept,
+                seksi: seksi,
+                rowSeksi: rowSeksi
+            });
+            */
+
+            // Pengecekan filter
+            if (mesin && rowMesin !== mesin) return false;
+            if (idMesin && rowIdMesin !== idMesin) return false;
+            if (line && rowLine.toString() !== line.toString()) return false;
+            
+            if (bulan) {
+                var filterDate = moment(bulan + '-01');
+                var rowDate = moment(rowBulan, 'MMMM YYYY');
+                if (!rowDate.isSame(filterDate, 'month')) return false;
+            }
+            
+            // Pengecekan departemen dan seksi yang diperbaiki
+            if (dept && rowDept !== dept) return false;
+            if (seksi && rowSeksi !== seksi) return false;
+
+            return true;
+        });
+
+        // Event handler untuk filter dengan tambahan debug
+        $('#filterForm select, #filterForm input').on('change', function() {
+            var filterType = $(this).attr('id');
+            var filterValue = $(this).val();
+            
+            // Debug untuk memeriksa perubahan filter
+            /*
+            console.log('Filter Changed:', {
+                type: filterType,
+                value: filterValue
+            });
+            */
+            
+            table.draw();
+        });
+
+        // Reset filter dengan menyimpan state
+        $('#resetFilter').on('click', function() {
+            $('#filterForm')[0].reset();
+            table.draw();
+        });
+
+        // Refresh table setelah modal ditutup
+        $('#tambahModal').on('hidden.bs.modal', function() {
+            location.reload(); // Refresh halaman untuk memastikan data terbaru
         });
 
         // Form validation

@@ -69,7 +69,6 @@ class ChecksheetController extends BaseController
 
     public function store()
     {
-        // dd($this->request->getPost());
         $validation = \Config\Services::validation();
 
         // Aturan validasi
@@ -92,7 +91,10 @@ class ChecksheetController extends BaseController
         $line = $this->request->getPost('line');
         $idMachine = $this->request->getPost('id_machine');
 
-        list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
+        // Konversi format bulan ke format SQL Server (YYYY-MM-01)
+        $bulanFormatted = date('Y-m-01', strtotime($bulan));
+
+        list($master_id, $mesin_index) = explode('|', $mesinValue);
 
         // Ambil nama mesin berdasarkan index di preuse_tb_master
         $master = $this->db->table('preuse_tb_master')->where('id', $master_id)->get()->getRowArray();
@@ -106,21 +108,21 @@ class ChecksheetController extends BaseController
         // Cek apakah kombinasi mesin, line, dan bulan sudah ada
         $existingChecksheet = $this->db->table('preuse_tb_checksheet')
             ->where('master_id', $master_id)
-            ->where('id_machine', $idMachine)  // Ganti mesin menjadi id_machine
+            ->where('id_machine', $idMachine)
             ->where('line', $line)
-            ->where('bulan', $bulan)
+            ->where('bulan', $bulanFormatted) // Gunakan format tanggal yang sudah dikonversi
             ->get()
             ->getRowArray();
 
         if ($existingChecksheet) {
-            $bulanFormatted = date('F Y', strtotime($bulan));
+            $bulanDisplay = date('F Y', strtotime($bulan));
             return redirect()->back()->withInput()
-                ->with('error', "Checksheet untuk ID Machine '{$idMachine}' Line {$line} pada bulan {$bulanFormatted} sudah ada!");
+                ->with('error', "Checksheet untuk ID Machine '{$idMachine}' Line {$line} pada bulan {$bulanDisplay} sudah ada!");
         }
 
         // Data yang akan disimpan
         $data = [
-            'bulan'      => $bulan,
+            'bulan'      => $bulanFormatted, // Gunakan format tanggal yang sudah dikonversi
             'departemen' => $this->request->getPost('departemen'),
             'seksi'      => $this->request->getPost('seksi'),
             'master_id'  => $master_id,
