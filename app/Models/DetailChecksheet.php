@@ -21,6 +21,7 @@ class DetailChecksheet extends Model
         'standar',
         'status',
         'npk',
+        'gmt',
         'id_karyawan',
         'is_submitted',
         'is_resolved',  // Menambahkan field untuk menandai status yang sudah resolved

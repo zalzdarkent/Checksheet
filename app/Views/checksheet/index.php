@@ -143,23 +143,21 @@ $hideMenus = isset($_GET['line']);
                                     <td class="text-center">
                                         <?= isset($row['line']) ? ($row['line'] == 0 ? 'Non Line' : esc($row['line'])) : '-' ?>
                                     </td>
-                                    <td><?= date('F Y', strtotime($row['bulan'])) ?></td>
-                                    <td>
+                                    <td><?= date('F Y', strtotime($row['bulan'])) ?></td>                                    <td>
                                         <?php
                                         $warna = 'bg-secondary';
-                                        if ($row['departemen'] == 'MTN') $warna = 'bg-success';
-                                        if ($row['departemen'] == 'PRD') $warna = 'bg-primary';
-                                        if ($row['departemen'] == 'QA') $warna = 'bg-danger';
+                                        if ($row['departemen'] == 'MTN') $warna = 'bg-primary shadow'; // Biru untuk MTN
+                                        if ($row['departemen'] == 'PRD') $warna = 'bg-warning text-white shadow'; // Orange/putih untuk PRD
+                                        if ($row['departemen'] == 'QA') $warna = 'bg-danger shadow'; // Merah untuk QA
                                         ?>
                                         <span class="badge <?= $warna ?> rounded-pill"><?= esc($row['departemen']) ?></span>
-                                    </td>
-                                    <td>
+                                    </td>                                    <td>
                                         <?php
                                         $warna = 'bg-secondary';
-                                        if ($row['seksi'] == 'Prod. 1') $warna = 'bg-warning';
-                                        if ($row['seksi'] == 'Prod. 2') $warna = 'bg-primary';
-                                        if ($row['seksi'] == 'Prod. 3') $warna = 'bg-danger';
-                                        if ($row['seksi'] == 'MTN') $warna = 'bg-success';
+                                        if ($row['seksi'] == 'Prod. 1') $warna = 'bg-warning text-white shadow'; // Orange/putih untuk Prod
+                                        if ($row['seksi'] == 'Prod. 2') $warna = 'bg-warning text-white shadow'; // Orange/putih untuk Prod
+                                        if ($row['seksi'] == 'Prod. 3') $warna = 'bg-warning text-white shadow'; // Orange/putih untuk Prod
+                                        if ($row['seksi'] == 'MTN') $warna = 'bg-primary shadow'; // Biru untuk MTN
                                         ?>
                                         <span class="badge <?= $warna ?> rounded-pill"><?= esc($row['seksi']) ?></span>
                                     </td>

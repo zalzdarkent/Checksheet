@@ -196,6 +196,42 @@
                             </td>
                         <?php endfor; ?>
                     </tr>
+                    <tr>
+                        <td colspan="4"><label class="fw-bold">Diisi oleh (GMT): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    data-bs-title="Pilih GMT yang sesuai">(?)</span></label></td>
+                        <?php for ($i = 1; $i <= $jumlahKolom; $i++): ?>
+                            <td class="text-center">
+                                <?php if ($isSubmitted): ?>
+                                    <?php if (isset($gmtArray[$i]) && !empty($gmtArray[$i])): ?>
+                                        <span class="badge bg-info">
+                                            <?= $gmtArray[$i] ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Belum diisi</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <select class="form-select" name="gmt[<?= $i ?>]">
+                                        <option value="" disabled <?= !isset($gmtArray[$i]) ? 'selected' : '' ?>>Pilih GMT</option>
+                                        <option value="Ardi Setio Nugroho" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Ardi Setio Nugroho') ? 'selected' : '' ?>>Ardi Setio Nugroho</option>
+                                        <option value="Komarudin" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Komarudin') ? 'selected' : '' ?>>Komarudin</option>
+                                        <option value="Yoga" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Yoga') ? 'selected' : '' ?>>Yoga</option>
+                                        <option value="Parmugio" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Parmugio') ? 'selected' : '' ?>>Parmugio</option>
+                                        <option value="Latif Febrianto" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Latif Febrianto') ? 'selected' : '' ?>>Latif Febrianto</option>
+                                        <option value="Musbihin" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Musbihin') ? 'selected' : '' ?>>Musbihin</option>
+                                        <option value="Narman" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Narman') ? 'selected' : '' ?>>Narman</option>
+                                        <option value="Achmad S" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Achmad S') ? 'selected' : '' ?>>Achmad S</option>
+                                        <option value="Subhan" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Subhan') ? 'selected' : '' ?>>Subhan</option>
+                                        <option value="Irfan" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Irfan') ? 'selected' : '' ?>>Irfan</option>
+                                        <option value="Johan" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Johan') ? 'selected' : '' ?>>Johan</option>
+                                        <option value="Kiki" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Kiki') ? 'selected' : '' ?>>Kiki</option>
+                                        <option value="Ficky" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Ficky') ? 'selected' : '' ?>>Ficky</option>
+                                    </select>
+                                <?php endif; ?>
+                            </td>
+                        <?php endfor; ?>
+                    </tr>
                     <?php if ($showRunHour): ?>
                         <!-- Run Hour section -->
                         <tr>
@@ -249,7 +285,7 @@
                             <?php endfor; ?>
                         </tr>
                     <?php endif; ?>
-                    
+
                     <?php if ($showRunLoad): ?>
                         <!-- Temperature section -->
                         <tr>

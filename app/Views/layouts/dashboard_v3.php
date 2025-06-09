@@ -251,14 +251,14 @@
     </form>
 
     <!-- Search Box -->
-    <div class="mb-4">
+    <!-- <div class="mb-4">
         <div class="input-group" style="max-width: 400px;">
             <span class="input-group-text bg-gradient-primary text-white border-0">
                 <i class="bi bi-search"></i>
             </span>
             <input type="text" id="searchMachine" class="form-control shadow-sm" placeholder="Cari berdasarkan ID Mesin atau Nama Mesin...">
         </div>
-    </div>
+    </div> -->
 
     <div class="table-responsive">
         <table id="checksheetTable" class="table table-hover align-middle text-center">
@@ -372,99 +372,6 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    // Initialize tooltips
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-
-        // Initialize autocomplete
-        $("#searchMachine").autocomplete({
-            source: function(request, response) {
-                // Get all machine data from the table
-                var machines = [];
-                $("table tbody tr").each(function() {
-                    var machineName = $(this).find("td:first-child span").text().trim();
-                    var machineId = $(this).find("td:nth-child(2) .badge").text().trim();
-                    machines.push({
-                        label: machineId + " - " + machineName,
-                        value: machineId,
-                        machineName: machineName
-                    });
-                });
-
-                // Filter results
-                var results = $.ui.autocomplete.filter(machines, request.term);
-
-                if (results.length === 0) {
-                    // Jika tidak ada hasil, tambahkan pesan
-                    results.push({
-                        label: "Tidak ditemukan mesin dengan kata kunci '" + request.term + "'",
-                        value: "",
-                        machineName: ""
-                    });
-                }
-
-                response(results);
-            },
-            minLength: 2,
-            select: function(event, ui) {
-                if (ui.item.value === "") {
-                    // Jika yang dipilih adalah pesan "tidak ditemukan", jangan lakukan apa-apa
-                    event.preventDefault();
-                    return false;
-                }
-
-                // Highlight the selected row
-                $("table tbody tr").removeClass("table-primary");
-                $("table tbody tr").each(function() {
-                    var machineId = $(this).find("td:nth-child(2) .badge").text().trim();
-                    if (machineId === ui.item.value) {
-                        $(this).addClass("table-primary");
-                        // Scroll to the row
-                        $('html, body').animate({
-                            scrollTop: $(this).offset().top - 100
-                        }, 500);
-                    }
-                });
-            },
-            focus: function(event, ui) {
-                if (ui.item.value === "") {
-                    // Jika yang difokus adalah pesan "tidak ditemukan", jangan lakukan apa-apa
-                    event.preventDefault();
-                    return false;
-                }
-                $("#searchMachine").val(ui.item.label);
-                return false;
-            }
-        }).data("ui-autocomplete")._renderItem = function(ul, item) {
-            if (item.value === "") {
-                // Render pesan "tidak ditemukan" dengan style yang berbeda
-                return $("<li>")
-                    .append(`<div class="text-muted p-2">
-                        <i class="bi bi-search me-2"></i>${item.label}
-                    </div>`)
-                    .appendTo(ul);
-            }
-
-            return $("<li>")
-                .append(`<div class="d-flex align-items-center">
-                    <span class="badge bg-primary bg-opacity-10 text-primary me-2">${item.value}</span>
-                    <span>${item.machineName}</span>
-                </div>`)
-                .appendTo(ul);
-        };
-
-        // Clear search and highlighting when clicking outside
-        $(document).click(function(e) {
-            if (!$(e.target).closest("#searchMachine").length) {
-                $("#searchMachine").val("");
-                $("table tbody tr").removeClass("table-primary");
-            }
-        });
-    });
-
     function showNGDetails(machineId, machineName, day) {
         // Format tanggal sesuai dengan format di database (YYYY-MM-DD)
         const formattedDate = `<?= $bulan ?>-${day.toString().padStart(2, '0')}`;
@@ -545,39 +452,110 @@
 
     // Tambahkan ini di dalam section scripts
     document.addEventListener('DOMContentLoaded', function() {
-        // Inisialisasi DataTable
-        let table = $('#checksheetTable').DataTable({
+        // Cache DOM elements
+        const $table = $('#checksheetTable');
+        const $searchInput = $('#searchMachine');
+        
+        // Inisialisasi DataTable dengan optimasi
+        let table = $table.DataTable({
+            dom: '<"row"<"col-md-6"l><"col-md-6"f>>' +
+                 '<"row"<"col-12"tr>>' +
+                 '<"row"<"col-md-5"i><"col-md-7"p>>',
             scrollX: true,
             scrollY: '70vh',
             scrollCollapse: true,
-            paging: false,
+            paging: true,  // Enable pagination
+            pageLength: 25, // Show 25 rows per page
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]], // Custom length menu
             fixedColumns: {
-                left: 2
+                left: 2,
+                heightMatch: 'none'
             },
+            deferRender: true,    // Improve performance for large datasets
             ordering: false,
-            info: false,
+            info: true,
             autoWidth: false,
-            searching: false,
+            searching: true,
+            searchDelay: 350,     // Delay untuk pencarian
+            processing: true,     // Show processing indicator
             language: {
                 search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ data",
                 zeroRecords: "Data tidak ditemukan",
                 info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
                 infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
-                infoFiltered: "(disaring dari _MAX_ total data)"
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'
+            },
+            createdRow: function(row, data, dataIndex) {
+                // Tambahkan event listener untuk highlight row saat hover
+                $(row).hover(
+                    function() { $(this).addClass('table-hover'); },
+                    function() { $(this).removeClass('table-hover'); }
+                );
             },
             initComplete: function() {
-                // Tambahkan kelas custom untuk styling
-                $('.dataTables_wrapper').addClass('bg-white rounded-4 shadow-sm p-3');
+                // Style wrapper
+                $('.dataTables_wrapper')
+                    .addClass('bg-white rounded-4 shadow-sm p-3')
+                    .css('opacity', '0')
+                    .animate({ opacity: 1 }, 200);
 
-                // Sesuaikan lebar kolom fixed
+                // Optimize fixed columns
                 $('.DTFC_LeftWrapper').css('width', '400px');
                 $('.DTFC_LeftWrapper th, .DTFC_LeftWrapper td').css('min-width', '200px');
+
+                // Enhanced search functionality with debounce
+                let searchTimeout;
+                $searchInput
+                    .off('keyup.DT') // Remove default DataTables search
+                    .on('keyup', function() {
+                        const $this = $(this);
+                        clearTimeout(searchTimeout);
+                        
+                        searchTimeout = setTimeout(() => {
+                            const searchValue = $this.val();
+                            
+                            // Optimize search performance
+                            requestAnimationFrame(() => {
+                                table.search(searchValue).draw();
+                                
+                                if (searchValue) {
+                                    const $firstMatch = $(table.rows({filter: 'applied'}).nodes()[0]);
+                                    if ($firstMatch.length) {
+                                        $("table tbody tr").removeClass("table-primary");
+                                        $firstMatch.addClass("table-primary");
+                                        
+                                        // Smooth scroll dengan RAF
+                                        requestAnimationFrame(() => {
+                                            $('html, body').animate({
+                                                scrollTop: $firstMatch.offset().top - 100
+                                            }, 300);
+                                        });
+                                    }
+                                } else {
+                                    $("table tbody tr").removeClass("table-primary");
+                                }
+                            });
+                        }, 300);
+                    });
+
+                // Optimize scrolling performance
+                $('.dataTables_scrollBody').on('scroll', function() {
+                    requestAnimationFrame(() => {
+                        const scrollLeft = $(this).scrollLeft();
+                        $('.dataTables_scrollHead').scrollLeft(scrollLeft);
+                    });
+                });
             }
         });
 
-        // Integrasi dengan search box yang sudah ada
-        $('#searchMachine').on('keyup', function() {
-            table.search(this.value).draw();
+        // Optimize table redraw
+        table.on('draw', function() {
+            requestAnimationFrame(() => {
+                // Re-apply any custom styling or event handlers after table redraw
+                $("table tbody tr").removeClass("table-primary");
+            });
         });
     });
 

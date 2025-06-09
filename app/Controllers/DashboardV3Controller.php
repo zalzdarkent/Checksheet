@@ -40,8 +40,9 @@ class DashboardV3Controller extends BaseController
             $filterMonth = $currentMonth;
         }
 
-        // Build the formatted filter month-year
-        $filterMonthFormatted = sprintf('%04d-%02d', $filterYear, $filterMonth);
+        // Build the date range for the selected month
+        $startDate = sprintf('%s-%s-01', $filterYear, $filterMonth);
+        $endDate = date('Y-m-t', strtotime($startDate));
 
         // Calculate the number of days in the selected month
         $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $filterMonth, $filterYear);
@@ -58,7 +59,7 @@ class DashboardV3Controller extends BaseController
             END as status
         ")
         ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id', 'left')
-        ->where('preuse_tb_checksheet.bulan', $filterMonthFormatted)
+        ->where("preuse_tb_checksheet.bulan BETWEEN '$startDate' AND '$endDate'")
         ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');
 
         if (!empty($filterMesin)) {
@@ -70,7 +71,7 @@ class DashboardV3Controller extends BaseController
         // Get unique machines for filter dropdown (always show all types)
         $machines = $this->checksheetModel->select("id_machine, mesin")
             ->distinct()
-            ->where('bulan', $filterMonthFormatted)
+            ->where("bulan BETWEEN '$startDate' AND '$endDate'")
             ->orderBy('id_machine')
             ->findAll();
 
@@ -127,7 +128,7 @@ class DashboardV3Controller extends BaseController
             'filterBulan' => $filterBulan,
             'filterMesin' => $filterMesin,
             'jumlahHari' => $jumlahHari,
-            'bulan' => $filterMonthFormatted
+            'bulan' => sprintf('%s-%s', $filterYear, $filterMonth) // Format for view
         ];
 
         return view('layouts/dashboard_v3', $data);

@@ -168,7 +168,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load    ')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load, gmt')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -187,8 +187,9 @@ class ChecksheetController extends BaseController
         // Buat array status berdasarkan item_check dan tanggal
         $statusArray = [];
         $npkArray = [];
+        $gmtArray = [];
         $isSubmitted = false;
-        $deletedItemChecks = []; // Array untuk menyimpan item_check yang dihapus
+        $deletedItemChecks = [];
 
         // Pertama, cek apakah ada data yang submitted dan kumpulkan item_check yang dihapus
         foreach ($detailChecksheet as $row) {
@@ -196,14 +197,10 @@ class ChecksheetController extends BaseController
                 $isSubmitted = true;
             }
 
-            // Tambahkan item_check ke deletedItemChecks jika memiliki deleted_at
             if (!empty($row['deleted_at'])) {
                 $deletedItemChecks[] = $row['item_check'];
             }
         }
-
-        // Debug deletedItemChecks
-        // dd($deletedItemChecks);
 
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
@@ -211,10 +208,14 @@ class ChecksheetController extends BaseController
             $statusArray[$row['item_check']][$row['kolom']] = [
                 'status' => $row['status'],
                 'is_resolved' => $row['is_resolved'],
-                'deleted_at' => $row['deleted_at'] // Tambahkan deleted_at ke statusArray
+                'deleted_at' => $row['deleted_at']
             ];
             if (!empty($row['id_karyawan'])) {
                 $npkArray[$row['kolom']] = $row['id_karyawan'];
+            }
+            // Simpan GMT ke array terpisah berdasarkan kolom
+            if (!empty($row['gmt'])) {
+                $gmtArray[$row['kolom']] = $row['gmt'];
             }
         }
 
@@ -237,17 +238,15 @@ class ChecksheetController extends BaseController
             'npkArray' => $npkArray,
             'isSubmitted' => $isSubmitted,
             'karyawanList' => $karyawanList,
-            'deletedItemChecks' => $deletedItemChecks, // Tambahkan data yang dihapus ke view
-            'runHourArray' => $runHourArray, // Kirim data run_hour ke view
-            'runLoadArray' => $runLoadArray, // Kirim data run_load ke view
-            'temperatureArray' => $temperatureArray, // Kirim data temperature ke view
-            'showRunHour' => (bool)$master['run_hour'],     // Tambahkan flag untuk run_hour
-            'showRunLoad' => (bool)$master['run_load'],     // Tambahkan flag untuk run_load
-            'showTemperature' => (bool)$master['temperature']
+            'deletedItemChecks' => $deletedItemChecks,
+            'runHourArray' => $runHourArray,
+            'runLoadArray' => $runLoadArray,
+            'temperatureArray' => $temperatureArray,
+            'showRunHour' => (bool)$master['run_hour'],
+            'showRunLoad' => (bool)$master['run_load'],
+            'showTemperature' => (bool)$master['temperature'],
+            'gmtArray' => $gmtArray
         ];
-
-        // Debug data yang dikirim ke view
-        // dd($data);
 
         return view('checksheet/tabel', $data);
     }
