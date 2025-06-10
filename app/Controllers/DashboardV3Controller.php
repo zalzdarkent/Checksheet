@@ -30,7 +30,7 @@ class DashboardV3Controller extends BaseController
         // Get filter parameters
         $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonthYear;
         $filterMesin = $this->request->getGet('filterMesin');
-
+        
         // Extract year and month from filterBulan
         if ($filterBulan) {
             $filterYear = substr($filterBulan, 0, 4);
@@ -39,6 +39,10 @@ class DashboardV3Controller extends BaseController
             $filterYear = $currentYear;
             $filterMonth = $currentMonth;
         }
+
+        if (empty($filterBulan)) {
+            $filterBulan = date('Y-m');
+        } 
 
         // Build the date range for the selected month
         $startDate = sprintf('%s-%s-01', $filterYear, $filterMonth);
@@ -59,7 +63,8 @@ class DashboardV3Controller extends BaseController
             END as status
         ")
         ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id', 'left')
-        ->where("preuse_tb_checksheet.bulan BETWEEN '$startDate' AND '$endDate'")
+        // ->where("preuse_tb_checksheet.bulan BETWEEN '$startDate' AND '$endDate'")
+        ->where("preuse_tb_checksheet.bulan = '$filterBulan'")
         ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');
 
         if (!empty($filterMesin)) {
@@ -71,7 +76,8 @@ class DashboardV3Controller extends BaseController
         // Get unique machines for filter dropdown (always show all types)
         $machines = $this->checksheetModel->select("id_machine, mesin")
             ->distinct()
-            ->where("bulan BETWEEN '$startDate' AND '$endDate'")
+            // ->where("bulan BETWEEN '$startDate' AND '$endDate'")
+            ->where("bulan = '$filterBulan'")
             ->orderBy('id_machine')
             ->findAll();
 
