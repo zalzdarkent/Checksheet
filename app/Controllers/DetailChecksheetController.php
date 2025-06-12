@@ -24,18 +24,18 @@ class DetailChecksheetController extends BaseController
         $model = new DetailChecksheet();
         $checksheetModel = new Checksheet();
         $statusLogModel = new StatusChangeLog();
+        // dd($this->request->getPost('run_hour'));
 
         $checksheetId = $this->request->getPost('checksheet_id');
         $statusData = $this->request->getPost('status');
         $npkData = $this->request->getPost('npk');
-        $gmtData = $this->request->getPost('gmt');
         $action = $this->request->getPost('action');
         $itemCheckData = $this->request->getPost('item_check');
         $inspeksiData = $this->request->getPost('inspeksi');
         $standarData = $this->request->getPost('standar');
-        $runHourData = $this->request->getPost('run_hour');
-        $temperaturData = $this->request->getPost('temperature');
-        $runLoadData = $this->request->getPost('run_load');
+        $runHourData = $this->request->getPost('run_hour'); // Ambil data run_hour dari input
+        $temperaturData = $this->request->getPost('temperature'); // Ambil data run_hour dari input
+        $runLoadData = $this->request->getPost('run_load'); // Ambil data run_load dari input
 
         $checksheet = $checksheetModel->find($checksheetId);
         if (!$checksheetId || !$checksheet) {
@@ -69,9 +69,6 @@ class DetailChecksheetController extends BaseController
                     'is_submitted' => $isSubmitted,
                 ];
 
-                if (!empty($gmtData[$colIndex])) {
-                    $updateData['gmt'] = $gmtData[$colIndex];
-                }
                 if (!empty($runHourData[$colIndex])) {
                     $updateData['run_hour'] = $runHourData[$colIndex];
                 }
@@ -106,13 +103,9 @@ class DetailChecksheetController extends BaseController
                         return redirect()->back()->with('error', 'NPK harus diisi untuk tanggal yang memiliki OK/NG.');
                     }
 
-                    // Ambil data bulan dari checksheet dan buat tanggal yang benar
-                    $baseDate = date_create_from_format('Y-m-d', $checksheet['bulan']);
-                    $fullDate = date_format(date_create_from_format(
-                        'Y-m-d',
-                        $baseDate->format('Y-m') . '-' . sprintf('%02d', $colIndex)
-                    ), 'Y-m-d');
+                    $fullDate = date('Y-m-d', strtotime($checksheet['bulan'] . '-' . $colIndex));
 
+                    // Get karyawan data for this column
                     $karyawan = $this->karyawanModel->find($npkData[$colIndex]);
                     if (!$karyawan) {
                         return redirect()->back()->with('error', 'Data karyawan tidak ditemukan!');
@@ -125,8 +118,8 @@ class DetailChecksheetController extends BaseController
                         'kolom' => intval($colIndex)
                     ])->first();
 
+                    // Get run_hour value if applicable
                     $itemCheckId = $itemCheckData[$rowIndex];
-                    $GmtValue = $gmtData[$colIndex] ?? null;
                     $runHourValue = $runHourData[$colIndex] ?? null;
                     $temperatureValue = $temperaturData[$colIndex] ?? null;
                     $runLoadValue = $runLoadData[$colIndex] ?? null;
@@ -142,7 +135,6 @@ class DetailChecksheetController extends BaseController
                             'standar' => $standarData[$rowIndex],
                             'status' => $status,
                             'npk' => $karyawan['npk'],
-                            'gmt' => $GmtValue,
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted,
                             'run_hour' => $runHourValue,
@@ -150,6 +142,7 @@ class DetailChecksheetController extends BaseController
                             'run_load' => $runLoadValue,
                         ]);
 
+                        // Hanya tambahkan log jika status baru adalah NG
                         if ($status === 'NG') {
                             $detailId = $model->getInsertID();
                             $statusLogModel->insert([
@@ -161,21 +154,26 @@ class DetailChecksheetController extends BaseController
                     } else {
                         // Update existing record
                         $model->update($existing['id'], [
-                            'tanggal' => $fullDate,
                             'status' => $status,
                             'npk' => $karyawan['npk'],
                             'id_karyawan' => $karyawan['id'],
                             'is_submitted' => $isSubmitted
                         ]);
 
+                        // Jika status baru adalah NG
                         if ($status === 'NG') {
+                            // Hapus log sebelumnya jika ada
                             $statusLogModel->where('detail_checksheet_id', $existing['id'])->delete();
+
+                            // Buat log baru dengan previous_status NG
                             $statusLogModel->insert([
                                 'detail_checksheet_id' => $existing['id'],
                                 'previous_status' => 'NG',
                                 'created_at' => date('Y-m-d H:i:s')
                             ]);
-                        } else if ($status === 'OK') {
+                        }
+                        // Jika status berubah menjadi OK, hapus semua log
+                        else if ($status === 'OK') {
                             $statusLogModel->where('detail_checksheet_id', $existing['id'])->delete();
                         }
                     }

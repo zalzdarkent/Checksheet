@@ -69,6 +69,7 @@ class ChecksheetController extends BaseController
 
     public function store()
     {
+        // dd($this->request->getPost());
         $validation = \Config\Services::validation();
 
         // Aturan validasi
@@ -91,10 +92,7 @@ class ChecksheetController extends BaseController
         $line = $this->request->getPost('line');
         $idMachine = $this->request->getPost('id_machine');
 
-        // Konversi format bulan ke format SQL Server (YYYY-MM-01)
-        $bulanFormatted = date('Y-m-01', strtotime($bulan));
-
-        list($master_id, $mesin_index) = explode('|', $mesinValue);
+        list($master_id, $mesin_index) = explode('|', $mesinValue); // Pisahkan ID Master dan Index Mesin
 
         // Ambil nama mesin berdasarkan index di preuse_tb_master
         $master = $this->db->table('preuse_tb_master')->where('id', $master_id)->get()->getRowArray();
@@ -108,21 +106,21 @@ class ChecksheetController extends BaseController
         // Cek apakah kombinasi mesin, line, dan bulan sudah ada
         $existingChecksheet = $this->db->table('preuse_tb_checksheet')
             ->where('master_id', $master_id)
-            ->where('id_machine', $idMachine)
+            ->where('id_machine', $idMachine)  // Ganti mesin menjadi id_machine
             ->where('line', $line)
-            ->where('bulan', $bulanFormatted) // Gunakan format tanggal yang sudah dikonversi
+            ->where('bulan', $bulan)
             ->get()
             ->getRowArray();
 
         if ($existingChecksheet) {
-            $bulanDisplay = date('F Y', strtotime($bulan));
+            $bulanFormatted = date('F Y', strtotime($bulan));
             return redirect()->back()->withInput()
-                ->with('error', "Checksheet untuk ID Machine '{$idMachine}' Line {$line} pada bulan {$bulanDisplay} sudah ada!");
+                ->with('error', "Checksheet untuk ID Machine '{$idMachine}' Line {$line} pada bulan {$bulanFormatted} sudah ada!");
         }
 
         // Data yang akan disimpan
         $data = [
-            'bulan'      => $bulanFormatted, // Gunakan format tanggal yang sudah dikonversi
+            'bulan'      => $bulan,
             'departemen' => $this->request->getPost('departemen'),
             'seksi'      => $this->request->getPost('seksi'),
             'master_id'  => $master_id,
@@ -168,7 +166,7 @@ class ChecksheetController extends BaseController
 
         // Ambil data status dari preuse_tb_detail_checksheet berdasarkan tanggal
         $detailChecksheet = $db->table('preuse_tb_detail_checksheet')
-            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load, gmt')
+            ->select('id, checksheet_id, tanggal, kolom, item_check, inspeksi, standar, status, npk, id_karyawan, is_submitted, is_resolved, deleted_at, run_hour, temperature, run_load    ')
             ->where('checksheet_id', $id)
             ->get()
             ->getResultArray();
@@ -187,9 +185,8 @@ class ChecksheetController extends BaseController
         // Buat array status berdasarkan item_check dan tanggal
         $statusArray = [];
         $npkArray = [];
-        $gmtArray = [];
         $isSubmitted = false;
-        $deletedItemChecks = [];
+        $deletedItemChecks = []; // Array untuk menyimpan item_check yang dihapus
 
         // Pertama, cek apakah ada data yang submitted dan kumpulkan item_check yang dihapus
         foreach ($detailChecksheet as $row) {
@@ -197,10 +194,14 @@ class ChecksheetController extends BaseController
                 $isSubmitted = true;
             }
 
+            // Tambahkan item_check ke deletedItemChecks jika memiliki deleted_at
             if (!empty($row['deleted_at'])) {
                 $deletedItemChecks[] = $row['item_check'];
             }
         }
+
+        // Debug deletedItemChecks
+        // dd($deletedItemChecks);
 
         // Kemudian, muat semua data terlepas dari status submitted
         foreach ($detailChecksheet as $row) {
@@ -208,14 +209,10 @@ class ChecksheetController extends BaseController
             $statusArray[$row['item_check']][$row['kolom']] = [
                 'status' => $row['status'],
                 'is_resolved' => $row['is_resolved'],
-                'deleted_at' => $row['deleted_at']
+                'deleted_at' => $row['deleted_at'] // Tambahkan deleted_at ke statusArray
             ];
             if (!empty($row['id_karyawan'])) {
                 $npkArray[$row['kolom']] = $row['id_karyawan'];
-            }
-            // Simpan GMT ke array terpisah berdasarkan kolom
-            if (!empty($row['gmt'])) {
-                $gmtArray[$row['kolom']] = $row['gmt'];
             }
         }
 
@@ -238,15 +235,17 @@ class ChecksheetController extends BaseController
             'npkArray' => $npkArray,
             'isSubmitted' => $isSubmitted,
             'karyawanList' => $karyawanList,
-            'deletedItemChecks' => $deletedItemChecks,
-            'runHourArray' => $runHourArray,
-            'runLoadArray' => $runLoadArray,
-            'temperatureArray' => $temperatureArray,
-            'showRunHour' => (bool)$master['run_hour'],
-            'showRunLoad' => (bool)$master['run_load'],
-            'showTemperature' => (bool)$master['temperature'],
-            'gmtArray' => $gmtArray
+            'deletedItemChecks' => $deletedItemChecks, // Tambahkan data yang dihapus ke view
+            'runHourArray' => $runHourArray, // Kirim data run_hour ke view
+            'runLoadArray' => $runLoadArray, // Kirim data run_load ke view
+            'temperatureArray' => $temperatureArray, // Kirim data temperature ke view
+            'showRunHour' => (bool)$master['run_hour'],     // Tambahkan flag untuk run_hour
+            'showRunLoad' => (bool)$master['run_load'],     // Tambahkan flag untuk run_load
+            'showTemperature' => (bool)$master['temperature']
         ];
+
+        // Debug data yang dikirim ke view
+        // dd($data);
 
         return view('checksheet/tabel', $data);
     }

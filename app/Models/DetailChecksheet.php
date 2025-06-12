@@ -23,6 +23,10 @@ class DetailChecksheet extends Model
         'npk',
         'gmt',
         'id_karyawan',
+        'foto_depan',
+        'foto_belakang',
+        'foto_kiri',
+        'foto_kanan',
         'is_submitted',
         'is_resolved',  // Menambahkan field untuk menandai status yang sudah resolved
         'run_hour',
