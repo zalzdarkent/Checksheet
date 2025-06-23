@@ -1,0 +1,50 @@
+[33mcommit 88f485815c8fcbfac59f9270d40a684844d7c109[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Luky Mulana <lukymulana@gmail.com>
+Date:   Tue Jun 10 14:57:23 2025 +0700
+
+    fix bug filter month
+
+[1mdiff --git a/app/Controllers/DashboardV3Controller.php b/app/Controllers/DashboardV3Controller.php[m
+[1mindex 7864288..4a298ae 100755[m
+[1m--- a/app/Controllers/DashboardV3Controller.php[m
+[1m+++ b/app/Controllers/DashboardV3Controller.php[m
+[36m@@ -30,7 +30,7 @@[m [mclass DashboardV3Controller extends BaseController[m
+         // Get filter parameters[m
+         $filterBulan = $this->request->getGet('filterBulan') ?? $currentMonthYear;[m
+         $filterMesin = $this->request->getGet('filterMesin');[m
+[31m-[m
+[32m+[m[41m        [m
+         // Extract year and month from filterBulan[m
+         if ($filterBulan) {[m
+             $filterYear = substr($filterBulan, 0, 4);[m
+[36m@@ -40,6 +40,10 @@[m [mclass DashboardV3Controller extends BaseController[m
+             $filterMonth = $currentMonth;[m
+         }[m
+ [m
+[32m+[m[32m        if (empty($filterBulan)) {[m
+[32m+[m[32m            $filterBulan = date('Y-m');[m
+[32m+[m[32m        }[m[41m [m
+[32m+[m
+         // Build the date range for the selected month[m
+         $startDate = sprintf('%s-%s-01', $filterYear, $filterMonth);[m
+         $endDate = date('Y-m-t', strtotime($startDate));[m
+[36m@@ -59,7 +63,8 @@[m [mclass DashboardV3Controller extends BaseController[m
+             END as status[m
+         ")[m
+         ->join('preuse_tb_detail_checksheet', 'preuse_tb_detail_checksheet.checksheet_id = preuse_tb_checksheet.id', 'left')[m
+[31m-        ->where("preuse_tb_checksheet.bulan BETWEEN '$startDate' AND '$endDate'")[m
+[32m+[m[32m        // ->where("preuse_tb_checksheet.bulan BETWEEN '$startDate' AND '$endDate'")[m
+[32m+[m[32m        ->where("preuse_tb_checksheet.bulan = '$filterBulan'")[m
+         ->groupBy('preuse_tb_checksheet.mesin, preuse_tb_checksheet.id_machine, preuse_tb_detail_checksheet.tanggal');[m
+ [m
+         if (!empty($filterMesin)) {[m
+[36m@@ -71,7 +76,8 @@[m [mclass DashboardV3Controller extends BaseController[m
+         // Get unique machines for filter dropdown (always show all types)[m
+         $machines = $this->checksheetModel->select("id_machine, mesin")[m
+             ->distinct()[m
+[31m-            ->where("bulan BETWEEN '$startDate' AND '$endDate'")[m
+[32m+[m[32m            // ->where("bulan BETWEEN '$startDate' AND '$endDate'")[m
+[32m+[m[32m            ->where("bulan = '$filterBulan'")[m
+             ->orderBy('id_machine')[m
+             ->findAll();[m
+ [m
