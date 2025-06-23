@@ -5,6 +5,24 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<style>
+#checksheet-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+/* Sticky columns for table */
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 2;
+}
+.sticky-col-1 { left: 0; width: 40px; min-width: 40px; max-width: 40px; z-index: 3; }
+.sticky-col-2 { left: 40px; width: 180px; min-width: 180px; max-width: 180px; }
+.sticky-col-3 { left: 220px; width: 120px; min-width: 120px; max-width: 120px; }
+.sticky-col-4 { left: 340px; width: 100px; min-width: 100px; max-width: 100px; }
+tfoot .sticky-col, thead .sticky-col { z-index: 4; background: #f8f9fa; }
+</style>
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
     <h2 class="text-center">Checksheet <?= esc($master['judul_checksheet']) ?></h2>
     <a href="<?= base_url() ?>/checksheet" class="btn btn-secondary mb-3">Kembali</a>
@@ -63,15 +81,19 @@
             <table id="checksheet-table" class="table table-bordered table-striped align-middle text-center nowrap" style="width:100%">
                 <thead>
                     <tr>
-                        <th class="custom-header">No</th>
-                        <th class="custom-header">Item Check</th>
-                        <th class="custom-header">Item Inspeksi</th>
-                        <th class="custom-header">Standar</th>
+                        <th class="custom-header sticky-col sticky-col-1" style="width:40px;min-width:40px;max-width:40px;">No</th>
+                        <th class="custom-header sticky-col sticky-col-2" style="width:180px;min-width:180px;max-width:180px;">Item Check</th>
+                        <th class="custom-header sticky-col sticky-col-3" style="width:120px;min-width:120px;max-width:120px;">Item Inspeksi</th>
+                        <th class="custom-header sticky-col sticky-col-4" style="width:100px;min-width:100px;max-width:100px;">Standar</th>
                         <?php
                         $jumlahKolom = date('t', strtotime($checksheet['bulan']));
+                        $bulan = $checksheet['bulan'];
                         for ($i = 1; $i <= $jumlahKolom; $i++):
+                            $tanggalStr = $bulan . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+                            $dayOfWeek = date('N', strtotime($tanggalStr)); // 6=Saturday, 7=Sunday
+                            $isWeekend = ($dayOfWeek == 6 || $dayOfWeek == 7);
                         ?>
-                            <th class="custom-header text-center align-middle"><?= $i ?></th>
+                            <th class="custom-header text-center align-middle"<?= $isWeekend ? ' style="background-color: red !important;"' : '' ?>><?= $i ?></th>
                             <input type="hidden" name="tanggal[<?= $i ?>]" value="<?= $i ?>">
                         <?php endfor; ?>
                     </tr>
@@ -81,19 +103,19 @@
                     <?php foreach ($detailMasters as $index => $row): ?>
                         <?php $isDeleted = in_array($row['item_check'], $deletedItemChecks ?? []); ?>
                         <tr class="<?= $isDeleted ? 'table-secondary' : '' ?>">
-                            <td><?= $no++; ?></td>
-                            <td>
+                            <td class="sticky-col sticky-col-1" style="width:40px;min-width:40px;max-width:40px;"><?= $no++; ?></td>
+                            <td class="sticky-col sticky-col-2" style="width:180px;min-width:180px;max-width:180px;">
                                 <?= esc($row['item_check']); ?>
                                 <?php if ($isDeleted): ?>
                                     <span class="badge bg-secondary">Dihapus</span>
                                 <?php endif; ?>
                                 <input type="hidden" name="item_check[<?= $index ?>]" value="<?= esc($row['item_check']); ?>">
                             </td>
-                            <td>
+                            <td class="sticky-col sticky-col-3" style="width:120px;min-width:120px;max-width:120px;">
                                 <?= esc($row['inspeksi']); ?>
                                 <input type="hidden" name="inspeksi[<?= $index ?>]" value="<?= esc($row['inspeksi']); ?>">
                             </td>
-                            <td>
+                            <td class="sticky-col sticky-col-4" style="width:100px;min-width:100px;max-width:100px;">
                                 <?= esc($row['standar']); ?>
                                 <input type="hidden" name="standar[<?= $index ?>]" value="<?= esc($row['standar']); ?>">
                             </td>
@@ -157,7 +179,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4"><label class="fw-bold">Diisi oleh (NPK): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                        <td class="sticky-col sticky-col-1" colspan="4" style="width:440px;min-width:440px;max-width:440px;"><label class="fw-bold">Diisi oleh (NPK): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     data-bs-title="Pilih NPK yang sesuai">(?)</span></label></td>
@@ -184,7 +206,7 @@
                                         <span class="badge bg-secondary">Belum diisi</span>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <select class="form-select" name="npk[<?= $i ?>]">
+                                    <select class="form-select select2" name="npk[<?= $i ?>]">
                                         <option value="">Pilih NPK</option>
                                         <?php foreach ($karyawanList as $karyawan): ?>
                                             <option value="<?= $karyawan['id'] ?>" <?= ($npkArray[$i] ?? '') == $karyawan['id'] ? 'selected' : '' ?>>
@@ -197,7 +219,7 @@
                         <?php endfor; ?>
                     </tr>
                     <tr>
-                        <td colspan="4"><label class="fw-bold">Diisi oleh (GMT): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
+                        <td class="sticky-col sticky-col-1" colspan="4" style="width:440px;min-width:440px;max-width:440px;"><label class="fw-bold">Diisi oleh (GMT): <span class="ms-1" style="cursor: help; color: #0d6efd; font-weight: bold;"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     data-bs-title="Pilih GMT yang sesuai">(?)</span></label></td>
@@ -212,7 +234,7 @@
                                         <span class="badge bg-secondary">Belum diisi</span>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <select class="form-select" name="gmt[<?= $i ?>]">
+                                    <select class="form-select select2" name="gmt[<?= $i ?>]">
                                         <option value="" disabled <?= !isset($gmtArray[$i]) ? 'selected' : '' ?>>Pilih GMT</option>
                                         <option value="Ardi Setio Nugroho" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Ardi Setio Nugroho') ? 'selected' : '' ?>>Ardi Setio Nugroho</option>
                                         <option value="Komarudin" <?= (isset($gmtArray[$i]) && $gmtArray[$i] == 'Komarudin') ? 'selected' : '' ?>>Komarudin</option>

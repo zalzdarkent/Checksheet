@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="<?= base_url('assets/bootstrap/icon/bootstrap-icons.min.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/jquery/jquery-ui.css') ?>">
     <title><?= $this->renderSection('title') ?></title>
+    <!-- Select2 CSS -->
+    <link href="<?= base_url('assets/select2.min.css') ?>" rel="stylesheet" />
     <style>
         .custom-header {
             background-color: #72A0C1 !important;
@@ -38,11 +40,16 @@
     <script src="<?= base_url('assets/jquery/jquery-ui.min.js') ?>"></script>
 
     <!-- Additional Scripts -->
-    <?= $this->renderSection('scripts') ?>
+    <?= $this->renderSection('scripts') ?>     
+    <script src="<?= base_url('assets/select2.min.js') ?>"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script> 
     <script src="<?= base_url('assets/highcharts/highchart.js') ?>"></script>
     <script src="<?= base_url('assets/datatables/datatables.min.js') ?>"></script>
     <script src="<?= base_url('assets/sweetalert/sweetalert.js') ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 
 </html>
